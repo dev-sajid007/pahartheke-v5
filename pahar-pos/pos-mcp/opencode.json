@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "pahar-pos": {
+      "type": "local",
+      "command": ["node", "/home/allex/Desktop/pahar-theke/pahar-pos/pos-mcp/src/index.js"],
+      "enabled": true
+    }
+  }
+}
