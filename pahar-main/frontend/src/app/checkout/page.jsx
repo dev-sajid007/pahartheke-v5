@@ -21,7 +21,7 @@ export default function CheckoutPage() {
 
   const cartState = useSelector((state) => state.cart)
   const items = cartState?.items || []
-  const authUser = useSelector((state) => state.auth?.user || null)
+  const authUser = useSelector((state) => state.user?.user || null)
 
   const [formData, setFormData] = useState({
     phone: "",
@@ -87,10 +87,11 @@ export default function CheckoutPage() {
     }))
   }
 
-  function handleApplyCoupon(code) {
+  function handleApplyCoupon(discountPercent) {
     setFormData((prev) => ({
       ...prev,
-      coupon_code: code,
+      coupon_code: String(discountPercent),
+      coupon_discount: discountPercent,
     }))
   }
 

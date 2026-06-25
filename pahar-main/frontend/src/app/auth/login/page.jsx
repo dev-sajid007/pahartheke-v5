@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useDispatch } from "react-redux"
-import { setUser, setToken } from "@/store/slices/userSlice"
+import { setUser, setToken } from "@/features/user/userSlice"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -40,7 +40,8 @@ export default function LoginPage() {
 
       const role = json.data.user.role
       if (role === "admin") {
-        router.push("http://localhost:3001")
+        const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001"
+        router.push(adminUrl)
       } else {
         router.push("/")
       }

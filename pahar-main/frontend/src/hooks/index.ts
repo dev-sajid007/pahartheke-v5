@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useAppDispatch } from './redux'
-import { setLoading, setError } from '@/store/slices/uiSlice'
 
 export function useAsync<T>(
   asyncFunction: () => Promise<T>,
@@ -9,24 +7,19 @@ export function useAsync<T>(
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoadingState] = useState(false)
   const [error, setErrorState] = useState<string | null>(null)
-  const dispatch = useAppDispatch()
 
   const execute = async () => {
     setLoadingState(true)
     setErrorState(null)
-    dispatch(setLoading(true))
 
     try {
       const result = await asyncFunction()
       setData(result)
-      dispatch(setError(null))
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred'
       setErrorState(errorMessage)
-      dispatch(setError(errorMessage))
     } finally {
       setLoadingState(false)
-      dispatch(setLoading(false))
     }
   }
 
@@ -50,7 +43,7 @@ export function useLocalStorage<T>(
     try {
       const item = window.localStorage.getItem(key)
       return item ? JSON.parse(item) : initialValue
-    } catch (error) {
+    } catch {
       return initialValue
     }
   })

@@ -28,7 +28,7 @@ export default function ShippingAddressForm({ formData, handleChange }) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="mb-1 block text-xs font-medium text-[#555]">
               Mobile Number <span className="text-red-500">*</span>

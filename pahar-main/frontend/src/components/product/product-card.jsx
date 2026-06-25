@@ -63,7 +63,7 @@ export default function ProductCard({ product }) {
         <button
           type="button"
           onClick={handleViewDetails}
-          className="TheamColor mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold shadow-sm transition hover:brightness-95 active:scale-[0.97]"
+          className="ThemeColor mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold shadow-sm transition hover:brightness-95 active:scale-[0.97]"
         >
           <ShoppingCart className="h-4 w-4" />
           View Details

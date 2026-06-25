@@ -31,6 +31,13 @@ const icons = [
   </div>,
 ];
 
+function getVisibleSlides() {
+  if (typeof window === "undefined") return 4
+  if (window.innerWidth < 640) return 1
+  if (window.innerWidth < 1024) return 2
+  return 4
+}
+
 const VISIBLE_SLIDES = 4
 
 export default function WhyBengalMeatSection() {
@@ -40,6 +47,7 @@ export default function WhyBengalMeatSection() {
   );
   const [steps, setSteps] = useState(DEFAULT_STEPS);
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [visibleSlides, setVisibleSlides] = useState(4)
 
   useEffect(() => {
     getSection("home", "about").then((s) => {
@@ -59,13 +67,24 @@ export default function WhyBengalMeatSection() {
           if (s.subtitle) setDescription(s.subtitle);
         }
       }
-    }).catch(() => {});
+    }).catch((err) => { console.error("About data fetch failed:", err); });
   }, []);
 
+  useEffect(() => {
+    const update = () => setVisibleSlides(getVisibleSlides())
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
+
   const maxIndex = useMemo(
-    () => Math.max(0, steps.length - VISIBLE_SLIDES),
-    [steps]
+    () => Math.max(0, steps.length - visibleSlides),
+    [steps, visibleSlides]
   )
+
+  useEffect(() => {
+    if (currentIndex > maxIndex) setCurrentIndex(0)
+  }, [maxIndex, currentIndex])
 
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(0, prev - 1))
@@ -74,6 +93,8 @@ export default function WhyBengalMeatSection() {
   const handleNext = () => {
     setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
   }
+
+  const translatePercent = visibleSlides > 0 ? 100 / visibleSlides : 100
 
   const canGoPrev = currentIndex > 0
   const canGoNext = currentIndex < maxIndex
@@ -92,11 +113,11 @@ export default function WhyBengalMeatSection() {
     <section className="bg-[#f1f1f1] bg-gradient-to-br from-green-400/25 via-transparent to-yellow-400/25 py-12">
       <div className="mx-auto max-w-[1180px] px-4">
         <div className="mx-auto max-w-[980px] text-center">
-          <h2 className="text-[32px] font-bold tracking-tight text-[#2c2c2c]">
+          <h2 className="text-2xl sm:text-3xl md:text-[32px] font-bold tracking-tight text-[#2c2c2c]">
             {heading}
           </h2>
 
-          <p className="mx-auto mt-3 max-w-[1000px] text-[15px] leading-8 text-[#2f2f2f]">
+          <p className="mx-auto mt-3 max-w-[1000px] text-[14px] sm:text-[15px] leading-7 sm:leading-8 text-[#2f2f2f]">
             {description}
           </p>
         </div>
@@ -106,7 +127,7 @@ export default function WhyBengalMeatSection() {
             onClick={handlePrev}
             disabled={!canGoPrev}
             aria-label="Previous slide"
-            className="absolute left-[-30px] top-1/2 z-10 flex -translate-y-1/2 items-center justify-center"
+            className="absolute left-0 md:left-[-20px] top-1/2 z-10 flex -translate-y-1/2 items-center justify-center"
           >
             <span
               className={`flex h-10 w-10 items-center justify-center rounded-md border transition ${
@@ -123,7 +144,7 @@ export default function WhyBengalMeatSection() {
             onClick={handleNext}
             disabled={!canGoNext}
             aria-label="Next slide"
-            className="absolute right-[-30px] top-1/2 z-10 flex -translate-y-1/2 items-center justify-center"
+            className="absolute right-0 md:right-[-20px] top-1/2 z-10 flex -translate-y-1/2 items-center justify-center"
           >
             <span
               className={`flex h-10 w-10 items-center justify-center rounded-md border transition ${
@@ -140,7 +161,7 @@ export default function WhyBengalMeatSection() {
             <div
               className="flex transition-transform duration-700 ease-in-out"
               style={{
-                transform: `translateX(-${currentIndex * 25}%)`,
+                transform: `translateX(-${currentIndex * translatePercent}%)`,
               }}
             >
               {steps.map((step, index) => {

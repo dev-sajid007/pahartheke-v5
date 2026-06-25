@@ -2,13 +2,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, setCartOpen } from "@/store/slices/cartSlice";
+import { addToCart, setCartOpen } from "@/features/cart/cartSlice";
 import { toast } from "sonner";
 import Header from "@/components/common/header";
 import Footer from "@/components/common/footer";
+import { CONTACT } from "@/config/contact";
 import "./product-details.css";
 
-const WHATSAPP_NUMBER = "8801531532139";
+const WHATSAPP_NUMBER = CONTACT.whatsapp;
 
 const ProductPage = () => {
   const params = useParams();
@@ -55,7 +56,10 @@ const ProductPage = () => {
           );
           if (matched) setProduct(matched);
         }
-      } catch {}
+      } catch (err) {
+        console.error("Failed to fetch product:", err);
+        toast.error("Failed to load product. Please try again.");
+      }
     };
     fetchProduct();
   }, [slug]);
@@ -301,7 +305,14 @@ const ProductPage = () => {
 
             {activeTab === "reviews" && (
               <div className="tab-content">
-                <p className="tab-text">কোনো রিভিউ এখনো যোগ করা হয়নি।</p>
+                <div style={{ textAlign: "center", padding: "20px 0" }}>
+                  <p className="tab-text" style={{ fontSize: 15, color: "#666" }}>
+                    No reviews yet. Be the first to review this product!
+                  </p>
+                  <p className="tab-text" style={{ fontSize: 13, color: "#999", marginTop: 6 }}>
+                    কোনো রিভিউ এখনো যোগ করা হয়নি।
+                  </p>
+                </div>
               </div>
             )}
           </div>

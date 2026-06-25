@@ -42,7 +42,7 @@ export default function HeroSection() {
           bgVideo: s.heroImage || DEFAULTS.bgVideo,
         });
       }
-    }).catch(() => {});
+    }).catch((err) => { console.error("Hero data fetch failed:", err); });
   }, []);
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function HeroSection() {
           <div className="max-w-4xl space-y-4 md:space-y-6">
             <div className="pt-2">
               <Link href="/">
-                <Button className="h-12 rounded-md TheamColor px-6 text-base font-semibold text-black hover:bg-yellow-300">
+                <Button className="h-12 rounded-md ThemeColor px-6 text-base font-semibold text-black hover:bg-yellow-300">
                   {sectionButton}
                 </Button>
               </Link>

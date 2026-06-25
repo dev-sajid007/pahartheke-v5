@@ -1,37 +1,36 @@
 import axios from 'axios'
-import { store } from '@/store'
-import { logout } from '@/store/slices/userSlice'
-import { config } from '@/config'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api'
 
 const api = axios.create({
-  baseURL: config.api.baseUrl,
-  timeout: config.api.timeout,
+  baseURL: API_BASE_URL,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Request interceptor to add auth token
 api.interceptors.request.use(
   (reqConfig) => {
-    const token = store.getState().user.token
-    if (token) {
-      reqConfig.headers.Authorization = `Bearer ${token}`
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem('auth_token')
+      if (token) {
+        reqConfig.headers.Authorization = `Bearer ${token}`
+      }
     }
     return reqConfig
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
-// Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      store.dispatch(logout())
-      // Redirect to login page or handle unauthorized access
+      if (typeof window !== "undefined") {
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('user')
+      }
     }
     return Promise.reject(error)
   }

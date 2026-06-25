@@ -37,21 +37,21 @@ export default function InvestSection() {
           });
         } catch {}
       }
-    }).catch(() => {});
+    }).catch((err) => { console.error("Invest data fetch failed:", err); });
   }, []);
 
   const { SectionBgBanner, SectionTitle, ButtonText, features } = data;
 
   return (
-    <section className="w-full hidden md:block">
+    <section className="w-full">
       <div className="flex h-[48px] items-center justify-center bg-white">
-        <h2 className="text-[16px] font-bold uppercase tracking-wide text-[#0f172a]">
+        <h2 className="text-[14px] sm:text-[16px] font-bold uppercase tracking-wide text-[#0f172a]">
           {SectionTitle}
         </h2>
       </div>
 
       <div
-        className="relative h-[280px] w-full"
+        className="relative h-[200px] sm:h-[240px] md:h-[280px] w-full"
         style={{
           backgroundImage: `url('${SectionBgBanner}')`,
           backgroundSize: "cover",

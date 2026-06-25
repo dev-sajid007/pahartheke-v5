@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
   items: [],
+  isOpen: false,
 }
 
 const cartSlice = createSlice({
@@ -21,6 +22,7 @@ const cartSlice = createSlice({
           quantity: action.payload.quantity || 1,
         })
       }
+      state.isOpen = true
     },
 
     removeFromCart: (state, action) => {
@@ -39,10 +41,19 @@ const cartSlice = createSlice({
 
     clearCart: (state) => {
       state.items = []
+      state.isOpen = false
     },
 
     hydrateCart: (state, action) => {
       state.items = action.payload || []
+    },
+
+    setCartOpen: (state, action) => {
+      state.isOpen = action.payload
+    },
+
+    toggleCart: (state) => {
+      state.isOpen = !state.isOpen
     },
   },
 })
@@ -54,6 +65,8 @@ export const {
   decreaseQty,
   clearCart,
   hydrateCart,
+  setCartOpen,
+  toggleCart,
 } = cartSlice.actions
 
 export default cartSlice.reducer

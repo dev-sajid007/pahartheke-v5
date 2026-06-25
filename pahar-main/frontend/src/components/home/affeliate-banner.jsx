@@ -37,21 +37,21 @@ export default function EarnMoneySection() {
           });
         } catch {}
       }
-    }).catch(() => {});
+    }).catch((err) => { console.error("Affiliate data fetch failed:", err); });
   }, []);
 
   const { SectionBgBanner, SectionTitle, ctaButtonText, steps } = data;
 
   return (
-    <section className="w-full hidden md:block">
+    <section className="w-full">
       <div className="flex h-[50px] items-center justify-center bg-white">
-        <h2 className="text-[15px] font-bold uppercase tracking-tight text-[#0f172a]">
+        <h2 className="text-[13px] sm:text-[15px] font-bold uppercase tracking-tight text-[#0f172a]">
           {SectionTitle}
         </h2>
       </div>
 
       <div
-        className="relative h-[282px] w-full overflow-hidden"
+        className="relative h-[200px] sm:h-[240px] md:h-[282px] w-full overflow-hidden"
         style={{
           backgroundImage: `url('${SectionBgBanner}')`,
           backgroundSize: "cover",

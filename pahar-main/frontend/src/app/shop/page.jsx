@@ -3,9 +3,12 @@
 import Footer from "@/components/common/footer";
 import Header from "@/components/common/header";
 import ShopSidebar from "@/components/common/Sidebar";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/features/cart/cartSlice";
+import { toast } from "sonner";
 
-const PRODUCTS = [
+const FALLBACK_PRODUCTS = [
   {
     id: 1,
     name: "Kalo Jeera Honey",
@@ -13,7 +16,7 @@ const PRODUCTS = [
     price: 480,
     originalPrice: 600,
     badge: "Organic",
-    emoji: "🍯",
+    emoji: "\uD83C\uDF6F",
     category: "honey-bee",
     tags: ["Organic", "Raw"],
     inStock: true,
@@ -26,7 +29,7 @@ const PRODUCTS = [
     price: 180,
     originalPrice: null,
     badge: "Hilltract",
-    emoji: "🌾",
+    emoji: "\uD83C\uDF3E",
     category: "rice-grains",
     tags: ["Hilltract", "Natural"],
     inStock: true,
@@ -39,7 +42,7 @@ const PRODUCTS = [
     price: 220,
     originalPrice: 280,
     badge: "Organic",
-    emoji: "🟡",
+    emoji: "\uD83D\uDFE1",
     category: "spices-herbs",
     tags: ["Organic", "Traditional"],
     inStock: true,
@@ -52,7 +55,7 @@ const PRODUCTS = [
     price: 150,
     originalPrice: null,
     badge: null,
-    emoji: "🍈",
+    emoji: "\uD83C\uDF48",
     category: "fruits-dry",
     tags: ["Seasonal", "Natural"],
     inStock: true,
@@ -65,7 +68,7 @@ const PRODUCTS = [
     price: 320,
     originalPrice: 380,
     badge: "Organic",
-    emoji: "🫙",
+    emoji: "\uD83E\uDED9",
     category: "oils-ghee",
     tags: ["Organic", "Raw"],
     inStock: true,
@@ -78,13 +81,38 @@ const PRODUCTS = [
     price: 550,
     originalPrice: 700,
     badge: "Organic",
-    emoji: "🐝",
+    emoji: "\uD83D\uDC1D",
     category: "honey-bee",
     tags: ["Organic", "Raw", "Natural"],
     inStock: true,
     isNew: false,
   },
 ];
+
+const FALLBACK_CATEGORIES = [
+  { label: "All Products", value: "" },
+  { label: "Rice & Grains", value: "rice-grains" },
+  { label: "Honey & Bee", value: "honey-bee" },
+  { label: "Spices & Herbs", value: "spices-herbs" },
+  { label: "Fruits & Dry", value: "fruits-dry" },
+  { label: "Oils & Ghee", value: "oils-ghee" },
+];
+
+function normalizeProduct(p, index) {
+  return {
+    id: p._id || p.id || `prod-${index}`,
+    name: p.name || "Product",
+    desc: p.description || "",
+    price: p.salePrice || p.price || 0,
+    originalPrice: p.salePrice && p.price ? p.price : null,
+    badge: p.tags?.[0] || null,
+    emoji: p.image?.[0] || (p.images?.[0] || "\uD83D\uDED2"),
+    category: typeof p.category === "object" ? p.category?.slug : (p.category || ""),
+    tags: p.tags || [],
+    inStock: (p.currentStock > 0 || p.stock > 0 || true),
+    isNew: false,
+  };
+}
 
 const CATEGORIES = [
   { label: "All Products", value: "" },
@@ -105,6 +133,11 @@ const TAGS = [
 ];
 
 export default function ShopPage() {
+  const dispatch = useDispatch();
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
@@ -113,8 +146,60 @@ export default function ShopPage() {
   const [sort, setSort] = useState("featured");
   const [showFilter, setShowFilter] = useState(false);
 
+  useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      try {
+        const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+        if (searchParams.has("search")) {
+          setSearch(searchParams.get("search"));
+        }
+
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetch("/api/products", { cache: "no-store" }),
+          fetch("/api/categories", { cache: "no-store" }),
+        ]);
+
+        let fetchedProducts = FALLBACK_PRODUCTS;
+        let fetchedCategories = FALLBACK_CATEGORIES;
+
+        if (productsRes.ok) {
+          const json = await productsRes.json();
+          const raw = json.data || json.products || [];
+          if (raw.length) {
+            fetchedProducts = raw.map(normalizeProduct);
+            const allTags = [...new Set(fetchedProducts.flatMap((p) => p.tags))];
+            setTags(allTags);
+          }
+        }
+
+        if (categoriesRes.ok) {
+          const json = await categoriesRes.json();
+          const raw = json.data || json.categories || [];
+          if (raw.length) {
+            fetchedCategories = [
+              { label: "All Products", value: "" },
+              ...raw.map((c) => ({ label: c.name, value: c.slug })),
+            ];
+          }
+        }
+
+        setProducts(fetchedProducts);
+        setCategories(fetchedCategories);
+      } catch (err) {
+        console.error("Shop data fetch failed:", err);
+        setProducts(FALLBACK_PRODUCTS);
+        setCategories(FALLBACK_CATEGORIES);
+        toast.error("Could not load products. Showing demo data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   const filteredProducts = useMemo(() => {
-    let items = [...PRODUCTS];
+    let items = [...(products.length ? products : FALLBACK_PRODUCTS)];
 
     if (category) {
       items = items.filter((item) => item.category === category);
@@ -290,6 +375,8 @@ export default function ShopPage() {
           {/* DESKTOP SIDEBAR */}
           <aside className="hidden lg:block sticky top-20 h-fit">
             <ShopSidebar
+                categories={categories}
+                tags={tags}
                 category={category}
                 setCategory={setCategory}
                 maxPrice={maxPrice}
@@ -344,7 +431,13 @@ export default function ShopPage() {
             </div>
 
             {/* PRODUCT GRID */}
-            <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-4">
+                <div className="h-10 w-10 border-4 border-green-200 border-t-green-700 rounded-full animate-spin" />
+                <p className="text-sm text-gray-500">Loading products...</p>
+              </div>
+            ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
               {filteredProducts.map((product) => {
                 const discount = product.originalPrice
                   ? Math.round(
@@ -405,6 +498,17 @@ export default function ShopPage() {
 
                         <button
                           disabled={!product.inStock}
+                          onClick={() => {
+                            if (!product.inStock) return;
+                            dispatch(addToCart({
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              image: product.emoji,
+                              quantity: 1,
+                            }));
+                            toast.success(`${product.name} added to cart`);
+                          }}
                           className={`w-full sm:w-auto px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition ${
                             product.inStock
                               ? "bg-green-700 text-white hover:bg-green-900"
@@ -421,9 +525,10 @@ export default function ShopPage() {
                 );
               })}
             </div>
+            )}
 
             {/* EMPTY */}
-            {!filteredProducts.length && (
+            {!loading && !filteredProducts.length && (
               <div className="text-center py-16 text-gray-500">
                 <h3 className="text-xl font-bold mb-2">
                   No products found
@@ -459,6 +564,8 @@ export default function ShopPage() {
             </div>
 
             <ShopSidebar 
+              categories={categories}
+              tags={tags}
               category={category}
               setCategory={setCategory}
               maxPrice={maxPrice}

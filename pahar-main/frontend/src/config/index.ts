@@ -5,7 +5,7 @@ export const config = {
     url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
   },
   api: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || '/api',
+    baseUrl: process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000/api',
     timeout: 10000,
   },
   auth: {

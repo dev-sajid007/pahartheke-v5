@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Header from "@/components/common/header";
+import Footer from "@/components/common/footer";
+import { CONTACT } from "@/config/contact";
+
+function handleInvestClick() {
+  window.open(`https://wa.me/${CONTACT.whatsapp}?text=I'm interested in investing with Pahar Theke`, "_blank");
+}
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -143,6 +150,7 @@ function HeroSection() {
               ))}
             </ul>
             <button
+              onClick={handleInvestClick}
               className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wider transition-all duration-200"
               style={{
                 background: "#1B5115",
@@ -303,6 +311,7 @@ function InvestmentPlansSection() {
                   View Details
                 </button>
                 <button
+                  onClick={handleInvestClick}
                   className="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200"
                   style={{ background: "#1B5115", color: "#fff" }}
                   onMouseEnter={btnYellow}
@@ -347,6 +356,7 @@ function FranchiseeSection() {
           food brand.
         </p>
         <button
+          onClick={handleInvestClick}
           className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all duration-200"
           style={{ background: "#facc15", color: "#1B5115" }}
           onMouseEnter={btnWhiteIn}
@@ -420,6 +430,7 @@ function FactSheetSection() {
             </p>
           </div>
           <button
+            onClick={handleInvestClick}
             className="flex-shrink-0 px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all duration-200"
             style={{ background: "#1B5115", color: "#facc15" }}
             onMouseEnter={btnYellow}
@@ -437,12 +448,16 @@ function FactSheetSection() {
 
 export default function KhaasFoodInvestmentPage() {
   return (
-    <main className="font-sans antialiased">
-      <HeroSection />
-      <TractionSection />
-      <InvestmentPlansSection />
-      <FranchiseeSection />
-      <FactSheetSection />
-    </main>
+    <>
+      <Header />
+      <main className="font-sans antialiased">
+        <HeroSection />
+        <TractionSection />
+        <InvestmentPlansSection />
+        <FranchiseeSection />
+        <FactSheetSection />
+      </main>
+      <Footer />
+    </>
   );
 }

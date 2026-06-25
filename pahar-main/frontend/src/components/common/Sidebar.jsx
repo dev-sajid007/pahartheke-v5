@@ -26,7 +26,11 @@ export default function ShopSidebar({
   inStockOnly,
   setInStockOnly,
   setShowFilter,
+  categories: propCategories,
+  tags: propTags,
 }) {
+  const categories = propCategories?.length ? propCategories : CATEGORIES;
+  const tags = propTags?.length ? propTags : TAGS;
   return (
     <div className="bg-white border border-[#e2ead8] rounded-2xl p-5">
       {/* CATEGORY */}
@@ -36,7 +40,7 @@ export default function ShopSidebar({
         </h3>
 
         <div className="space-y-2">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat.value}
               onClick={() => {
@@ -90,7 +94,7 @@ export default function ShopSidebar({
         </h3>
 
         <div className="flex flex-wrap gap-2">
-          {TAGS.map((tag) => (
+          {tags.map((tag) => (
             <button
               key={tag}
               onClick={() => toggleTag(tag)}

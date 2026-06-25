@@ -6,8 +6,8 @@ import {
   removeFromCart,
   increaseQty,
   decreaseQty,
+  setCartOpen,
 } from "@/features/cart/cartSlice"
-import { setCartOpen } from "@/store/slices/cartSlice"
 
 import {
   Sheet,
@@ -170,7 +170,7 @@ export default function CartSheet({ children }) {
               {/* Complete Order — green-400 */}
               <SheetClose asChild>
                 <Link href="/checkout">
-                  <Button className="w-full TheamColor text-black hover:TheamColor font-semibold">
+                  <Button className="w-full ThemeColor text-black hover:ThemeColor font-semibold">
                     <Zap className="mr-2 h-4 w-4" />
                     Complete Order
                   </Button>

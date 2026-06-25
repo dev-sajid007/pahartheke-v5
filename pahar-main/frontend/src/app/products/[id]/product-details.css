@@ -332,7 +332,11 @@
 .modal-update-btn:hover { background: #c96a1f; }
 
 @media (max-width: 768px) {
-  .product-grid { flex-direction: column !important; }
+  .product-grid {
+    flex-direction: column !important;
+    padding: 16px;
+    gap: 20px;
+  }
   .gallery-col { width: 100% !important; max-width: 100% !important; }
   .info-col { width: 100% !important; }
   .action-row { flex-direction: column !important; }

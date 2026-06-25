@@ -12,8 +12,8 @@ const DEFAULTS = {
   instagramUrl: "https://instagram.com",
   youtubeUrl: "https://youtube.com",
   quickLinks: [
-    { label: "About Us", href: "/about" },
-    { label: "Track Order", href: "/track-order" },
+    { label: "Shop", href: "/shop" },
+    { label: "Invest", href: "/invest" },
   ],
   policies: [
     { label: "Privacy Policy", href: "/privacy-policy" },
@@ -39,7 +39,9 @@ export default function Footer() {
           setData({ ...DEFAULTS, ...parsed });
         } catch {}
       }
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("Footer data fetch failed:", err);
+    });
   }, []);
 
   const {

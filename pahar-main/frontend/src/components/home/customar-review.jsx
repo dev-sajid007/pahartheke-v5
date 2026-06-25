@@ -56,6 +56,7 @@ const DEFAULT_REVIEWS = [
 export default function CustomerReviewSection() {
   const [reviews, setReviews] = useState(DEFAULT_REVIEWS);
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [visibleCards, setVisibleCards] = useState(3)
 
   useEffect(() => {
     getSection("home", "testimonials").then((s) => {
@@ -71,14 +72,29 @@ export default function CustomerReviewSection() {
           }))
         );
       }
-    }).catch(() => {});
+    }).catch((err) => { console.error("Reviews data fetch failed:", err); });
   }, []);
 
-  const visibleCards = 3
+  useEffect(() => {
+    const update = () => {
+      if (typeof window === "undefined") return
+      if (window.innerWidth < 640) setVisibleCards(1)
+      else if (window.innerWidth < 1024) setVisibleCards(2)
+      else setVisibleCards(3)
+    }
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
+
   const maxIndex = useMemo(
     () => Math.max(0, reviews.length - visibleCards),
-    [reviews]
+    [reviews, visibleCards]
   )
+
+  useEffect(() => {
+    if (currentIndex > maxIndex) setCurrentIndex(0)
+  }, [maxIndex, currentIndex])
 
   const goToPrev = () => {
     setCurrentIndex((prev) => Math.max(0, prev - 1))
@@ -87,6 +103,8 @@ export default function CustomerReviewSection() {
   const goToNext = () => {
     setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
   }
+
+  const translatePercent = visibleCards > 0 ? 100 / visibleCards : 100
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -110,7 +128,7 @@ export default function CustomerReviewSection() {
             <div
               className="flex transition-transform duration-700 ease-out"
               style={{
-                transform: `translateX(-${currentIndex * (100 / visibleCards)}%)`,
+                transform: `translateX(-${currentIndex * translatePercent}%)`,
               }}
             >
               {reviews.map((review) => (

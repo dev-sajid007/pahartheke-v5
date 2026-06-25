@@ -4,9 +4,9 @@ services:
     container_name: pahar-pos-mongo
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongo-pos-data:/data/db
 
 volumes:
-  mongo-data:
+  mongo-pos-data:

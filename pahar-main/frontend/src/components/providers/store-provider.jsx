@@ -10,14 +10,25 @@ function CartPersistence({ children }) {
   const items = useSelector((state) => state.cart.items)
 
   useEffect(() => {
-    const cartData = localStorage.getItem("cartItems")
-    if (cartData) {
-      dispatch(hydrateCart(JSON.parse(cartData)))
+    try {
+      const cartData = localStorage.getItem("cartItems")
+      if (cartData) {
+        const parsed = JSON.parse(cartData)
+        if (Array.isArray(parsed)) {
+          dispatch(hydrateCart(parsed))
+        }
+      }
+    } catch (err) {
+      console.error("Failed to hydrate cart from localStorage:", err)
     }
   }, [dispatch])
 
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(items))
+    try {
+      localStorage.setItem("cartItems", JSON.stringify(items))
+    } catch (err) {
+      console.error("Failed to persist cart to localStorage:", err)
+    }
   }, [items])
 
   return children

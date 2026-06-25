@@ -78,37 +78,23 @@ const [emblaRef] = useEmblaCarousel({
   dragFree: true,
 });
 
-useEffect(() => {
-  let cancelled = false;
-
-  const loadCategories = async () => {
-    try {
-      setLoading(true);
-      setErrorMessage("");
-
-      const data = await getCategories();
-
-      if (!cancelled) {
-        setCategories(Array.isArray(data) ? data : []);
-      }
-    } catch (error) {
-      if (!cancelled) {
-        setCategories([]);
-        setErrorMessage(error?.message || "Failed to load categories.");
-      }
-    } finally {
-      if (!cancelled) {
-        setLoading(false);
-      }
-    }
-  };
-
-  loadCategories();
-
-  return () => {
-    cancelled = true;
-  };
+const loadCategories = useCallback(async () => {
+  try {
+    setLoading(true);
+    setErrorMessage("");
+    const data = await getCategories();
+    setCategories(Array.isArray(data) ? data : []);
+  } catch (error) {
+    setCategories([]);
+    setErrorMessage(error?.message || "Failed to load categories.");
+  } finally {
+    setLoading(false);
+  }
 }, []);
+
+useEffect(() => {
+  loadCategories();
+}, [loadCategories]);
 
   if (loading) {
     return <CategoriesSkeleton />;

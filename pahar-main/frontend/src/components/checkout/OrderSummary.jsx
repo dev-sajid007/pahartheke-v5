@@ -51,11 +51,11 @@ export default function OrderSummary({
         />
         <span className="text-xs leading-relaxed text-[#555]">
           I have read and agree to the{" "}
-          <a href="#" className="text-[#E07B2E] underline">Terms and Conditions</a>
+          <a href="/terms" className="text-[#E07B2E] underline">Terms and Conditions</a>
           ,{" "}
-          <a href="#" className="text-[#E07B2E] underline">Privacy Policy</a>
+          <a href="/privacy-policy" className="text-[#E07B2E] underline">Privacy Policy</a>
           {" & "}
-          <a href="#" className="text-[#E07B2E] underline">Refund and Return Policy</a>.
+          <a href="/refund-policy" className="text-[#E07B2E] underline">Refund and Return Policy</a>.
         </span>
       </label>
 

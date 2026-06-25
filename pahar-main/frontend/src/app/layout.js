@@ -1,6 +1,6 @@
 import { Roboto, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
-import ThemeProvider from "@/components/providers/theme-provider";
 import StoreProvider from "@/components/providers/store-provider";
 import { Toaster } from "sonner";
 
@@ -22,19 +22,23 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${roboto.variable} antialiased`}>
-        {/* <ThemeProvider> */}
-          <StoreProvider>
+        <StoreProvider>
+          <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="h-10 w-10 border-4 border-green-200 border-t-green-700 rounded-full animate-spin" />
+            </div>
+          }>
             {children}
-            <Toaster
-              position="top-right"
-              richColors
-              closeButton
-              toastOptions={{
-                className: "rounded-xl",
-              }}
-            />
-          </StoreProvider>
-        {/* </ThemeProvider> */}
+          </Suspense>
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            toastOptions={{
+              className: "rounded-xl",
+            }}
+          />
+        </StoreProvider>
       </body>
     </html>
   );

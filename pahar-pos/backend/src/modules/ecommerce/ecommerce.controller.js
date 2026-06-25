@@ -25,7 +25,12 @@ export const getProducts = asyncHandler(async (req, res) => {
   const filter = { status: true };
 
   if (category) {
-    filter.category = category;
+    const cat = await Category.findOne({ slug: category });
+    if (cat) {
+      filter.category = cat._id;
+    } else {
+      return apiResponse({ res, data: [] });
+    }
   }
 
   const products = await Product.find(filter)
