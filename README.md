@@ -22,7 +22,7 @@
 | Medium | 2 vCPU, 2GB RAM | $14.00 |
 | Fast | 4 vCPU, 4GB RAM | $19.00 |
 
-| Add-on | Cost |
+| Add-on | Cost  |
 |--------|------|
 | Full Uptime Package | $620.50 |
 | Fixed Uptime (per GB) | $0.45 |
