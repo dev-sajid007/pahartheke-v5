@@ -22,10 +22,11 @@
 | Medium | 2 vCPU, 2GB RAM | $14.00 |
 | Fast | 4 vCPU, 4GB RAM | $19.00 |
 
-| Add-on | Cost  |
+| Add-on - Dev | Cost  30 % |
 |--------|------|
 | Full Uptime Package | $620.50 |
 | Fixed Uptime (per GB) | $0.45 |
+| Fixed Uptime (per GB) | $1.10 |
 
 ---
 
@@ -127,6 +128,121 @@
 ✓ Zero warnings
 ✓ Production-ready
 ```
+
+---
+
+
+## Changelog
+
+### Session: June 29, 2026 — API Debugging, Data Model Fix & System Audit
+
+---
+
+#### Phase 1: API Endpoint & Data Flow Fixes (12 fixes)
+
+| # | Category | File(s) | Issue | Fix |
+|---|----------|---------|-------|-----|
+| 1 | POS Model | `pahar-pos/backend/.../product.model.js` | Missing `slug`, `description`, `tags` fields | Added: `slug` (unique, sparse), `description` (String), `tags` ([String]) |
+| 2 | POS Controller | `pahar-pos/backend/.../ecommerce.controller.js` | `getProduct` only matched by ObjectId, not slug | Added mongoose import + slug fallback lookup after ObjectId |
+| 3 | POS Controller | `pahar-pos/backend/.../product.controller.js` | `createProduct`/`updateProduct` didn't parse `tags` from JSON string | Added `tags` destructuring + JSON.parse fallback |
+| 4 | Shop Image | `frontend/.../shop/page.jsx:110` | `p.image?.[0]` — `string[0]` returns first character, not image | Changed to `p.image \|\| (images[0] \|\| "\uD83D\uDED2")` |
+| 5 | Shop Data | `frontend/.../shop/page.jsx` | `normalizeProduct` had wrong field mapping for POS data | Rewrote: proper `salePrice`, `currentStock`, `image` (URL or emoji) |
+| 6 | Shop Links | `frontend/.../shop/page.jsx` | Product cards had no link to detail page | Added `<Link>` to image area + product name |
+| 7 | Product API | `frontend/.../api/products/[slug]/route.js` | Fetched ALL products then client-side filtered | Now calls POS `GET /ecommerce/products/:id` directly (supports ObjectId + slug) |
+| 8 | Cache | `frontend/.../products/[id]/page.jsx:35` | `sessionStorage.removeItem()` immediately deleted cache after read | Removed `.removeItem()` — cache now persists across refreshes |
+| 9 | Order Flow | `frontend/.../api/orders/route.js` | Orders went to main backend (port 5000) — no POS stock sync | Now forwards to POS `POST /ecommerce/orders` with `x-api-key` header |
+| 10 | Order Mapper | `frontend/.../mappers/order.js` | Sent wrong field names to backend | Rewrote to POS format: `items: [{ product, quantity, salePrice }]`, `customerInfo`, `note` |
+| 11 | Env | `frontend/.env` + `.env.local` | Missing `POS_API_BASE_URL` and `ECOMMERCE_API_KEY` | Added both env vars |
+| 12 | React Lint | `frontend/.../products/[id]/page.jsx` | `setState` called synchronously in useEffect | Refactored to `useState(() => sessionStorage.getItem(...))` lazy initializer |
+
+#### Phase 2: POS Frontend Form Fields for New DB Columns (3 files)
+
+| # | File | Change |
+|---|------|--------|
+| 1 | `pahar-pos/frontend/.../products/new/page.js` | Added `slug`, `description`, `tags` to formData state + SEO & Details section + submit JSON.stringify tags |
+| 2 | `pahar-pos/frontend/.../products/edit/[id]/page.js` | Same fields added + pre-population from existing product + submit handling |
+| 3 | `pahar-pos/frontend/.../components/products/ProductModal.jsx` | Same fields added to state + useEffect + compact SEO section + `onSave` payload |
+
+#### Phase 3: Full System Audit — Security, Performance & Cleanup (15 fixes)
+
+| # | Category | File | Issue | Fix |
+|---|----------|------|-------|-----|
+| 1 | Data Leak | `transform/productTransform.js` + `shop/page.jsx` + `products/[id]/page.jsx` | `purchasePrice` exposed as "oldPrice" to customers | Set `oldPrice = null` / `oldPrice = 0` throughout |
+| 2 | Transform | `transform/productTransform.js` | Missing `description`, `tags`, `featured` in mapping | Added all three fields + `Boolean(apiProduct.featured)` |
+| 3 | Security | `pahar-main/backend/middleware/auth.js` | JWT fallback to hardcoded `'fallback_secret'` | Replaced with `getJwtSecret()` runtime check — throws if env unset |
+| 4 | Security | `pahar-main/backend/routes/authRoutes.js` | No brute-force protection on login/register | Installed `express-rate-limit` — 10 req/15min |
+| 5 | Feature | `pahar-main/backend/routes/authRoutes.js` | No password change endpoint | Added `PUT /password` with current password verification |
+| 6 | Cache | `frontend/.../api/products/route.js` | Dual caching: in-memory + Next.js revalidate | Removed in-memory cache — relies on `revalidate: 300` only |
+| 7 | Cache | `frontend/.../api/products/by-category/[slug]/route.js` | `cache: 'no-store'` — never cached | Changed to `next: { revalidate: 300 }` |
+| 8 | CORS | `pahar-pos/backend/src/app.js` (both repos) | Admin panel (`localhost:3001`) not in CORS whitelist | Added `localhost:3001` to allowed origins |
+| 9 | Images | `frontend/next.config.mjs` | `localhost` not in remote image patterns | Added `localhost` + `127.0.0.1` |
+| 10 | Cleanup | `pahar-main/backend/.env` + `.env.example` | Unused `EXTERNAL_PRODUCT_API`/`EXTERNAL_CATEGORIES_API` | Removed |
+| 11 | Cleanup | `pahar-main/backend/routes/orderRoutes.js` | Dead `Product` import | Removed |
+| 12 | Cleanup | `pahar-pos/backend/.../category.controller.js` | `description` field accepted but doesn't exist on Category model | Removed from destructuring + assignment |
+| 13 | Cleanup | `frontend/src/services/api.ts` | Unused axios instance (dead code) | Deleted |
+| 14 | Cleanup | `pahar-main/backend/config/database.js` | Duplicate `dotenv.config()` (already called in server.js) | Removed import + call |
+| 15 | Env | `pahar-main/backend/.env` | Unused EXTERNAL vars | Cleaned to only active config |
+
+---
+
+### Performance Audit — Rendering Issues Found (12 issues)
+
+| # | Severity | Issue | File(s) | Impact |
+|---|----------|-------|---------|--------|
+| 1 | 🔴 | **No pagination** — fetches and renders ALL products at once | `shop/page.jsx` + `api/products/route.js` | 500+ DOM nodes on single page |
+| 2 | 🔴 | **Single coarse Suspense** — wraps entire app; any async = whole page spinner | `layout.js` | Blocking waterfall |
+| 3 | 🔴 | **useMemo dependency bug** — `products` not in deps; stale closure | `shop/page.jsx:245` | Filters don't update on fetch |
+| 4 | 🟡 | **Duplicate API calls** — landing page fetched 5x on home page | 5 home components via `landing-page.js` | 4 redundant network requests |
+| 5 | 🟡 | **`cache: "no-store"` everywhere** — completely disables ISR/SSG caching | Every `fetch()` call | Every navigation refetches |
+| 6 | 🟡 | **Raw `<img>` tags** — no Next.js optimization, no lazy loading, CLS | 7+ files | Layout shift + bandwidth |
+| 7 | 🟡 | **No route-level `loading.jsx`** — blank pages during navigation | `/shop`, `/products/[id]`, `/checkout` | Poor UX |
+| 8 | 🟡 | **sessionStorage blocks render** — sync I/O in useState initializer | `products/[id]/page.jsx:20` | Initial render delay |
+| 9 | 🟡 | **Throttleless localStorage writes** — every cart render writes to disk | `store-provider.jsx:28` | Disk I/O on rapid clicks |
+| 10 | ⬜ | **Blocking CSS `@import`** — Google Font import blocks render | `product-details.css:1` | Font render delay |
+| 11 | ⬜ | **Heavy Swiper.js** — ~40KB for simple carousel | `product-slider.jsx` | Bundle bloat |
+| 12 | ⬜ | **All "use client"** — server component with all client children | `page.js` + 8 children | No SSR benefits |
+
+---
+
+### Order Flow Audit — Critical Bugs Found (9 issues)
+
+| # | Severity | Issue | Detail |
+|---|----------|-------|--------|
+| 1 | 🔴 | **No MongoDB transaction** | If item 4 of 5 fails during `createOrder`, items 1-3 stock is already deducted irreversibly with no Sale record |
+| 2 | 🔴 | **Invoice collision risk** | `"WEB-" + Date.now()` not unique enough; `invoiceNo` has `unique` constraint — 2 orders in same ms could crash after stock deducted |
+| 3 | 🟡 | **Customer info lost** | `customerInfo` destructured from body but never persisted to Sale `customer` field |
+| 4 | 🟡 | **Shipping cost lost** | Frontend calculates 65/150 BDT but Sale `shippingCost` defaults to 0 |
+| 5 | 🟡 | **Coupon discount lost** | Frontend applies it but Sale `discount` hardcoded to 0 |
+| 6 | 🟡 | **grandTotal incomplete** | Equals raw subtotal — doesn't include shipping or discount |
+| 7 | ⬜ | **Payment type ignored** | All orders treated as fully paid (`paidAmount = grandTotal`, `dueAmount = 0`) |
+| 8 | ⬜ | **user_id ignored** | `soldBy` on Sale never set |
+| 9 | ⬜ | **Stock movements unlinked** | `referenceId: null` — not linked back to Sale document |
+
+---
+
+### Pending Fix Plan — Next Session (4 batches)
+
+| Batch | Priority | Description | Files |
+|-------|----------|-------------|-------|
+| A | 🔴 | Add pagination to products (fix perf #1) | `api/products/route.js`, `shop/page.jsx` |
+| B | 🔴 | MongoDB transaction for orders (fix order #1, #2) | `ecommerce.controller.js` |
+| C | 🟡 | Persist lost order data — shipping, discount, customer, payment (fix order #3-#9) | `ecommerce.controller.js`, `order.js` mapper |
+| D | 🟡 | Performance improvements — Suspense, loading states, caching, images (fix perf #2-#12) | 10+ files across frontend |
+
+---
+
+### Session Stats
+
+| Metric | Count |
+|--------|-------|
+| Fixes applied today | **27** |
+| Files modified | **25** across 4 services |
+| Services touched | pahar-main backend, pahar-main frontend, pahar-pos backend, pahar-pos frontend |
+| Critical performance issues found | **3** (pending) |
+| Critical order bugs found | **2** (pending) |
+| Pending fixes for next session | **~20** in 4 batches |
+| Lint errors introduced | **0** |
+| Lint warnings introduced | **0** |
 
 ---
 
@@ -236,7 +352,9 @@
      │─ POST /auth/login ─►│─ proxy ───────────────►│ /api/auth/login   │
      │◄─ JWT cookie ◄─────│◄───────────────────────│                   │
      │                     │                        │                   │
-     │─ POST /orders ─────►│─ proxy ───────────────►│ /api/orders       │
+     │─ POST /orders ─────►│─ proxy + x-api-key ───────────────────────►│
+     │                     │  → POS ecommerce/orders                   │
+     │◄─ order confirmed ◄─│◄──────────────────────────────────────────│
 ```
 
 ### POS Dashboard Flow

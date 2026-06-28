@@ -18,6 +18,9 @@ export default function EditProductPage() {
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
+    slug: "",
+    description: "",
+    tags: [],
     category: "",
     productType: "piece",
     unit: "pcs",
@@ -47,6 +50,9 @@ export default function EditProductPage() {
       if (product) {
         setFormData({
           ...product,
+          slug: product.slug || "",
+          description: product.description || "",
+          tags: Array.isArray(product.tags) ? product.tags : [],
           category: product.category?._id || product.category || "",
           hasVariants: product.hasVariants || false,
           variants: product.variants || [],
@@ -82,6 +88,12 @@ export default function EditProductPage() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleTagsChange = (e) => {
+    const raw = e.target.value;
+    const tagsArray = raw.split(",").map((t) => t.trim()).filter(Boolean);
+    setFormData((prev) => ({ ...prev, tags: tagsArray }));
   };
 
   const handleAddVariant = () => {
@@ -131,6 +143,10 @@ export default function EditProductPage() {
             salePrice: Number(v.salePrice),
             currentStock: Number(v.currentStock),
           }))));
+        } else if (key === 'tags') {
+          if (formData.tags.length > 0) {
+            data.append('tags', JSON.stringify(formData.tags));
+          }
         } else {
           data.append(key, formData[key]);
         }
@@ -264,6 +280,48 @@ export default function EditProductPage() {
                 className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
+          </div>
+        </div>
+
+        {/* SEO & Details */}
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
+          <h2 className="text-lg font-semibold text-foreground">SEO & Details</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-sidebar-foreground">Slug (URL Path)</label>
+              <input
+                type="text"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="e.g. organic-honey-500g"
+              />
+              <p className="mt-1 text-[11px] text-sidebar-foreground/60">URL-friendly name. Leave empty to use product ID.</p>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-sidebar-foreground">Tags</label>
+              <input
+                type="text"
+                name="tags"
+                value={formData.tags.join(", ")}
+                onChange={handleTagsChange}
+                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="e.g. Organic, Hilltract, Natural"
+              />
+              <p className="mt-1 text-[11px] text-sidebar-foreground/60">Comma-separated tags for product filtering.</p>
+            </div>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-sidebar-foreground">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={3}
+              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 resize-y"
+              placeholder="Product description for the storefront detail page..."
+            />
           </div>
         </div>
 

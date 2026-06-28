@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-const POS_API = process.env.EXTERNAL_PRODUCT_API || "https://posapi.pahartheke.com/api/ecommerce/products";
+const POS_API_BASE =
+  process.env.POS_API_BASE_URL ||
+  (process.env.EXTERNAL_PRODUCT_API
+    ? process.env.EXTERNAL_PRODUCT_API.replace(/\/products$/, "")
+    : "https://posapi.pahartheke.com/api/ecommerce");
 
 export async function GET(_, { params }) {
   try {
@@ -13,27 +17,22 @@ export async function GET(_, { params }) {
       );
     }
 
-    const res = await fetch(POS_API, {
+    const res = await fetch(`${POS_API_BASE}/products/${encodeURIComponent(slug)}`, {
       headers: { Accept: "application/json" },
       next: { revalidate: 300 },
     });
 
-    const listData = await res.json();
-    const products = listData?.data || [];
-
-    const matched = products.find(
-      (p) => p.slug === slug || p._id === slug || p.id === slug
-    );
-
-    if (!matched) {
+    if (!res.ok) {
       return NextResponse.json(
         { success: false, message: "Product not found." },
-        { status: 404 }
+        { status: res.status }
       );
     }
 
+    const json = await res.json();
+
     return NextResponse.json(
-      { success: true, data: matched },
+      { success: true, data: json?.data || json || null },
       { status: 200 }
     );
   } catch (error) {

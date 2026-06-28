@@ -57,7 +57,7 @@ export const getCategories = asyncHandler(
 export const updateCategory = asyncHandler(
   async (req, res) => {
     const { id } = req.params;
-    const { name, description, status } = req.body;
+    const { name, status } = req.body;
 
     const category = await Category.findById(id);
 
@@ -74,7 +74,6 @@ export const updateCategory = asyncHandler(
       category.slug = slugify(name, { lower: true });
     }
 
-    if (description !== undefined) category.description = description;
     if (status !== undefined) category.status = status;
     if (req.file) category.image = req.file.path;
 

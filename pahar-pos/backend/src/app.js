@@ -17,6 +17,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 const allowedOrigins = [
   "https://pos.pahartheke.com",
   "http://localhost:3000",
+  "http://localhost:3001",
   "http://localhost:4000",
   "http://localhost:8000",
   "http://pos.pahartheke.com",

@@ -10,9 +10,6 @@ export function transformProduct(apiProduct) {
   const rawPrice = apiProduct.salePrice ?? apiProduct.price ?? apiProduct.sale_price ?? 0;
   const price = Number(rawPrice) || 0;
 
-  const rawPurchase = apiProduct.purchasePrice ?? apiProduct.purchase_price ?? 0;
-  const purchasePrice = Number(rawPurchase) || 0;
-
   const rawStock = apiProduct.currentStock ?? apiProduct.stockQuantity ?? apiProduct.stock ?? 0;
   const stock = Number(rawStock) || 0;
 
@@ -20,14 +17,16 @@ export function transformProduct(apiProduct) {
     id: apiProduct._id || apiProduct.id,
     name: apiProduct.name,
     slug: apiProduct.slug,
+    description: apiProduct.description || "",
+    tags: Array.isArray(apiProduct.tags) ? apiProduct.tags : [],
     image,
     images: [image],
     price,
-    oldPrice: purchasePrice > price ? purchasePrice : null,
+    oldPrice: null,
     stock,
     rating: 0,
     weight: apiProduct.unit || "pc",
-    featured: false,
+    featured: Boolean(apiProduct.featured),
     createdAt: apiProduct.createdAt,
     categoryName: apiProduct.category?.name || "",
   };

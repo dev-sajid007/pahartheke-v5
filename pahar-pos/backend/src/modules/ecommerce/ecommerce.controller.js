@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Category from "../category/category.model.js";
 import Product from "../product/product.model.js";
 import Sale from "../sale/sale.model.js";
@@ -44,10 +45,22 @@ export const getProducts = asyncHandler(async (req, res) => {
 });
 
 export const getProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id).populate(
-    "category",
-    "name slug image"
-  );
+  const { id } = req.params;
+
+  let product;
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    product = await Product.findById(id).populate(
+      "category",
+      "name slug image"
+    );
+  }
+
+  if (!product) {
+    product = await Product.findOne({ slug: id }).populate(
+      "category",
+      "name slug image"
+    );
+  }
 
   if (!product) {
     throw new ApiError(404, "Product not found");
