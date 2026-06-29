@@ -20,6 +20,7 @@ const allowedOrigins = [
   "http://localhost:4000",
   "http://localhost:8000",
   "http://pos.pahartheke.com",
+  "https://v2.pahartheke.com"
 ];
 
 app.use(cors({
