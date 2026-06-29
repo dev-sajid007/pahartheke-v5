@@ -12,7 +12,7 @@ const generateSKU = () => {
 };
 
 export const createProduct = asyncHandler(async (req, res) => {
-    let { hasVariants, variants, ...rest } = req.body;
+    let { hasVariants, variants, tags, ...rest } = req.body;
     
     // Parse variants if they come as a string (typical in multipart/form-data)
     if (typeof variants === 'string') {
@@ -23,6 +23,15 @@ export const createProduct = asyncHandler(async (req, res) => {
       }
     }
 
+    // Parse tags if they come as a string
+    if (typeof tags === 'string') {
+      try {
+        tags = JSON.parse(tags);
+      } catch (e) {
+        tags = [];
+      }
+    }
+
     if (typeof hasVariants === 'string') {
       hasVariants = hasVariants === 'true';
     }
@@ -30,6 +39,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     let productData = {
       ...rest,
       hasVariants,
+      tags: Array.isArray(tags) ? tags : [],
       sku: rest.sku || generateSKU(),
     };
 
@@ -101,7 +111,7 @@ import ApiError from "../../core/ApiError.js";
 export const updateProduct = asyncHandler(
   async (req, res) => {
     const { id } = req.params;
-    let { hasVariants, variants, ...rest } = req.body;
+    let { hasVariants, variants, tags, ...rest } = req.body;
 
     // Parse variants if they come as a string
     if (typeof variants === 'string') {
@@ -112,11 +122,20 @@ export const updateProduct = asyncHandler(
       }
     }
 
+    // Parse tags if they come as a string
+    if (typeof tags === 'string') {
+      try {
+        tags = JSON.parse(tags);
+      } catch (e) {
+        tags = [];
+      }
+    }
+
     if (typeof hasVariants === 'string') {
       hasVariants = hasVariants === 'true';
     }
 
-    let updateData = { ...rest, hasVariants };
+    let updateData = { ...rest, hasVariants, tags: Array.isArray(tags) ? tags : [] };
 
     if (req.file) {
       updateData.image = req.file.path;

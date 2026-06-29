@@ -1,24 +1,34 @@
 import { NextResponse } from "next/server";
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL;
+const POS_ORDERS_URL = process.env.POS_API_BASE_URL
+  ? `${process.env.POS_API_BASE_URL}/orders`
+  : "https://posapi.pahartheke.com/api/ecommerce/orders";
+
+const ECOMMERCE_API_KEY = process.env.ECOMMERCE_API_KEY;
 
 export async function POST(request) {
   try {
     const payload = await request.json();
 
-    if (!BACKEND_API_URL) {
+    if (!payload.items || !payload.items.length) {
       return NextResponse.json(
-        { success: false, message: "BACKEND_API_URL is not configured." },
-        { status: 500 }
+        { success: false, message: "No items in order." },
+        { status: 400 }
       );
     }
 
-    const response = await fetch(`${BACKEND_API_URL}/api/orders`, {
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+
+    if (ECOMMERCE_API_KEY) {
+      headers["x-api-key"] = ECOMMERCE_API_KEY;
+    }
+
+    const response = await fetch(POS_ORDERS_URL, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(payload),
       cache: "no-store",
     });
@@ -39,7 +49,7 @@ export async function POST(request) {
           message:
             result?.message ||
             result?.error ||
-            `Backend request failed with status ${response.status}`,
+            `Order request failed with status ${response.status}`,
           error: result,
         },
         { status: response.status }
@@ -57,17 +67,10 @@ export async function POST(request) {
   } catch (error) {
     console.error("Order Route Error:", error);
 
-    const isTimeout =
-      error?.cause?.code === "ETIMEDOUT" ||
-      error?.code === "ETIMEDOUT" ||
-      error?.message?.includes("fetch failed");
-
     return NextResponse.json(
       {
         success: false,
-        message: isTimeout
-          ? "Backend server did not respond in time. Please try again."
-          : error?.message || "Something went wrong while placing order.",
+        message: error?.message || "Something went wrong while placing order.",
       },
       { status: 500 }
     );

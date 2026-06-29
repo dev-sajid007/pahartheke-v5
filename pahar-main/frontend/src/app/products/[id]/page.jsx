@@ -17,7 +17,15 @@ const ProductPage = () => {
   const dispatch = useDispatch();
   const slug = params?.id;
 
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState(() => {
+    if (!slug) return null;
+    try {
+      const cached = sessionStorage.getItem(`product_${slug}`);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [quantity, setQuantity] = useState(1);
   const [activeThumb, setActiveThumb] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
@@ -27,15 +35,7 @@ const ProductPage = () => {
   const cartItems = useSelector((state) => state.cart.items);
 
   useEffect(() => {
-    if (!slug) return;
-    try {
-      const cached = sessionStorage.getItem(`product_${slug}`);
-      if (cached) {
-        setProduct(JSON.parse(cached));
-        sessionStorage.removeItem(`product_${slug}`);
-        return;
-      }
-    } catch {}
+    if (!slug || product) return;
 
     const fetchProduct = async () => {
       try {
@@ -47,22 +47,14 @@ const ProductPage = () => {
             return;
           }
         }
-        const allRes = await fetch("/api/products", { cache: "no-store" });
-        if (allRes.ok) {
-          const allJson = await allRes.json();
-          const allProducts = allJson?.data || [];
-          const matched = allProducts.find(
-            (p) => p.slug === slug || p._id === slug || p.id === slug
-          );
-          if (matched) setProduct(matched);
-        }
+        toast.error("Product not found.");
       } catch (err) {
         console.error("Failed to fetch product:", err);
         toast.error("Failed to load product. Please try again.");
       }
     };
     fetchProduct();
-  }, [slug]);
+  }, [slug, product]);
 
   if (!product) {
     return (
@@ -85,9 +77,9 @@ const ProductPage = () => {
       : ["https://placehold.co/500x500/e8f5e9/2d6a4f?text=Product"];
 
   const displayPrice = product?.salePrice ?? product?.price ?? product?.sale_price ?? 0;
-  const oldPrice = product?.purchasePrice ?? product?.purchase_price ?? 0;
+  const oldPrice = 0;
   const inStock = Number(product?.currentStock ?? product?.stockQuantity ?? product?.stock ?? 1) > 0;
-  const discount = oldPrice > displayPrice ? Math.round(((oldPrice - displayPrice) / oldPrice) * 100) : 0;
+  const discount = 0;
 
   const handleAddToCart = () => {
     if (!inStock) {

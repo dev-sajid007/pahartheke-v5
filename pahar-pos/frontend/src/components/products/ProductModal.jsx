@@ -7,6 +7,9 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
+    slug: "",
+    description: "",
+    tags: [],
     category: "",
     productType: "piece",
     unit: "pcs",
@@ -22,6 +25,9 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
     if (product) {
       setFormData({
         ...product,
+        slug: product.slug || "",
+        description: product.description || "",
+        tags: Array.isArray(product.tags) ? product.tags : [],
         category: product.category?._id || product.category || "",
         hasVariants: product.hasVariants || false,
         variants: product.variants || [],
@@ -30,6 +36,9 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
       setFormData({
         name: "",
         sku: "",
+        slug: "",
+        description: "",
+        tags: [],
         category: "",
         productType: "piece",
         unit: "pcs",
@@ -51,6 +60,12 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const handleTagsChange = (e) => {
+    const raw = e.target.value;
+    const tagsArray = raw.split(",").map((t) => t.trim()).filter(Boolean);
+    setFormData((prev) => ({ ...prev, tags: tagsArray }));
   };
 
   const handleAddVariant = () => {
@@ -89,6 +104,7 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
       purchasePrice: Number(formData.purchasePrice),
       salePrice: Number(formData.salePrice),
       minimumStockAlert: Number(formData.minimumStockAlert),
+      tags: formData.tags.filter(Boolean),
       variants: formData.hasVariants ? formData.variants.map(v => ({
         ...v,
         purchasePrice: Number(v.purchasePrice),
@@ -181,6 +197,43 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
                 className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-sidebar-foreground">Slug</label>
+              <input
+                type="text"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="organic-honey-500g"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-sidebar-foreground">Tags (comma-separated)</label>
+              <input
+                type="text"
+                name="tags"
+                value={formData.tags.join(", ")}
+                onChange={handleTagsChange}
+                className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="Organic, Hilltract"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-sidebar-foreground">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={2}
+              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 resize-y"
+              placeholder="Product description for storefront..."
+            />
           </div>
 
           <div className="space-y-4 pt-2">

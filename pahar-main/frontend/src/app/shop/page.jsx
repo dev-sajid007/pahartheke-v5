@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Footer from "@/components/common/footer";
 import Header from "@/components/common/header";
 import ShopSidebar from "@/components/common/Sidebar";
@@ -99,17 +100,20 @@ const FALLBACK_CATEGORIES = [
 ];
 
 function normalizeProduct(p, index) {
+  const price = Number(p.salePrice || p.price || 0);
+  const stock = Number(p.currentStock ?? p.stockQuantity ?? p.stock ?? 1);
   return {
     id: p._id || p.id || `prod-${index}`,
     name: p.name || "Product",
     desc: p.description || "",
-    price: p.salePrice || p.price || 0,
-    originalPrice: p.salePrice && p.price ? p.price : null,
-    badge: p.tags?.[0] || null,
-    emoji: p.image?.[0] || (p.images?.[0] || "\uD83D\uDED2"),
+    price,
+    originalPrice: null,
+    badge: p.tags?.length ? p.tags[0] : null,
+    emoji: p.image || (Array.isArray(p.images) ? p.images[0] : null) || "🛒",
+    slug: p.slug || p._id || "",
     category: typeof p.category === "object" ? p.category?.slug : (p.category || ""),
     tags: p.tags || [],
-    inStock: (p.currentStock > 0 || p.stock > 0 || true),
+    inStock: stock > 0,
     isNew: false,
   };
 }
@@ -453,10 +457,19 @@ export default function ShopPage() {
                     className="bg-white border border-[#e2ead8] rounded-2xl overflow-hidden hover:-translate-y-1 transition duration-300"
                   >
                     {/* IMAGE */}
-                    <div className="h-32 sm:h-40 md:h-44 bg-[#f4ede0] flex items-center justify-center relative">
-                      <span className="text-5xl sm:text-6xl">
-                        {product.emoji}
-                      </span>
+                    <Link href={`/products/${product.slug || product.id}`}>
+                      <div className="h-32 sm:h-40 md:h-44 bg-[#f4ede0] flex items-center justify-center relative overflow-hidden">
+                        {product.emoji && (product.emoji.startsWith("http") || product.emoji.startsWith("data:")) ? (
+                          <img
+                            src={product.emoji}
+                            alt={product.name}
+                            className="h-full w-full object-contain"
+                          />
+                        ) : (
+                          <span className="text-5xl sm:text-6xl">
+                            {product.emoji || "\uD83D\uDED2"}
+                          </span>
+                        )}
 
                       {discount && (
                         <span className="absolute top-2 left-2 text-[10px] sm:text-xs font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
@@ -470,12 +483,15 @@ export default function ShopPage() {
                         </span>
                       )}
                     </div>
+                    </Link>
 
                     {/* BODY */}
                     <div className="p-3 sm:p-4">
-                      <h3 className="font-bold text-sm sm:text-base mb-1 sm:mb-2 line-clamp-1">
-                        {product.name}
-                      </h3>
+                      <Link href={`/products/${product.slug || product.id}`}>
+                        <h3 className="font-bold text-sm sm:text-base mb-1 sm:mb-2 line-clamp-1 hover:text-green-700 transition-colors">
+                          {product.name}
+                        </h3>
+                      </Link>
 
                       <p className="text-[11px] sm:text-sm text-gray-500 mb-3 line-clamp-2 leading-relaxed">
                         {product.desc}
