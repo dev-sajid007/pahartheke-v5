@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
 
 export async function POST() {
   const response = NextResponse.json({
     success: true,
     message: 'Logout successful',
-  })
+  });
 
   response.cookies.set('auth-token', '', {
     httpOnly: true,
@@ -12,7 +12,7 @@ export async function POST() {
     sameSite: 'strict',
     maxAge: 0,
     path: '/',
-  })
+  });
 
-  return response
+  return response;
 }

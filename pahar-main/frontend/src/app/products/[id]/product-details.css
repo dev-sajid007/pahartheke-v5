@@ -1,9 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
-
 .product-page {
   background: #f7f7f7;
   min-height: 100vh;
-  font-family: 'Hind Siliguri', 'Segoe UI', sans-serif;
   color: #222;
 }
 

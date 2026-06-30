@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { LogIn, Share2, BadgeDollarSign } from "lucide-react"
-import { getSection } from "@/lib/api/landing-page";
+import { getSection } from "@/services/landing";
 
 const DEFAULTS = {
   SectionBgBanner: "images/frontand/TheamImage.jpg",
@@ -35,7 +35,9 @@ export default function EarnMoneySection() {
             ctaButtonText: parsed.ctaButtonText || DEFAULTS.ctaButtonText,
             steps: parsed.steps?.length ? parsed.steps : DEFAULTS.steps,
           });
-        } catch {}
+        } catch (e) {
+          console.error("Affiliate parse error:", e);
+        }
       }
     }).catch((err) => { console.error("Affiliate data fetch failed:", err); });
   }, []);

@@ -12,14 +12,12 @@ export default function ProductCard({ product }) {
     (Array.isArray(product?.images) ? product.images[0] : null) ||
     "/images/fallback-product.png";
 
-  const isInStock = Number(product?.stock ?? 1) > 0;
+  const isInStock = Number(product?.stock ?? 0) > 0;
   const productSlug = product.slug || product.id;
 
   const handleViewDetails = (event) => {
     event.preventDefault();
     event.stopPropagation();
-
-    sessionStorage.setItem(`product_${productSlug}`, JSON.stringify(product));
     router.push(`/products/${productSlug}`);
   };
 

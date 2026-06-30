@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-
-const POS_ORDERS_URL = process.env.POS_API_BASE_URL
-  ? `${process.env.POS_API_BASE_URL}/orders`
-  : "https://posapi.pahartheke.com/api/ecommerce/orders";
-
-const ECOMMERCE_API_KEY = process.env.ECOMMERCE_API_KEY;
+import { posApi, posHeaders } from "@/lib/endpoints";
 
 export async function POST(request) {
   try {
@@ -12,23 +7,17 @@ export async function POST(request) {
 
     if (!payload.items || !payload.items.length) {
       return NextResponse.json(
-        { success: false, message: "No items in order." },
+        { success: false, error: "No items in order." },
         { status: 400 }
       );
     }
 
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    };
-
-    if (ECOMMERCE_API_KEY) {
-      headers["x-api-key"] = ECOMMERCE_API_KEY;
-    }
-
-    const response = await fetch(POS_ORDERS_URL, {
+    const response = await fetch(posApi.orders(), {
       method: "POST",
-      headers,
+      headers: {
+        ...posHeaders(),
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(payload),
       cache: "no-store",
     });
@@ -43,14 +32,14 @@ export async function POST(request) {
     }
 
     if (!response.ok) {
+      console.error("POS API order error:", response.status, result);
       return NextResponse.json(
         {
           success: false,
-          message:
+          error:
             result?.message ||
             result?.error ||
             `Order request failed with status ${response.status}`,
-          error: result,
         },
         { status: response.status }
       );
@@ -66,11 +55,10 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error("Order Route Error:", error);
-
     return NextResponse.json(
       {
         success: false,
-        message: error?.message || "Something went wrong while placing order.",
+        error: error?.message || "Something went wrong while placing order.",
       },
       { status: 500 }
     );

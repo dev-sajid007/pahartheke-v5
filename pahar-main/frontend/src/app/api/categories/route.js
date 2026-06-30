@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-
-const POS_API = process.env.EXTERNAL_CATEGORIES_API || "https://posapi.pahartheke.com/api/ecommerce/categories";
+import { posApi, posHeaders } from "@/lib/endpoints";
 
 export async function GET() {
   try {
-    const res = await fetch(POS_API, {
-      headers: { Accept: "application/json" },
+    const res = await fetch(posApi.categories(), {
+      headers: posHeaders(),
       next: { revalidate: 300 },
     });
 
@@ -13,23 +12,18 @@ export async function GET() {
 
     if (!res.ok) {
       return NextResponse.json(
-        { success: false, message: "Failed to fetch categories." },
+        { success: false, error: json?.message || "Failed to fetch categories." },
         { status: res.status }
       );
     }
 
     const categories = Array.isArray(json?.data) ? json.data : [];
 
-    return NextResponse.json(
-      { success: true, data: categories },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, data: categories });
   } catch (error) {
+    console.error("Categories error:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error?.message || "Something went wrong.",
-      },
+      { success: false, error: error?.message || "Something went wrong." },
       { status: 500 }
     );
   }

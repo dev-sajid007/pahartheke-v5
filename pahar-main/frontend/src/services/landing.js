@@ -1,8 +1,14 @@
+async function handleResponse(res) {
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status}: ${text || res.statusText}`);
+  }
+  return res.json();
+}
+
 export async function getLandingPage(pageName = "home") {
-  const res = await fetch(`/api/landing-page?pageName=${pageName}`, {
-    cache: "no-store",
-  });
-  const json = await res.json();
+  const res = await fetch(`/api/landing-page?pageName=${pageName}`, { cache: "no-store" });
+  const json = await handleResponse(res);
   if (!json.success) return null;
   return json.data?.[0] || null;
 }

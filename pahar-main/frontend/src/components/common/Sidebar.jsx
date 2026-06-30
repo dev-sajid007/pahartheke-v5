@@ -1,21 +1,3 @@
-const CATEGORIES = [
-  { label: "All Products", value: "" },
-  { label: "Rice & Grains", value: "rice-grains" },
-  { label: "Honey & Bee", value: "honey-bee" },
-  { label: "Spices & Herbs", value: "spices-herbs" },
-  { label: "Fruits & Dry", value: "fruits-dry" },
-  { label: "Oils & Ghee", value: "oils-ghee" },
-];
-
-const TAGS = [
-  "Organic",
-  "Hilltract",
-  "Raw",
-  "Natural",
-  "Seasonal",
-  "Traditional",
-];
-
 export default function ShopSidebar({
   category,
   setCategory,
@@ -26,11 +8,9 @@ export default function ShopSidebar({
   inStockOnly,
   setInStockOnly,
   setShowFilter,
-  categories: propCategories,
-  tags: propTags,
+  categories = [],
+  tags = [],
 }) {
-  const categories = propCategories?.length ? propCategories : CATEGORIES;
-  const tags = propTags?.length ? propTags : TAGS;
   return (
     <div className="bg-white border border-[#e2ead8] rounded-2xl p-5">
       {/* CATEGORY */}
@@ -88,6 +68,7 @@ export default function ShopSidebar({
       </div>
 
       {/* TAGS */}
+      {tags.length > 0 && (
       <div className="mb-6">
         <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-gray-500 mb-4">
           Tags
@@ -109,6 +90,7 @@ export default function ShopSidebar({
           ))}
         </div>
       </div>
+      )}
 
       {/* STOCK */}
       <div>

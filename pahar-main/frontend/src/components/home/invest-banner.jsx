@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Shield, Share2, Users } from "lucide-react"
-import { getSection } from "@/lib/api/landing-page";
+import { getSection } from "@/services/landing";
 
 const DEFAULTS = {
   SectionBgBanner: "images/frontand/TheamImage.jpg",
@@ -35,7 +35,9 @@ export default function InvestSection() {
             ButtonText: parsed.ctaButtonText || DEFAULTS.ButtonText,
             features: parsed.features?.length ? parsed.features : DEFAULTS.features,
           });
-        } catch {}
+        } catch (e) {
+          console.error("Invest parse error:", e);
+        }
       }
     }).catch((err) => { console.error("Invest data fetch failed:", err); });
   }, []);

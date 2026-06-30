@@ -31,12 +31,12 @@ export default function RegisterPage() {
       const json = await res.json()
 
       if (!res.ok) {
-        setError(json.message || "Registration failed")
+        setError(json.error || json.message || "Registration failed")
         return
       }
 
-      dispatch(setUser(json.data.user))
-      dispatch(setToken(json.data.token))
+      if (json.data?.user) dispatch(setUser(json.data.user))
+      if (json.data?.token) dispatch(setToken(json.data.token))
       router.push("/")
     } catch {
       setError("Something went wrong. Please try again.")

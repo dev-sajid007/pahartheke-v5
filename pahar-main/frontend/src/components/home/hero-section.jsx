@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { getCategories } from "@/lib/api/categories";
-import useEmblaCarousel from "embla-carousel-react"
-import Autoplay from "embla-carousel-autoplay"
 import CategorySection from "./category-section"
-import { getSection } from "@/lib/api/landing-page";
+import { getSection } from "@/services/landing";
 
 const DEFAULTS = {
   sectionButton: "Start Shopping Now",
@@ -16,23 +13,6 @@ const DEFAULTS = {
 
 export default function HeroSection() {
   const [heroData, setHeroData] = useState(DEFAULTS);
-  const [categories, setCategories] = useState([])
-
-  const [emblaRef] = useEmblaCarousel(
-    {
-      loop: true,
-      align: "start",
-      slidesToScroll: 1,
-      dragFree: false,
-    },
-    [
-      Autoplay({
-        delay: 2000,
-        stopOnInteraction: false,
-        stopOnMouseEnter: true,
-      }),
-    ]
-  )
 
   useEffect(() => {
     getSection("home", "hero").then((s) => {
@@ -44,15 +24,6 @@ export default function HeroSection() {
       }
     }).catch((err) => { console.error("Hero data fetch failed:", err); });
   }, []);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const data = await getCategories()
-      setCategories(data)
-    }
-
-    fetchCategories()
-  }, [])
 
   const { sectionButton, bgVideo } = heroData;
 
@@ -67,7 +38,7 @@ export default function HeroSection() {
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
           />
         </div>
 

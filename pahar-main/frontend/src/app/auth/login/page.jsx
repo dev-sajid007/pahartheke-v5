@@ -31,14 +31,19 @@ export default function LoginPage() {
       const json = await res.json()
 
       if (!res.ok) {
-        setError(json.message || "Login failed")
+        setError(json.error || json.message || "Login failed")
         return
       }
 
-      dispatch(setUser(json.data.user))
-      dispatch(setToken(json.data.token))
+      if (!json.data) {
+        setError("Invalid response from server.")
+        return
+      }
 
-      const role = json.data.user.role
+      if (json.data.user) dispatch(setUser(json.data.user))
+      if (json.data.token) dispatch(setToken(json.data.token))
+
+      const role = json.data.user?.role
       if (role === "admin") {
         const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001"
         router.push(adminUrl)

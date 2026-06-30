@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getProductsByCategorySlug } from "@/lib/api/products";
+import { getProductsByCategorySlug } from "@/services/products";
 import ProductCard from "@/components/product/product-card";
 
 export default async function CategoryProductsPage({ params }) {

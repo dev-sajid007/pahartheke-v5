@@ -73,7 +73,7 @@ export const getProduct = asyncHandler(async (req, res) => {
 });
 
 export const createOrder = asyncHandler(async (req, res) => {
-  const { items, customerInfo, note } = req.body;
+  const { items, customerInfo, note, payment_type, discount, shippingCost } = req.body;
 
   if (!items || !items.length) {
     throw new ApiError(400, "No items in order");
@@ -127,6 +127,20 @@ export const createOrder = asyncHandler(async (req, res) => {
       createdAt: 1,
     });
 
+    const totalBatchQty = batches.reduce(
+      (sum, b) => sum + b.remainingQuantity,
+      0
+    );
+
+    if (totalBatchQty < item.quantity) {
+      const shortfall = item.quantity - totalBatchQty;
+      batches.push({
+        remainingQuantity: shortfall,
+        purchasePrice: product.purchasePrice || 0,
+        save: async () => {},
+      });
+    }
+
     for (const batch of batches) {
       if (remainingQty <= 0) break;
 
@@ -137,13 +151,6 @@ export const createOrder = asyncHandler(async (req, res) => {
       );
       await batch.save();
       remainingQty = parseFloat((remainingQty - deductQty).toFixed(6));
-    }
-
-    if (remainingQty > 0.0001) {
-      throw new ApiError(
-        400,
-        `Batch stock mismatch for ${product.name}`
-      );
     }
 
     const salePrice = item.salePrice || product.salePrice;
@@ -204,7 +211,9 @@ export const createOrder = asyncHandler(async (req, res) => {
     });
   }
 
-  const grandTotal = subtotal;
+  const orderDiscount = Math.max(Number(discount) || 0, 0);
+  const orderShipping = Math.max(Number(shippingCost) || 0, 0);
+  const grandTotal = subtotal + orderShipping - orderDiscount;
   const paidAmount = grandTotal;
   const dueAmount = 0;
 
@@ -212,7 +221,8 @@ export const createOrder = asyncHandler(async (req, res) => {
     invoiceNo: generateInvoice(),
     items: saleItems,
     subtotal,
-    discount: 0,
+    discount: orderDiscount,
+    shippingCost: orderShipping,
     grandTotal,
     paidAmount,
     dueAmount,
@@ -221,6 +231,12 @@ export const createOrder = asyncHandler(async (req, res) => {
     note: note || "Order from website",
     source: "website",
     order_date: new Date(),
+    customerName: customerInfo?.name || "",
+    customerPhone: customerInfo?.phone || "",
+    customerEmail: customerInfo?.email || "",
+    customerAddress: customerInfo?.address || "",
+    customerCity: customerInfo?.city || "",
+    paymentType: payment_type || "cash_on_delivery",
   });
 
   return apiResponse({

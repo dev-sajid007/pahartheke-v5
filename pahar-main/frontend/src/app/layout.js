@@ -1,17 +1,13 @@
-import { Roboto, Geist_Mono } from "next/font/google";
-import { Suspense } from "react";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "@/components/providers/store-provider";
 import { Toaster } from "sonner";
 
-
-
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["400", "500", "700"], // optional but recommended
+  weight: ["400", "500", "700"],
 });
-
 
 export const metadata = {
   title: "PaharTheke",
@@ -23,20 +19,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${roboto.variable} antialiased`}>
         <StoreProvider>
-          <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="h-10 w-10 border-4 border-green-200 border-t-green-700 rounded-full animate-spin" />
-            </div>
-          }>
-            {children}
-          </Suspense>
-          <Toaster
-            position="top-right"
-            richColors
-            closeButton
-            toastOptions={{
-              className: "rounded-xl",
-            }}
+          {children}
+          <Toaster position="top-right" richColors closeButton
+            toastOptions={{ className: "rounded-xl" }}
           />
         </StoreProvider>
       </body>

@@ -8,7 +8,7 @@ import {
   Truck,
   Store,
 } from "lucide-react"
-import { getSection } from "@/lib/api/landing-page";
+import { getSection } from "@/services/landing";
 
 const DEFAULT_STEPS = [
   { title: "Boning &\nFabrication", theme: "dark" },
@@ -58,7 +58,8 @@ export default function WhyBengalMeatSection() {
             if (parsed.heading) setHeading(parsed.heading);
             if (parsed.description) setDescription(parsed.description);
             if (parsed.steps?.length) setSteps(parsed.steps);
-          } catch {
+          } catch (e) {
+            console.error("About parse error:", e);
             if (s.title) setHeading(s.title);
             if (s.subtitle) setDescription(s.subtitle);
           }

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { getSection } from "@/lib/api/landing-page";
+import { getSection } from "@/services/landing";
 
 const DEFAULT_REVIEWS = [
   {

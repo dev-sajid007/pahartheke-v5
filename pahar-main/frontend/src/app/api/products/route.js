@@ -1,28 +1,28 @@
-const POS_API = process.env.EXTERNAL_PRODUCT_API || "https://posapi.pahartheke.com/api/ecommerce/products";
+import { posApi, posHeaders } from "@/lib/endpoints";
 
 export async function GET() {
   try {
-    const res = await fetch(POS_API, {
-      headers: { Accept: "application/json" },
+    const res = await fetch(posApi.products(), {
+      headers: posHeaders(),
       next: { revalidate: 300 },
     });
 
     if (!res.ok) {
-      return new Response(JSON.stringify({ data: [] }), {
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json(
+        { success: false, error: `Products API returned ${res.status}` },
+        { status: res.status }
+      );
     }
 
     const json = await res.json();
     const products = Array.isArray(json?.data) ? json.data : [];
 
-    return new Response(JSON.stringify({ data: products }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json({ success: true, data: products });
   } catch (err) {
-    console.error("Products API Error:", err.message || err);
-    return new Response(JSON.stringify({ data: [] }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("Products API Error:", err);
+    return Response.json(
+      { success: false, error: err.message || "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 }

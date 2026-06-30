@@ -5,8 +5,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 import { clearCart } from "@/features/cart/cartSlice"
-import { submitOrder } from "@/lib/api/orders"
-import { mapCartStateToOrderPayload } from "@/lib/api/mappers/order"
+import { submitOrder } from "@/services/orders"
+import { mapCartStateToOrderPayload } from "@/services/orderMapper"
 import Header from "@/components/common/header"
 import OrderReviewPanel from "@/components/checkout/OrderReviewPanel"
 import ShippingAddressForm from "@/components/checkout/ShippingAddressForm"
@@ -14,6 +14,7 @@ import DeliveryOptions from "@/components/checkout/DeliveryOptions"
 import PaymentMethod from "@/components/checkout/PaymentMethod"
 import CouponAccordion from "@/components/checkout/CouponAccordion"
 import OrderSummary from "@/components/checkout/OrderSummary"
+import Alert from "@/components/ui/alert"
 
 export default function CheckoutPage() {
   const dispatch = useDispatch()
@@ -57,11 +58,15 @@ export default function CheckoutPage() {
     return formData.city === "Dhaka" ? 65 : 150
   }, [items.length, formData.city])
 
-  const discount = Number(formData.coupon_discount || 0)
+  const discountPercent = Number(formData.coupon_discount || 0)
+
+  const discountAmount = useMemo(() => {
+    return Math.round(subtotal * (discountPercent / 100))
+  }, [subtotal, discountPercent])
 
   const total = useMemo(() => {
-    return Math.max(subtotal + shipping - discount, 0)
-  }, [subtotal, shipping, discount])
+    return Math.max(subtotal + shipping - discountAmount, 0)
+  }, [subtotal, shipping, discountAmount])
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -83,14 +88,13 @@ export default function CheckoutPage() {
     setFormData((prev) => ({
       ...prev,
       city,
-      area: city,
     }))
   }
 
-  function handleApplyCoupon(discountPercent) {
+  function handleApplyCoupon(code, discountPercent) {
     setFormData((prev) => ({
       ...prev,
-      coupon_code: String(discountPercent),
+      coupon_code: code,
       coupon_discount: discountPercent,
     }))
   }
@@ -127,6 +131,8 @@ export default function CheckoutPage() {
             coupon_discount: formData.coupon_discount,
           },
           userId: authUser?.id || null,
+          subtotal,
+          deliveryCharge: shipping,
         })
 
       setLastPayload(payload)
@@ -134,24 +140,13 @@ export default function CheckoutPage() {
       const response = await submitOrder(payload)
 
       if (response?.success) {
-        setSuccessMessage(response?.message || "Order placed successfully.")
         dispatch(clearCart())
-        setFormData({
-          phone: "",
-          full_name: "",
-          city: "Dhaka",
-          address: "",
-          email: "",
-          area: "",
-          zip_code: "",
-          country: "Bangladesh",
-          order_note: "",
-          payment_type: "cash_on_delivery",
-          payment_status: "unpaid",
-          coupon_code: "",
-          coupon_discount: 0,
-        })
-        setTimeout(() => router.push("/"), 2000)
+        if (response.data) {
+          try {
+            sessionStorage.setItem("lastOrder", JSON.stringify(response.data))
+          } catch { /* ignore */ }
+        }
+        router.push("/order/success")
       } else {
         setErrorMessage(response?.message || "Failed to place order.")
       }
@@ -226,9 +221,12 @@ export default function CheckoutPage() {
           </div>
 
           {successMessage ? (
-            <div className="mt-6 rounded-lg bg-green-50 px-5 py-4 text-sm text-green-700">
-              {successMessage}
-            </div>
+            <Alert
+              variant="success"
+              message={successMessage}
+              onDismiss={() => setSuccessMessage("")}
+              className="mt-6"
+            />
           ) : null}
 
           {/* Main Content */}
@@ -246,17 +244,14 @@ export default function CheckoutPage() {
               />
 
               {errorMessage ? (
-                <div className="rounded-lg bg-red-50 px-5 py-3 text-sm text-red-600">
-                  <p>{errorMessage}</p>
-                  <button
-                    type="button"
-                    onClick={() => placeOrder(lastPayload)}
-                    className="mt-2 rounded-lg border border-red-300 bg-white px-4 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
-                    disabled={loading}
-                  >
-                    Retry
-                  </button>
-                </div>
+                <Alert
+                  variant="destructive"
+                  message={errorMessage}
+                  onRetry={() => placeOrder(lastPayload)}
+                  retryLabel="Retry"
+                  loading={loading}
+                  onDismiss={() => setErrorMessage("")}
+                />
               ) : null}
             </div>
 
@@ -270,7 +265,7 @@ export default function CheckoutPage() {
               <OrderSummary
                 subtotal={subtotal}
                 shipping={shipping}
-                discount={discount}
+                discount={discountAmount}
                 total={total}
                 onPlaceOrder={handlePlaceOrder}
                 loading={loading}

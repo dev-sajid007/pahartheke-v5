@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { getSection } from "@/lib/api/landing-page";
+import { getSection } from "@/services/landing";
 
 const DEFAULTS = {
   logoUrl: "https://pahartheke.com/assets/img/logo.png",
@@ -24,7 +24,7 @@ const DEFAULTS = {
   address: "House - 2/5, Road - 2 Block-F,\nLalmatia, Dhaka-1207, Bangladesh.\n02-223311311, 01531532139",
   phone: "01531532139",
   email: "pahar.theke@gmail.com",
-  mapEmbedUrl: "https://www.google.com/maps/embed?pb=YOUR_EMBED_URL",
+  mapEmbedUrl: "",
 };
 
 export default function Footer() {
@@ -37,7 +37,9 @@ export default function Footer() {
         try {
           const parsed = JSON.parse(s.content);
           setData({ ...DEFAULTS, ...parsed });
-        } catch {}
+        } catch (e) {
+          console.error("Footer parse error:", e);
+        }
       }
     }).catch((err) => {
       console.error("Footer data fetch failed:", err);

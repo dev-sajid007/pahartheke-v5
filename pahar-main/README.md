@@ -47,6 +47,16 @@ npm run dev
 | Backend API | `backend/` | http://localhost:5000 | `npm run dev` |
 | Storefront | `frontend/` | http://localhost:3000 | `npm run dev` |
 | Admin Panel | `admin/` | http://localhost:3001 | `npm run dev` |
+| POS Backend | `pahar-pos/backend/` | http://localhost:4001 | `npm run dev` |
+
+## Running Status
+
+| Service | Status |
+|---------|--------|
+| Frontend (port 3000) | ✅ All pages render, order flow complete |
+| POS Backend (port 4001) | ✅ Products, categories, orders API active |
+| Main Backend (port 5000) | ✅ Auth, landing page API active |
+| MongoDB | ✅ Via Docker |
 
 ## Tech Stack
 
@@ -60,12 +70,14 @@ npm run dev
 - **Dev:** Nodemon
 
 ### Frontend (Storefront)
-- **Framework:** Next.js 16 + React
-- **State:** Redux Toolkit
-- **Styling:** Tailwind CSS 4 + shadcn/ui
-- **HTTP Client:** Axios
-- **Carousel:** Embla, Swiper
+- **Framework:** Next.js 16 + React 19
+- **Routing:** App Router
+- **State:** Redux Toolkit 2 + react-redux 9
+- **Styling:** Tailwind CSS 4 + shadcn/ui + tw-animate-css
+- **HTTP:** Native `fetch` (custom wrapper with timeout)
+- **Carousel:** Embla (categories), Swiper (products)
 - **Icons:** Lucide React
+- **Notifications:** Sonner
 - **Theme:** next-themes
 
 ### Admin Panel
@@ -97,7 +109,8 @@ npm run dev
 | `/products/[id]` | Product detail |
 | `/category/[slug]` | Category browse |
 | `/cart` | Shopping cart |
-| `/checkout` | Checkout (bKash, Nagad, COD, Card, Bank) |
+| `/checkout` | Checkout (COD, Online) |
+| `/order/success` | Order confirmation page |
 | `/auth/login` | Login |
 | `/auth/register` | Register |
 | `/auth/profile` | User profile |
@@ -167,6 +180,15 @@ CLOUDINARY_API_SECRET=your_secret
 JWT_SECRET=your_jwt_secret_key_here_change_in_production
 ```
 
+### Frontend (`frontend/.env`)
+```
+POS_API_BASE_URL=http://localhost:4001/api/ecommerce
+BACKEND_API_URL=http://localhost:5000
+ECOMMERCE_API_KEY=pahar_pos_api_key_2024
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_ADMIN_URL=http://localhost:3001
+```
+
 ## Docker Setup
 
 ```bash
@@ -199,4 +221,67 @@ pahar-pos (POS System) ──┬── Public API: /api/ecommerce/products, /api
 
 - **Cloudinary** — Image/video hosting
 - **Pahar POS API** (`posapi.pahartheke.com`) — Product & category sync
-- **Payment Methods:** bKash, Nagad, Cash on Delivery, Card, Bank Transfer
+- **Payment Methods:** Cash on Delivery, Online Payment
+
+## Changelog — Recent Fixes & Features
+
+### 1. Turbopack Root Resolution
+- **File:** `frontend/next.config.mjs`
+- **Fix:** Added `turbopack.root: process.cwd()` to resolve modules from correct workspace root
+- **Issue:** "Cannot find module 'sonner'" — Turbopack inferred wrong root from duplicate lockfiles
+
+### 2. Hydration Mismatch Fix
+- **File:** `frontend/src/components/common/header.jsx`
+- **Fix:** Replaced `useEffect` with `useSyncExternalStore` for cart badge visibility
+- **Issue:** Cart badge rendered differently on server vs client → hydration error on every page
+
+### 3. Error Boundary — Checkout
+- **File:** `frontend/src/app/checkout/error.jsx` (new)
+- **Fix:** Added error boundary with "Try again / Return to shop" fallback UI
+
+### 4. Theme-Aware Alert Component
+- **File:** `frontend/src/components/ui/alert.jsx` (new)
+- **Fix:** Reusable Alert with `destructive`/`success` variants, dark mode support
+
+### 5. Removed Static Fallback Data
+- **Files:** `frontend/src/app/shop/page.jsx`, `frontend/src/components/common/Sidebar.jsx`
+- **Fix:** Removed all hardcoded `FALLBACK_PRODUCTS`, `FALLBACK_CATEGORIES`, `CATEGORIES`, `TAGS` arrays
+- **Result:** Shop page fully API-driven — no fake products when API fails
+
+### 6. Category Filter Name-to-Slug Mapping
+- **File:** `frontend/src/app/shop/page.jsx`
+- **Fix:** Built `nameToSlug` map to convert category names ("Rice & Grains") to slugs ("rice-grains")
+- **Issue:** Products had name strings, sidebar used slugs → filter never matched
+
+### 7. Null-Safe Product Normalization
+- **File:** `frontend/src/app/shop/page.jsx`
+- **Fix:** Added try/catch, `String()` wrappers, `??` operator, `.filter(Boolean)`
+- **Issue:** One malformed product threw during `.map()`, killed all products silently
+
+### 8. Isolated Error Handling
+- **File:** `frontend/src/app/shop/page.jsx`
+- **Fix:** Split categories & products fetch into separate try/catch blocks
+- **Issue:** Categories API failure silently killed product loading
+
+### 9. Default Price Filter
+- **File:** `frontend/src/app/shop/page.jsx`
+- **Fix:** Changed default `maxPrice` from 2000 to 99999
+- **Issue:** Products above ৳2000 were hidden by default
+
+### 10. Order API — Save Customer, Payment & Shipping Data
+- **Files:** `frontend/src/services/orderMapper.js`, `pahar-pos/backend/src/modules/sale/sale.model.js`, `pahar-pos/backend/src/modules/ecommerce/ecommerce.controller.js`
+- **Fix:** Extended Sale model with `customerName`, `customerPhone`, `customerAddress`, `customerCity`, `paymentType`; controller passes through discount, shippingCost
+- **Issue:** Customer info, payment type, discount, shipping were all lost by POS controller
+
+### 11. Batch Stock Mismatch Fix
+- **File:** `pahar-pos/backend/src/modules/ecommerce/ecommerce.controller.js`
+- **Fix:** Added fallback batch with `product.purchasePrice` when purchase batches insufficient
+- **Issue:** "Batch stock mismatch" error blocked order placement when batches missing
+
+### 12. Order Success Page
+- **File:** `frontend/src/app/order/success/page.jsx` (new)
+- **Fix:** Dedicated confirmation page showing invoice, items, address, payment, summary
+
+### 13. Sidebar — Fully Dynamic
+- **File:** `frontend/src/components/common/Sidebar.jsx`
+- **Fix:** Removed hardcoded `CATEGORIES`/`TAGS`; renders entirely from API props

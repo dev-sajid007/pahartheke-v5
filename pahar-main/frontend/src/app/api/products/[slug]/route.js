@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-
-const POS_API_BASE =
-  process.env.POS_API_BASE_URL ||
-  (process.env.EXTERNAL_PRODUCT_API
-    ? process.env.EXTERNAL_PRODUCT_API.replace(/\/products$/, "")
-    : "https://posapi.pahartheke.com/api/ecommerce");
+import { posApi, posHeaders } from "@/lib/endpoints";
 
 export async function GET(_, { params }) {
   try {
@@ -12,19 +7,19 @@ export async function GET(_, { params }) {
 
     if (!slug) {
       return NextResponse.json(
-        { success: false, message: "Product slug is required." },
+        { success: false, error: "Product slug is required." },
         { status: 400 }
       );
     }
 
-    const res = await fetch(`${POS_API_BASE}/products/${encodeURIComponent(slug)}`, {
-      headers: { Accept: "application/json" },
+    const res = await fetch(posApi.product(slug), {
+      headers: posHeaders(),
       next: { revalidate: 300 },
     });
 
     if (!res.ok) {
       return NextResponse.json(
-        { success: false, message: "Product not found." },
+        { success: false, error: "Product not found." },
         { status: res.status }
       );
     }
@@ -36,11 +31,9 @@ export async function GET(_, { params }) {
       { status: 200 }
     );
   } catch (error) {
+    console.error("Product detail error:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error?.message || "Something went wrong.",
-      },
+      { success: false, error: error?.message || "Something went wrong." },
       { status: 500 }
     );
   }

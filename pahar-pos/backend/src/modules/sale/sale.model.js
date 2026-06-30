@@ -69,6 +69,31 @@ const saleSchema = new mongoose.Schema(
       ref: "Customer",
     },
 
+    customerName: {
+      type: String,
+    },
+
+    customerPhone: {
+      type: String,
+    },
+
+    customerEmail: {
+      type: String,
+    },
+
+    customerAddress: {
+      type: String,
+    },
+
+    customerCity: {
+      type: String,
+    },
+
+    paymentType: {
+      type: String,
+      default: "cash_on_delivery",
+    },
+
     items: [saleItemSchema],
 
     subtotal: {

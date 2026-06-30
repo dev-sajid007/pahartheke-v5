@@ -1,22 +1,27 @@
 import { NextResponse } from "next/server";
+import { posApi, posHeaders } from "@/lib/endpoints";
 
-const PRODUCT_API =
-  process.env.POS_API_BASE_URL
-    ? `${process.env.POS_API_BASE_URL}/products`
-    : (process.env.EXTERNAL_PRODUCT_API || "https://posapi.pahartheke.com/api/ecommerce/products");
-
-export async function GET(request, { params }) {
-  const { slug } = await params;
-
+export async function GET(_, { params }) {
   try {
-    const url = `${PRODUCT_API}?category=${encodeURIComponent(slug)}`;
-    const res = await fetch(url, {
-      headers: { Accept: "application/json" },
+    const { slug } = await params;
+
+    if (!slug) {
+      return NextResponse.json(
+        { success: false, error: "Category slug is required." },
+        { status: 400 }
+      );
+    }
+
+    const res = await fetch(posApi.productsByCategory(slug), {
+      headers: posHeaders(),
       next: { revalidate: 300 },
     });
 
     if (!res.ok) {
-      return NextResponse.json({ success: false, data: [], message: 'Failed to fetch products' }, { status: res.status });
+      return NextResponse.json(
+        { success: false, data: [], error: "Failed to fetch products" },
+        { status: res.status }
+      );
     }
 
     const json = await res.json();
@@ -24,7 +29,10 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({ success: true, data: products });
   } catch (error) {
-    console.error('[by-category] Error:', error.message);
-    return NextResponse.json({ success: false, data: [], message: 'Failed to fetch products' }, { status: 500 });
+    console.error("Products by category error:", error);
+    return NextResponse.json(
+      { success: false, data: [], error: error.message || "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 }

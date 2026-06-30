@@ -1,15 +1,29 @@
 "use client"
 
+import { useRef, useState } from "react"
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
-import { Swiper, SwiperSlide } from "swiper/react"
-import { Navigation, Autoplay } from "swiper/modules"
-
-import "swiper/css"
-import "swiper/css/navigation"
-
 import ProductCard from "./product-card"
 
 export default function ProductSlider({ products = [] }) {
+  const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollButtons = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+  };
+
+  const scroll = (direction) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.8;
+    el.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
+    setTimeout(updateScrollButtons, 400);
+  };
+
   return (
     <section className="w-full">
       <div className="container mx-auto px-4">
@@ -30,10 +44,18 @@ export default function ProductSlider({ products = [] }) {
 
           <div className="flex items-center gap-3">
             <div className="hidden gap-1 sm:flex">
-              <button className="custom-prev flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-amber-50 hover:text-amber-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-400">
+              <button
+                onClick={() => scroll("left")}
+                disabled={!canScrollLeft}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-amber-50 hover:text-amber-600 disabled:opacity-30 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-400"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <button className="custom-next flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-amber-50 hover:text-amber-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-400">
+              <button
+                onClick={() => scroll("right")}
+                disabled={!canScrollRight}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-amber-50 hover:text-amber-600 disabled:opacity-30 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-400"
+              >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
@@ -45,36 +67,21 @@ export default function ProductSlider({ products = [] }) {
           </div>
         </div>
 
-        <Swiper
-          modules={[Navigation, Autoplay]}
-          spaceBetween={20}
-          slidesPerView={1}
-          autoplay={{
-            delay: 4000,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          }}
-          navigation={{
-            nextEl: ".custom-next",
-            prevEl: ".custom-prev",
-          }}
-          breakpoints={{
-            480: { slidesPerView: 2 },
-            768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
-            1280: { slidesPerView: 5 },
-          }}
-          className="!pb-2"
+        <div
+          ref={scrollRef}
+          onScroll={updateScrollButtons}
+          className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [&::-webkit-scrollbar]:hidden"
         >
           {products.map((product) => (
-            <SwiperSlide key={product.id}>
-              <div className="h-full transition-transform duration-300 hover:-translate-y-1">
-                <ProductCard product={product} />
-              </div>
-            </SwiperSlide>
+            <div
+              key={product.id}
+              className="w-[260px] shrink-0 snap-start transition-transform duration-300 hover:-translate-y-1 sm:w-[220px] md:w-[240px] lg:w-[260px] xl:w-[270px]"
+            >
+              <ProductCard product={product} />
+            </div>
           ))}
-        </Swiper>
+        </div>
       </div>
     </section>
-  )
+  );
 }

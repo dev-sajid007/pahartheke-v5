@@ -1,41 +1,25 @@
 import { NextResponse } from "next/server";
-
-const BACKEND_API_URL = process.env.BACKEND_API_URL;
+import { landingApi } from "@/lib/endpoints";
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const pageName = searchParams.get("pageName") || "home";
 
-    if (!BACKEND_API_URL) {
-      return NextResponse.json(
-        { success: false, message: "BACKEND_API_URL is not configured." },
-        { status: 500 }
-      );
-    }
-
-    const res = await fetch(
-      `${BACKEND_API_URL}/api/landing-page?pageName=${pageName}`,
-      {
-        headers: { Accept: "application/json" },
-        cache: "no-store",
-      }
-    );
-
-    const json = await res.json();
+    const res = await fetch(landingApi.page(pageName), {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(5000),
+    });
 
     if (!res.ok) {
-      return NextResponse.json(
-        { success: false, message: json?.message || "Failed to fetch landing page." },
-        { status: res.status }
-      );
+      return NextResponse.json({ success: true, data: [] });
     }
 
+    const json = await res.json();
     return NextResponse.json({ success: true, data: json?.data || [] });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: error?.message || "Something went wrong." },
-      { status: 500 }
-    );
+    console.error("Landing page error (degraded):", error?.message);
+    return NextResponse.json({ success: true, data: [] });
   }
 }

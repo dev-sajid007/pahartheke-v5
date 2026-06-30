@@ -9,132 +9,45 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "@/features/cart/cartSlice";
 import { toast } from "sonner";
 
-const FALLBACK_PRODUCTS = [
-  {
-    id: 1,
-    name: "Kalo Jeera Honey",
-    desc: "Pure raw black seed honey from Chittagong hills",
-    price: 480,
-    originalPrice: 600,
-    badge: "Organic",
-    emoji: "\uD83C\uDF6F",
-    category: "honey-bee",
-    tags: ["Organic", "Raw"],
-    inStock: true,
-    isNew: false,
-  },
-  {
-    id: 2,
-    name: "Red Aromatic Rice",
-    desc: "Fragrant heirloom red rice grown without pesticides",
-    price: 180,
-    originalPrice: null,
-    badge: "Hilltract",
-    emoji: "\uD83C\uDF3E",
-    category: "rice-grains",
-    tags: ["Hilltract", "Natural"],
-    inStock: true,
-    isNew: false,
-  },
-  {
-    id: 3,
-    name: "Wild Turmeric Powder",
-    desc: "Stone-ground wild turmeric from Bandarban highlands",
-    price: 220,
-    originalPrice: 280,
-    badge: "Organic",
-    emoji: "\uD83D\uDFE1",
-    category: "spices-herbs",
-    tags: ["Organic", "Traditional"],
-    inStock: true,
-    isNew: false,
-  },
-  {
-    id: 4,
-    name: "Dried Hill Jackfruit",
-    desc: "Sun-dried jackfruit chips, no added sugar or preservatives",
-    price: 150,
-    originalPrice: null,
-    badge: null,
-    emoji: "\uD83C\uDF48",
-    category: "fruits-dry",
-    tags: ["Seasonal", "Natural"],
-    inStock: true,
-    isNew: true,
-  },
-  {
-    id: 5,
-    name: "Mustard Hill Oil",
-    desc: "Cold-pressed pure mustard oil from local mustard seeds",
-    price: 320,
-    originalPrice: 380,
-    badge: "Organic",
-    emoji: "\uD83E\uDED9",
-    category: "oils-ghee",
-    tags: ["Organic", "Raw"],
-    inStock: true,
-    isNew: false,
-  },
-  {
-    id: 6,
-    name: "Forest Beeswax Honey",
-    desc: "Raw unfiltered beeswax honey with natural pollen",
-    price: 550,
-    originalPrice: 700,
-    badge: "Organic",
-    emoji: "\uD83D\uDC1D",
-    category: "honey-bee",
-    tags: ["Organic", "Raw", "Natural"],
-    inStock: true,
-    isNew: false,
-  },
-];
 
-const FALLBACK_CATEGORIES = [
-  { label: "All Products", value: "" },
-  { label: "Rice & Grains", value: "rice-grains" },
-  { label: "Honey & Bee", value: "honey-bee" },
-  { label: "Spices & Herbs", value: "spices-herbs" },
-  { label: "Fruits & Dry", value: "fruits-dry" },
-  { label: "Oils & Ghee", value: "oils-ghee" },
-];
 
-function normalizeProduct(p, index) {
-  const price = Number(p.salePrice || p.price || 0);
-  const stock = Number(p.currentStock ?? p.stockQuantity ?? p.stock ?? 1);
-  return {
-    id: p._id || p.id || `prod-${index}`,
-    name: p.name || "Product",
-    desc: p.description || "",
-    price,
-    originalPrice: null,
-    badge: p.tags?.length ? p.tags[0] : null,
-    emoji: p.image || (Array.isArray(p.images) ? p.images[0] : null) || "🛒",
-    slug: p.slug || p._id || "",
-    category: typeof p.category === "object" ? p.category?.slug : (p.category || ""),
-    tags: p.tags || [],
-    inStock: stock > 0,
-    isNew: false,
-  };
+function normalizeProduct(p, index, nameToSlug = {}) {
+  try {
+    const price = Number(p.salePrice ?? p.price ?? 0);
+    const stock = Number(p.currentStock ?? p.stockQuantity ?? p.stock ?? 0);
+    const rawImg = String(p.image || (Array.isArray(p.images) ? p.images[0] : "") || "/images/fallback-product.png");
+    const imageUrl = rawImg.startsWith("http") || rawImg.startsWith("data:") ? rawImg : `/images/${rawImg.replace(/^\//, "")}`;
+
+    let category;
+    if (typeof p.category === "object" && p.category?.slug) {
+      category = p.category.slug;
+    } else if (p.category) {
+      const catStr = String(p.category);
+      category = nameToSlug[catStr.toLowerCase()] || catStr;
+    } else {
+      category = "";
+    }
+
+    return {
+      id: p._id || p.id || `prod-${index}`,
+      name: p.name || "Product",
+      desc: p.description || "",
+      price,
+      originalPrice: Number(p.oldPrice || p.purchasePrice || p.purchase_price || 0) || null,
+      badge: p.tags?.length ? p.tags[0] : null,
+      image: imageUrl,
+      slug: p.slug || p._id || "",
+      category,
+      tags: p.tags || [],
+      inStock: stock > 0,
+      isNew: false,
+    };
+  } catch {
+    return null;
+  }
 }
 
-const CATEGORIES = [
-  { label: "All Products", value: "" },
-  { label: "Rice & Grains", value: "rice-grains" },
-  { label: "Honey & Bee", value: "honey-bee" },
-  { label: "Spices & Herbs", value: "spices-herbs" },
-  { label: "Fruits & Dry", value: "fruits-dry" },
-  { label: "Oils & Ghee", value: "oils-ghee" },
-];
 
-const TAGS = [
-  "Organic",
-  "Hilltract",
-  "Raw",
-  "Natural",
-  "Seasonal",
-  "Traditional",
-];
 
 export default function ShopPage() {
   const dispatch = useDispatch();
@@ -145,7 +58,7 @@ export default function ShopPage() {
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(2000);
+  const [maxPrice, setMaxPrice] = useState(99999);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sort, setSort] = useState("featured");
   const [showFilter, setShowFilter] = useState(false);
@@ -153,32 +66,17 @@ export default function ShopPage() {
   useEffect(() => {
     async function loadData() {
       setLoading(true);
+
+      const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      if (searchParams.has("search")) {
+        setSearch(searchParams.get("search"));
+      }
+
+      let fetchedCategories = [];
       try {
-        const searchParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
-        if (searchParams.has("search")) {
-          setSearch(searchParams.get("search"));
-        }
-
-        const [productsRes, categoriesRes] = await Promise.all([
-          fetch("/api/products", { cache: "no-store" }),
-          fetch("/api/categories", { cache: "no-store" }),
-        ]);
-
-        let fetchedProducts = FALLBACK_PRODUCTS;
-        let fetchedCategories = FALLBACK_CATEGORIES;
-
-        if (productsRes.ok) {
-          const json = await productsRes.json();
-          const raw = json.data || json.products || [];
-          if (raw.length) {
-            fetchedProducts = raw.map(normalizeProduct);
-            const allTags = [...new Set(fetchedProducts.flatMap((p) => p.tags))];
-            setTags(allTags);
-          }
-        }
-
-        if (categoriesRes.ok) {
-          const json = await categoriesRes.json();
+        const catRes = await fetch("/api/categories", { cache: "no-store" });
+        if (catRes.ok) {
+          const json = await catRes.json();
           const raw = json.data || json.categories || [];
           if (raw.length) {
             fetchedCategories = [
@@ -187,23 +85,42 @@ export default function ShopPage() {
             ];
           }
         }
-
-        setProducts(fetchedProducts);
-        setCategories(fetchedCategories);
       } catch (err) {
-        console.error("Shop data fetch failed:", err);
-        setProducts(FALLBACK_PRODUCTS);
-        setCategories(FALLBACK_CATEGORIES);
-        toast.error("Could not load products. Showing demo data.");
-      } finally {
-        setLoading(false);
+        console.error("Categories fetch failed:", err);
       }
+      setCategories(fetchedCategories);
+
+      const nameToSlug = {};
+      for (const c of fetchedCategories) {
+        if (c.label && c.value) {
+          nameToSlug[c.label.toLowerCase()] = c.value;
+        }
+      }
+
+      try {
+        const prodRes = await fetch("/api/products", { cache: "no-store" });
+        if (prodRes.ok) {
+          const json = await prodRes.json();
+          const raw = json.data || json.products || [];
+          if (raw.length) {
+            const mapped = raw.map((p, i) => normalizeProduct(p, i, nameToSlug)).filter(Boolean);
+            setProducts(mapped);
+            const allTags = [...new Set(mapped.flatMap((p) => p.tags))];
+            setTags(allTags);
+          }
+        }
+      } catch (err) {
+        console.error("Products fetch failed:", err);
+        toast.error("Failed to load products. Please try again.");
+      }
+
+      setLoading(false);
     }
     loadData();
   }, []);
 
   const filteredProducts = useMemo(() => {
-    let items = [...(products.length ? products : FALLBACK_PRODUCTS)];
+    let items = [...products];
 
     if (category) {
       items = items.filter((item) => item.category === category);
@@ -253,96 +170,7 @@ export default function ShopPage() {
   };
 
   // const Sidebar = () => (
-  //   <div className="bg-white border border-[#e2ead8] rounded-2xl p-5">
-  //     {/* CATEGORY */}
-  //     <div className="mb-6">
-  //       <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-gray-500 mb-4">
-  //         Categories
-  //       </h3>
 
-  //       <div className="space-y-2">
-  //         {CATEGORIES.map((cat) => (
-  //           <button
-  //             key={cat.value}
-  //             onClick={() => {
-  //               setCategory(cat.value);
-  //               setShowFilter(false);
-  //             }}
-  //             className={`w-full text-left px-3 py-2.5 rounded-xl text-sm transition ${
-  //               category === cat.value
-  //                 ? "bg-green-100 text-green-800 font-bold"
-  //                 : "hover:bg-green-50 text-gray-600"
-  //             }`}
-  //           >
-  //             {cat.label}
-  //           </button>
-  //         ))}
-  //       </div>
-  //     </div>
-
-  //     {/* PRICE */}
-  //     <div className="mb-6">
-  //       <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-gray-500 mb-4">
-  //         Price Range
-  //       </h3>
-
-  //       <input
-  //         type="range"
-  //         min="0"
-  //         max="2000"
-  //         step="50"
-  //         value={maxPrice}
-  //         onChange={(e) => setMaxPrice(Number(e.target.value))}
-  //         className="w-full accent-green-700"
-  //       />
-
-  //       <div className="flex justify-between mt-2 text-sm">
-  //         <span className="text-gray-500">৳0</span>
-
-  //         <span className="font-bold text-green-700">
-  //           ৳{maxPrice}
-  //         </span>
-  //       </div>
-  //     </div>
-
-  //     {/* TAGS */}
-  //     <div className="mb-6">
-  //       <h3 className="text-xs uppercase tracking-[0.2em] font-bold text-gray-500 mb-4">
-  //         Tags
-  //       </h3>
-
-  //       <div className="flex flex-wrap gap-2">
-  //         {TAGS.map((tag) => (
-  //           <button
-  //             key={tag}
-  //             onClick={() => toggleTag(tag)}
-  //             className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition ${
-  //               selectedTags.includes(tag)
-  //                 ? "bg-green-100 border-green-300 text-green-700"
-  //                 : "border-gray-200 text-gray-500 hover:border-green-400"
-  //             }`}
-  //           >
-  //             {tag}
-  //           </button>
-  //         ))}
-  //       </div>
-  //     </div>
-
-  //     {/* STOCK */}
-  //     <div>
-  //       <label className="flex items-center gap-2 text-sm text-gray-600">
-  //         <input
-  //           type="checkbox"
-  //           checked={inStockOnly}
-  //           onChange={(e) => setInStockOnly(e.target.checked)}
-  //           className="accent-green-700"
-  //         />
-
-  //         In stock only
-  //       </label>
-  //     </div>
-  //   </div>
-  // );
 
   return (
 <>
@@ -456,20 +284,15 @@ export default function ShopPage() {
                     key={product.id}
                     className="bg-white border border-[#e2ead8] rounded-2xl overflow-hidden hover:-translate-y-1 transition duration-300"
                   >
-                    {/* IMAGE */}
-                    <Link href={`/products/${product.slug || product.id}`}>
-                      <div className="h-32 sm:h-40 md:h-44 bg-[#f4ede0] flex items-center justify-center relative overflow-hidden">
-                        {product.emoji && (product.emoji.startsWith("http") || product.emoji.startsWith("data:")) ? (
+                      {/* IMAGE */}
+                      <Link href={`/products/${product.slug || product.id}`}>
+                        <div className="h-32 sm:h-40 md:h-44 bg-[#f4ede0] flex items-center justify-center relative overflow-hidden">
                           <img
-                            src={product.emoji}
+                            src={product.image}
                             alt={product.name}
                             className="h-full w-full object-contain"
+                            loading="lazy"
                           />
-                        ) : (
-                          <span className="text-5xl sm:text-6xl">
-                            {product.emoji || "\uD83D\uDED2"}
-                          </span>
-                        )}
 
                       {discount && (
                         <span className="absolute top-2 left-2 text-[10px] sm:text-xs font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
@@ -520,8 +343,9 @@ export default function ShopPage() {
                               id: product.id,
                               name: product.name,
                               price: product.price,
-                              image: product.emoji,
+                              image: product.image,
                               quantity: 1,
+                              slug: product.slug,
                             }));
                             toast.success(`${product.name} added to cart`);
                           }}

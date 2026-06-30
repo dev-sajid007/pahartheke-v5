@@ -27,6 +27,8 @@
 | Full Uptime Package | $620.50 |
 | Fixed Uptime (per GB) | $0.45 |
 | Fixed Uptime (per GB) | $1.10 |
+| Fixed Uptime (per GB) | $1.00 |
+
 
 ---
 
@@ -241,6 +243,37 @@
 | Critical performance issues found | **3** (pending) |
 | Critical order bugs found | **2** (pending) |
 | Pending fixes for next session | **~20** in 4 batches |
+| Lint errors introduced | **0** |
+| Lint warnings introduced | **0** |
+
+---
+
+### Session: June 30, 2026 — Frontend Fixes & Order Flow Complete
+
+| # | Category | File(s) | Issue | Fix |
+|---|----------|---------|-------|-----|
+| 1 | Build | `pahar-main/frontend/next.config.mjs` | Turbopack inferred wrong monorepo root — "Cannot find module 'sonner'" on all pages | Added `turbopack.root: process.cwd()` to resolve modules from frontend directory |
+| 2 | Hydration | `pahar-main/frontend/.../header.jsx` | Cart badge rendered differently on server vs client (localStorage dependency) → hydration error on every page | Replaced `useEffect` with `useSyncExternalStore` — returns `false` on server, `true` on client |
+| 3 | Error Boundary | `pahar-main/frontend/.../checkout/error.jsx` (new) | Uncaught errors in checkout caused blank white screen | Added error boundary with "Try again / Return to shop" fallback UI |
+| 4 | UI | `pahar-main/frontend/.../ui/alert.jsx` (new) | Inline error/success divs with hardcoded colors, no dark mode support | Created theme-aware Alert component with `destructive`/`success` variants + dark mode |
+| 5 | Shop | `pahar-main/frontend/.../shop/page.jsx` + `Sidebar.jsx` | 6 hardcoded fallback products + categories still shown when API fails | Removed all `FALLBACK_PRODUCTS`, `FALLBACK_CATEGORIES`, hardcoded `CATEGORIES`/`TAGS` — shop is fully API-driven |
+| 6 | Filter | `pahar-main/frontend/.../shop/page.jsx` | Category filter compared names ("Rice & Grains") against slugs ("rice-grains") — never matched → empty results on category click | Built `nameToSlug` map from categories API; converts names to slugs before comparison |
+| 7 | Resilience | `pahar-main/frontend/.../shop/page.jsx` | One malformed product threw in `.map()`, killed all products silently via shared try/catch | Added try/catch inside `normalizeProduct`, `String()` wrappers, `??` operator, `.filter(Boolean)` |
+| 8 | Resilience | `pahar-main/frontend/.../shop/page.jsx` | Categories API failure silently killed product loading (shared try/catch) | Split categories and products fetch into separate try/catch blocks |
+| 9 | Filter | `pahar-main/frontend/.../shop/page.jsx` | Default `maxPrice: 2000` hid products above ৳2000 | Changed to `useState(99999)` |
+| 10 | Orders | `pahar-main/frontend/.../orderMapper.js` + `pahar-pos/.../sale.model.js` + `ecommerce.controller.js` | Customer info, payment type, discount, shipping cost all ignored by POS controller | Extended Sale model with customer fields + `paymentType`; controller now saves all fields + applies discount/shipping to total |
+| 11 | Orders | `pahar-pos/.../ecommerce.controller.js` | "Batch stock mismatch" error blocked order placement when purchase batches missing/manually adjusted | Added fallback batch with `product.purchasePrice` when total batch qty < ordered qty |
+| 12 | Orders | `pahar-main/frontend/.../order/success/page.jsx` (new) | No order confirmation — brief toast then redirect to home | Created dedicated success page showing invoice, items, address, payment, summary |
+| 13 | Sidebar | `pahar-main/frontend/.../Sidebar.jsx` | Static `CATEGORIES`/`TAGS` arrays used as fallback when props missing | Removed hardcoded arrays; tags section hidden when empty |
+
+#### Session Stats
+
+| Metric | Count |
+|--------|-------|
+| Fixes applied | **13** |
+| New files created | **4** (error.jsx, alert.jsx, order/success/page.jsx, Sidebar.jsx cleaned) |
+| Files modified | **11** across 2 services |
+| Services touched | pahar-main frontend, pahar-pos backend |
 | Lint errors introduced | **0** |
 | Lint warnings introduced | **0** |
 

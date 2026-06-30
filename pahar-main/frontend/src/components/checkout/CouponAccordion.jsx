@@ -23,7 +23,7 @@ export default function CouponAccordion({ onApply }) {
 
     const percent = VALID_COUPONS[trimmed]
     if (percent) {
-      onApply(percent)
+      onApply(trimmed, percent)
       setDiscount(percent)
       setAppliedCode(trimmed)
       setApplied(true)
@@ -35,12 +35,14 @@ export default function CouponAccordion({ onApply }) {
   }
 
   function handleRemove() {
-    onApply(0)
+    onApply("", 0)
     setApplied(false)
     setAppliedCode("")
     setDiscount(0)
     toast.info("Coupon removed")
   }
+
+
 
   return (
     <div className="rounded-xl border border-[#E0E0E0] bg-white">

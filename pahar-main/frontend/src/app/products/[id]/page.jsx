@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, setCartOpen } from "@/features/cart/cartSlice";
@@ -7,25 +7,24 @@ import { toast } from "sonner";
 import Header from "@/components/common/header";
 import Footer from "@/components/common/footer";
 import { CONTACT } from "@/config/contact";
-import "./product-details.css";
 
 const WHATSAPP_NUMBER = CONTACT.whatsapp;
+
+function resolveImage(src) {
+  if (!src) return "https://placehold.co/500x500/e8f5e9/2d6a4f?text=Product";
+  if (src.startsWith("http") || src.startsWith("data:")) return src;
+  return `/images/${src.replace(/^\//, "")}`;
+}
 
 const ProductPage = () => {
   const params = useParams();
   const router = useRouter();
   const dispatch = useDispatch();
   const slug = params?.id;
+  const fetchedSlug = useRef(null);
 
-  const [product, setProduct] = useState(() => {
-    if (!slug) return null;
-    try {
-      const cached = sessionStorage.getItem(`product_${slug}`);
-      return cached ? JSON.parse(cached) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeThumb, setActiveThumb] = useState(0);
   const [activeTab, setActiveTab] = useState("description");
@@ -35,35 +34,49 @@ const ProductPage = () => {
   const cartItems = useSelector((state) => state.cart.items);
 
   useEffect(() => {
-    if (!slug || product) return;
+    if (!slug) return;
+    if (fetchedSlug.current === slug) return;
+    fetchedSlug.current = slug;
 
     const fetchProduct = async () => {
+      setLoading(true);
+      setProduct(null);
       try {
         const res = await fetch(`/api/products/${slug}`, { cache: "no-store" });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && json.data) {
-            setProduct(json.data);
-            return;
-          }
+        const json = await res.json();
+        if (res.ok && json.success && json.data) {
+          setProduct(json.data);
+        } else {
+          toast.error(json.error || "Product not found.");
         }
-        toast.error("Product not found.");
       } catch (err) {
         console.error("Failed to fetch product:", err);
         toast.error("Failed to load product. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchProduct();
-  }, [slug, product]);
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center">
+          <div className="h-10 w-10 border-4 border-green-200 border-t-green-700 rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!product) {
     return (
       <>
         <Header />
-        <div className="product-page">
-          <div className="container" style={{ textAlign: "center", paddingTop: 80 }}>
-            <p style={{ color: "#888", fontSize: 16 }}>Loading product...</p>
-          </div>
+        <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center">
+          <p className="text-gray-500 text-lg">Product not found.</p>
         </div>
         <Footer />
       </>
@@ -77,42 +90,33 @@ const ProductPage = () => {
       : ["https://placehold.co/500x500/e8f5e9/2d6a4f?text=Product"];
 
   const displayPrice = product?.salePrice ?? product?.price ?? product?.sale_price ?? 0;
-  const oldPrice = 0;
-  const inStock = Number(product?.currentStock ?? product?.stockQuantity ?? product?.stock ?? 1) > 0;
-  const discount = 0;
+  const oldPriceVal = product?.oldPrice ?? product?.purchasePrice ?? product?.purchase_price ?? 0;
+  const hasDiscount = oldPriceVal > displayPrice;
+  const discountPercent = hasDiscount ? Math.round((1 - displayPrice / oldPriceVal) * 100) : 0;
+  const inStock = Number(product?.currentStock ?? product?.stockQuantity ?? product?.stock ?? 0) > 0;
+
+  const cartItemPayload = {
+    id: product._id || product.id,
+    name: product.name,
+    price: displayPrice,
+    image: resolveImage(images[0]),
+    quantity,
+    slug: product.slug,
+  };
 
   const handleAddToCart = () => {
     if (!inStock) {
       toast.error("This product is currently out of stock.");
       return;
     }
-    dispatch(
-      addToCart({
-        productId: product._id || product.id,
-        quantity,
-        price: displayPrice,
-        total: displayPrice * quantity,
-        product: {
-          id: product._id || product.id,
-          name: product.name,
-          slug: product.slug,
-          price: displayPrice,
-          images: images,
-          description: product.description || "",
-        },
-        id: product._id || product.id,
-        name: product.name,
-        slug: product.slug,
-        image: images[0],
-      })
-    );
+    dispatch(addToCart(cartItemPayload));
     toast.success(`${product.name} added to cart!`);
   };
 
   const handleBuyNow = () => {
     if (!inStock) return;
     const productId = product._id || product.id;
-    const exists = cartItems.find((item) => item.productId === productId || item.id === productId);
+    const exists = cartItems.find((item) => item.id === productId);
     if (exists) {
       setModalQty(exists.quantity);
       setQuantityModal(true);
@@ -123,27 +127,7 @@ const ProductPage = () => {
   };
 
   const handleModalUpdate = () => {
-    const productId = product._id || product.id;
-    dispatch(
-      addToCart({
-        productId,
-        quantity: modalQty,
-        price: displayPrice,
-        total: displayPrice * modalQty,
-        product: {
-          id: productId,
-          name: product.name,
-          slug: product.slug,
-          price: displayPrice,
-          images: images,
-          description: product.description || "",
-        },
-        id: productId,
-        name: product.name,
-        slug: product.slug,
-        image: images[0],
-      })
-    );
+    dispatch(addToCart({ ...cartItemPayload, quantity: modalQty }));
     setQuantityModal(false);
     dispatch(setCartOpen(true));
   };
@@ -159,169 +143,150 @@ const ProductPage = () => {
     window.location.href = `tel:+${WHATSAPP_NUMBER}`;
   };
 
-  const categoryName =
-    product.category?.name || product.categoryName || "";
+  const categoryName = product.category?.name || product.categoryName || "";
 
   return (
     <>
       <Header />
-      <div className="product-page">
-        <div className="container">
-          <div className="breadcrumb">
-            <span className="breadcrumb-link" onClick={() => router.push("/")}>Home</span>
-            <span className="breadcrumb-sep">/</span>
+      <div className="min-h-screen bg-[#f7f7f7] text-[#222]">
+        <div className="max-w-[1100px] mx-auto px-4 py-6">
+          <div className="text-sm text-gray-500 mb-5 flex items-center gap-1.5 flex-wrap">
+            <button onClick={() => router.push("/")} className="text-[#2d6a4f] underline cursor-pointer">Home</button>
+            <span className="text-gray-300">/</span>
             {categoryName && (
               <>
-                <span className="breadcrumb-link">{categoryName}</span>
-                <span className="breadcrumb-sep">/</span>
+                <span className="text-[#2d6a4f]">{categoryName}</span>
+                <span className="text-gray-300">/</span>
               </>
             )}
-            <span className="breadcrumb-current">{product.name}</span>
+            <span className="text-gray-600">{product.name}</span>
           </div>
 
-          <div className="product-grid">
-            <div className="gallery-col">
-              <div className="main-image-wrap">
-                {discount > 0 && (
-                  <div className="sale-badge">-{discount}% SALE</div>
+          <div className="flex flex-wrap gap-10 bg-white rounded-xl p-8 shadow-sm md:flex-nowrap">
+            <div className="w-full md:w-[340px] shrink-0">
+              <div className="relative rounded-lg overflow-hidden bg-[#f0f7f0] mb-3">
+                {hasDiscount && (
+                  <div className="absolute top-3 left-3 z-10 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded">
+                    -{discountPercent}% SALE
+                  </div>
                 )}
                 <img
-                  src={images[activeThumb]?.startsWith("http") ? images[activeThumb] : `/images/${images[activeThumb]}`}
+                  src={resolveImage(images[activeThumb])}
                   alt={product.name}
-                  className="main-image"
+                  className="w-full h-[340px] object-contain"
                 />
               </div>
               {images.length > 1 && (
-                <div className="thumb-row">
+                <div className="flex gap-2">
                   {images.map((src, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveThumb(i)}
-                      className={`thumb-btn ${activeThumb === i ? "active" : ""}`}
+                      className={`w-[72px] h-[72px] rounded-lg overflow-hidden border-2 ${activeThumb === i ? "border-[#2d6a4f]" : "border-transparent"} hover:border-[#2d6a4f]`}
                     >
-                      <img
-                        src={src.startsWith("http") ? src : `/images/${src}`}
-                        alt={`Thumb ${i + 1}`}
-                        className="thumb-img"
-                      />
+                      <img src={resolveImage(src)} alt={`Thumb ${i + 1}`} className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="info-col">
-              <h1 className="product-title">{product.name}</h1>
+            <div className="flex-1 min-w-[280px]">
+              <h1 className="text-[22px] font-bold leading-tight mb-2.5 text-[#1a1a1a]">{product.name}</h1>
 
-              <div className="meta-row">
-                <span className={`in-stock`} style={{ color: inStock ? "#2d9c5a" : "#e53935" }}>
+              <div className="flex items-center gap-4 mb-2">
+                <span className={`text-sm font-semibold ${inStock ? "text-green-600" : "text-red-600"}`}>
                   ● {inStock ? "In Stock" : "Out of Stock"}
                 </span>
               </div>
 
-              <div className="price-row">
-                <span className="current-price">৳{displayPrice}</span>
-                {oldPrice > displayPrice && (
+              <div className="flex items-center gap-3 mb-3.5">
+                <span className="text-[28px] font-bold text-red-600">৳{displayPrice}</span>
+                {hasDiscount && (
                   <>
-                    <span className="old-price">৳{oldPrice}</span>
-                    <span className="save-badge">Save {discount}%</span>
+                    <span className="text-base text-gray-400 line-through">৳{oldPriceVal}</span>
+                    <span className="bg-green-600 text-white text-xs font-bold px-2.5 py-0.5 rounded">Save {discountPercent}%</span>
                   </>
                 )}
               </div>
 
               {product.description && (
-                <p className="description">{product.description}</p>
+                <p className="text-sm text-gray-600 leading-relaxed mb-3">{product.description}</p>
               )}
 
-              <div className="qty-row">
-                <span className="qty-label">Quantity:</span>
-                <div className="qty-control">
-                  <button
-                    className="qty-btn"
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  >
-                    −
-                  </button>
-                  <span className="qty-value">{quantity}</span>
-                  <button
-                    className="qty-btn"
-                    onClick={() => setQuantity((q) => q + 1)}
-                  >
-                    +
-                  </button>
+              <div className="flex items-center gap-3.5 mb-4.5">
+                <span className="text-sm text-gray-600 font-medium">Quantity:</span>
+                <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                  <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="w-9 h-9 bg-gray-100 text-lg cursor-pointer hover:bg-gray-200 border-r border-gray-300">−</button>
+                  <span className="w-10 text-center text-sm font-semibold">{quantity}</span>
+                  <button onClick={() => setQuantity((q) => q + 1)} className="w-9 h-9 bg-gray-100 text-lg cursor-pointer hover:bg-gray-200 border-l border-gray-300">+</button>
                 </div>
               </div>
 
-              <div className="action-row">
-                <button className="buy-btn" onClick={handleBuyNow} disabled={!inStock}>
+              <div className="flex gap-3 mb-3 flex-wrap">
+                <button onClick={handleBuyNow} disabled={!inStock}
+                  className="flex-1 min-w-[120px] bg-[#1a3c2b] text-white rounded-lg py-3 text-sm font-bold cursor-pointer hover:bg-[#0f2a1d] disabled:opacity-50 disabled:cursor-not-allowed">
                   Buy Now
                 </button>
               </div>
 
-              <div className="social-row">
-                <button className="whatsapp-btn" onClick={handleWhatsApp}>
+              <div className="flex gap-2.5 mb-4.5 flex-wrap">
+                <button onClick={handleWhatsApp}
+                  className="flex-1 min-w-[160px] bg-[#25d366] text-white rounded-lg py-2.5 text-xs font-semibold cursor-pointer hover:bg-[#1da851] flex items-center justify-center gap-1.5">
                   <span>💬</span> হোয়াটসঅ্যাপে অর্ডার করুন
                 </button>
               </div>
 
               {categoryName && (
-                <div className="category-row">
-                  <span className="category-label">Categories:</span>
-                  <span className="category-tag">{categoryName}</span>
+                <div className="flex items-center gap-2.5 mt-1.5">
+                  <span className="text-sm text-gray-500">Categories:</span>
+                  <span className="bg-green-50 text-[#2d6a4f] text-xs font-semibold px-3 py-1 rounded border border-green-200">{categoryName}</span>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="tabs-section">
-            <div className="tabs-header">
+          <div className="mt-7 bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="flex border-b-2 border-gray-100">
               {["description", "reviews"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`tab-btn ${activeTab === tab ? "active" : ""}`}
+                  className={`px-7 py-3.5 text-sm font-semibold border-b-3 cursor-pointer ${
+                    activeTab === tab ? "text-[#e07b2a] border-[#e07b2a]" : "text-gray-500 border-transparent hover:text-gray-700"
+                  }`}
                 >
                   {tab === "description" ? "Description" : "Reviews"}
                 </button>
               ))}
             </div>
 
-            {activeTab === "description" && (
-              <div className="tab-content">
-                <h3 className="tab-heading">Product Details</h3>
-                <p className="tab-text">
-                  {product.description || "No description available."}
-                </p>
+            {activeTab === "description" ? (
+              <div className="p-7">
+                <h3 className="text-base font-bold mb-3.5 text-[#1a1a1a]">Product Details</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{product.description || "No description available."}</p>
               </div>
-            )}
-
-            {activeTab === "reviews" && (
-              <div className="tab-content">
-                <div style={{ textAlign: "center", padding: "20px 0" }}>
-                  <p className="tab-text" style={{ fontSize: 15, color: "#666" }}>
-                    No reviews yet. Be the first to review this product!
-                  </p>
-                  <p className="tab-text" style={{ fontSize: 13, color: "#999", marginTop: 6 }}>
-                    কোনো রিভিউ এখনো যোগ করা হয়নি।
-                  </p>
-                </div>
+            ) : (
+              <div className="p-7 text-center">
+                <p className="text-sm text-gray-500">No reviews yet. Be the first to review this product!</p>
               </div>
             )}
           </div>
         </div>
       </div>
+
       {quantityModal && (
-        <div className="modal-overlay" onClick={() => setQuantityModal(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setQuantityModal(false)}>✕</button>
-            <h3 className="modal-title">{product.name}</h3>
-            <p className="modal-subtitle">Adjust quantity</p>
-            <div className="modal-qty">
-              <button className="qty-btn" onClick={() => setModalQty((q) => Math.max(1, q - 1))}>−</button>
-              <span className="qty-value">{modalQty}</span>
-              <button className="qty-btn" onClick={() => setModalQty((q) => q + 1)}>+</button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setQuantityModal(false)}>
+          <div className="bg-white rounded-xl p-8 max-w-[360px] w-[90%] text-center relative shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <button className="absolute top-3 right-3.5 text-gray-500 text-lg cursor-pointer hover:text-gray-800" onClick={() => setQuantityModal(false)}>✕</button>
+            <h3 className="text-base font-bold mb-1 text-[#1a1a1a]">{product.name}</h3>
+            <p className="text-xs text-gray-500 mb-5">Adjust quantity</p>
+            <div className="flex items-center justify-center gap-0 mb-5">
+              <button onClick={() => setModalQty((q) => Math.max(1, q - 1))} className="w-10 h-10 border border-gray-300 bg-gray-100 text-lg cursor-pointer">−</button>
+              <span className="w-12 text-center text-sm font-semibold border-t border-b border-gray-300 py-2">{modalQty}</span>
+              <button onClick={() => setModalQty((q) => q + 1)} className="w-10 h-10 border border-gray-300 bg-gray-100 text-lg cursor-pointer">+</button>
             </div>
-            <button className="modal-update-btn" onClick={handleModalUpdate}>
+            <button onClick={handleModalUpdate} className="w-full bg-[#e07b2a] text-white rounded-lg py-3 text-sm font-bold cursor-pointer hover:bg-[#c96a1f]">
               Update Cart
             </button>
           </div>

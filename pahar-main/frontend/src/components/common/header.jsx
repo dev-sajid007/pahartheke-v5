@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Search, ShoppingCart, User, Menu, X } from "lucide-react"
 import { useSelector } from "react-redux"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useSyncExternalStore } from "react"
 
 import CartSheet from "@/components/cart/cart-sheet"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,11 @@ export default function Header() {
   const router = useRouter()
   const items = useSelector((state) => state.cart.items)
   const totalQty = items.reduce((total, item) => total + item.quantity, 0)
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
   const [searchQuery, setSearchQuery] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
@@ -48,10 +53,10 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className="shrink-0">
           <img
-            src="https://pahartheke.com/assets/img/logo.png"
+            src="/images/logo.png"
             alt="Pahar Theke"
             className="h-8 md:h-10 w-auto"
-            onError={(e) => { e.currentTarget.src = "/images/fallback-logo.png" }}
+            onError={(e) => { e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40' viewBox='0 0 120 40'%3E%3Crect width='120' height='40' fill='%232d6a4f' rx='4'/%3E%3Ctext x='12' y='26' font-family='sans-serif' font-size='14' font-weight='bold' fill='white'%3EPahar%3C/text%3E%3C/svg%3E" }}
           />
         </Link>
 
@@ -99,7 +104,7 @@ export default function Header() {
               className="relative h-9 w-9 text-gray-700 hover:text-gray-900 hover:bg-gray-100"
             >
               <ShoppingCart className="h-5 w-5" />
-              {totalQty > 0 && (
+              {mounted && totalQty > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#fdc700] px-1 text-[10px] font-bold text-black">
                   {totalQty}
                 </span>
