@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "/shop" },
+  // { label: "Shop", href: "/shop" },
   { label: "Invest", href: "/invest" },
 ]
 
