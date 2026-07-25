@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Pahar POS — Dashboard (Next.js)
 
-## Getting Started
+Point-of-Sale and Inventory Management dashboard for **Pahartheke.com**. Built with Next.js 16 + React 19.
 
-First, run the development server:
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev    # http://localhost:4000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires the POS backend running on port 4001 and MongoDB.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Pages
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Route | Page |
+|-------|------|
+| `/login` | Authentication |
+| `/` | POS Terminal (Product Grid + Cart) |
+| `/products` | Product list |
+| `/products/new` | Create product |
+| `/products/edit/[id]` | Edit product |
+| `/categories` | Category management |
+| `/customers` | Customer management |
+| `/badges` | Loyalty badge management |
+| `/suppliers` | Supplier management |
+| `/purchases` | Purchase list |
+| `/purchases/new` | Create purchase |
+| `/purchases/costs` | Purchase costs |
+| `/purchases/view/[id]` | Purchase detail |
+| `/sales` | POS sales list |
+| `/sales/history` | Sales history |
+| `/sales/view/[id]` | Sale detail |
+| `/stock` | Stock levels & movements |
+| `/expenses` | Expense tracking |
+| `/reports/daily-sales` | Daily sales report |
+| `/reports/product-sales` | Product-wise sales |
+| `/reports/cogs` | Cost of goods sold |
+| `/reports/profit` | Gross profit |
+| `/reports/returns` | Returns report |
+| `/reports/expenses` | Expenses report |
+| `/settings` | System settings |
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework:** Next.js 16 (App Router) + React 19
+- **Styling:** Tailwind CSS 4
+- **Icons:** Lucide React
+- **HTTP Client:** Axios
+- **Modals:** Custom modal components per entity
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+frontend/
+├── next.config.mjs
+├── src/
+│   ├── app/
+│   │   ├── layout.js
+│   │   ├── globals.css
+│   │   ├── (auth)/login/page.js
+│   │   └── (dashboard)/
+│   │       ├── layout.js         # Sidebar + header shell
+│   │       ├── page.js           # POS terminal
+│   │       └── ...page.js        # 20+ feature pages
+│   ├── components/
+│   │   ├── layout/               # Header, Sidebar, ProtectedRoute
+│   │   ├── pos/                  # CartPanel, ProductGrid, VariantSelector
+│   │   ├── products/             # ProductModal
+│   │   ├── categories/           # CategoryModal
+│   │   ├── customers/            # CustomerModal, BadgeModal
+│   │   ├── suppliers/            # SupplierModal
+│   │   ├── expenses/             # ExpenseModal
+│   │   └── ui/                   # SearchableSelect
+│   └── lib/
+│       └── axios.js              # Axios instance with base URL + interceptors
+```
 
-## Deploy on Vercel
+## Environment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+NEXT_PUBLIC_API_URL=http://localhost:4001/api
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Dependencies
+
+- `next` 16, `react` 19, `react-dom` 19
+- `axios` — HTTP client
+- `lucide-react` — icons
+- `tailwindcss` 4 — styling
