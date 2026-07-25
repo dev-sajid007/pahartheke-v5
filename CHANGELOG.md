@@ -6,6 +6,29 @@ All notable changes to the Pahartheke.com project.
 
 ## [Unreleased]
 
+### Added
+- Expense Category module with full CRUD (model, controller, route)
+- Expense date field with month filter in expenses page
+- Payment method (Cash/Bank/Card) on expenses
+- Reference number persistence on expenses
+- `apps/storefront/.env.example`, `apps/admin/.env.example`, `apps/pos/.env.example`
+- `RUN_PROD.md` — production deployment guide
+
+### Changed
+- Monorepo restructured to conventional `apps/` layout
+- Migrated from npm to pnpm + Turborepo
+- Expense model: `category` changed from string to ObjectId reference
+- Expense controller: populates category data on list
+- ExpenseModal: fetches categories from API instead of hardcoded dropdown
+- Sidebar: Expenses changed to dropdown with sub-items
+- All documentation updated to reflect new structure
+
+### Fixed
+- Purchase quantity input accepts decimal values (added `step="any"`)
+- Turbopack root resolution for pnpm monorepo
+- POS API MongoDB port corrected to 27018 in `.env.example`
+- Expense category display (was plain string, now populated object)
+
 ### Planned
 - Pagination for product listing (Batch A)
 - MongoDB transactions for order creation (Batch B)

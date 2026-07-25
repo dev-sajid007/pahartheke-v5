@@ -1,0 +1,23 @@
+{
+  "name": "pahartheke",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "dev:backend": "pnpm --filter pahar-theke-backend dev",
+    "dev:frontend": "pnpm --filter pahartheke dev",
+    "dev:admin": "pnpm --filter pahar-main-admin dev",
+    "dev:pos-backend": "pnpm --filter pahar-pos-backend dev",
+    "dev:pos-frontend": "pnpm --filter pahar-pos-frontend dev",
+    "dev:mcp": "pnpm --filter pahar-pos-mcp-server start",
+    "clean": "pnpm -r exec rm -rf .next node_modules"
+  },
+  "packageManager": "pnpm@11.15.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.6"
+  }
+}

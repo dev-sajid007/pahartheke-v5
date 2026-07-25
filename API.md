@@ -1,6 +1,6 @@
 # API Documentation
 
-Pahartheke.com exposes **75 total API endpoints** across two backend services.
+Pahartheke.com exposes **79 total API endpoints** across two backend services.
 
 ---
 
@@ -13,7 +13,7 @@ Pahartheke.com exposes **75 total API endpoints** across two backend services.
 
 ---
 
-## E-commerce Backend (`pahar-main/backend`) — 21 endpoints
+## Main API (`apps/main-api`) — 21 endpoints
 
 ### Auth (`/api/auth`)
 
@@ -68,7 +68,7 @@ Rate limit: 10 requests per 15 minutes on login/register.
 
 ---
 
-## POS Backend (`pahar-pos/backend`) — 54 endpoints
+## POS API (`apps/pos-api`) — 58 endpoints
 
 ### Auth (`/api/auth`)
 
@@ -167,6 +167,15 @@ Rate limit: 10 requests per 15 minutes on login/register.
 | GET | `/api/expenses/:id` | JWT | Get expense |
 | PUT | `/api/expenses/:id` | JWT | Update expense |
 | DELETE | `/api/expenses/:id` | JWT | Delete expense |
+
+### Expense Categories (`/api/expense-categories`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/expense-categories` | JWT | List expense categories |
+| POST | `/api/expense-categories` | JWT | Create expense category |
+| PUT | `/api/expense-categories/:id` | JWT | Update expense category |
+| DELETE | `/api/expense-categories/:id` | JWT | Delete expense category |
 
 ### Settings (`/api/settings`)
 

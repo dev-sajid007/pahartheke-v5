@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "pahar-pos": {
+      "type": "local",
+      "command": ["node", "/home/dev_sajid/Desktop/projects/pahartheke-v5/apps/mcp/src/index.js"],
+      "env": {
+        "MONGO_URI": "mongodb://localhost:27017/pahar_pos_v5"
+      },  
+      "enabled": true
+    }
+  }
+}

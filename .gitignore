@@ -7,6 +7,8 @@ node_modules
 .vscode/
 .idea/
 .next/
+.turbo/
+pnpm-lock.yaml
 out/
 build/
 dist/
