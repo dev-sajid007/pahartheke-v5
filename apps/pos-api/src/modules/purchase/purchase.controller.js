@@ -12,11 +12,10 @@ import asyncHandler from "../../utils/asyncHandler.js";
 
 import apiResponse from "../../utils/apiResponse.js";
 
+import ApiError from "../../core/ApiError.js";
+
 const generateInvoice = () => {
-  return (
-    "PUR-" +
-    Date.now()
-  );
+  return "PUR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
 };
 
 export const createPurchase = asyncHandler(
@@ -29,12 +28,24 @@ export const createPurchase = asyncHandler(
       additionalCosts = [],
     } = req.body;
 
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new ApiError(400, "At least one item is required");
+    }
+
     let totalAmount = 0;
 
     for (const item of items) {
-      item.subtotal =
-        item.quantity * item.purchasePrice;
+      if (!item.product) {
+        throw new ApiError(400, "Each item must have a product ID");
+      }
+      if (!item.purchasePrice || item.purchasePrice <= 0) {
+        throw new ApiError(400, "Each item must have a valid purchase price");
+      }
+      if (!item.quantity || item.quantity <= 0) {
+        throw new ApiError(400, "Each item must have a valid quantity");
+      }
 
+      item.subtotal = item.quantity * item.purchasePrice;
       totalAmount += item.subtotal;
     }
 
@@ -45,8 +56,20 @@ export const createPurchase = asyncHandler(
 
     totalAmount += totalAdditionalCost;
 
+    const dueAmount = Math.max(0, totalAmount - (Number(paidAmount) || 0));
+
+    const purchase = await Purchase.create({
+      invoiceNo: generateInvoice(),
+      supplier,
+      items,
+      additionalCosts,
+      totalAmount,
+      paidAmount: Number(paidAmount) || 0,
+      dueAmount,
+      note,
+    });
+
     for (const item of items) {
-      // create purchase batch
       await PurchaseBatch.create({
         product: item.product,
         variantId: item.variantId,
@@ -55,9 +78,8 @@ export const createPurchase = asyncHandler(
         purchasePrice: item.purchasePrice,
       });
 
-      const product = await Product.findById(
-        item.product
-      );
+      const product = await Product.findById(item.product);
+      if (!product) continue;
 
       let oldStock;
       let newStock;
@@ -71,7 +93,6 @@ export const createPurchase = asyncHandler(
           product.currentStock += item.quantity;
           newStock = product.variants[vIndex].currentStock;
         } else {
-          // If variant not found (shouldn't happen with valid UI), fallback
           oldStock = product.currentStock;
           product.currentStock += item.quantity;
           newStock = product.currentStock;
@@ -91,14 +112,11 @@ export const createPurchase = asyncHandler(
         type: "purchase",
         quantity: item.quantity,
         previousStock: oldStock,
-        newStock: newStock,
-        referenceId: null,
+        newStock,
+        referenceId: purchase._id,
         createdBy: req.user._id,
       });
     }
-
-    const dueAmount =
-      totalAmount - paidAmount;
 
     if (supplier) {
       await Supplier.findByIdAndUpdate(
@@ -111,17 +129,6 @@ export const createPurchase = asyncHandler(
         }
       );
     }
-
-    const purchase = await Purchase.create({
-      invoiceNo: generateInvoice(),
-      supplier,
-      items,
-      additionalCosts,
-      totalAmount,
-      paidAmount,
-      dueAmount,
-      note,
-    });
 
     return apiResponse({
       res,
@@ -137,9 +144,7 @@ export const getPurchases = asyncHandler(
     const purchases = await Purchase.find()
       .populate("supplier")
       .populate("items.product")
-      .sort({
-        createdAt: -1,
-      });
+      .sort({ createdAt: -1 });
 
     return apiResponse({
       res,

@@ -13,10 +13,6 @@ export default function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
@@ -30,6 +26,10 @@ export default function CategoriesPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleAddCategory = () => {
     setSelectedCategory(null);
@@ -71,7 +71,7 @@ export default function CategoriesPage() {
   };
 
   const filteredCategories = categories.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+    (c.name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -180,6 +180,7 @@ export default function CategoriesPage() {
       </div>
 
       <CategoryModal 
+        key={selectedCategory?._id || 'new'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         category={selectedCategory}

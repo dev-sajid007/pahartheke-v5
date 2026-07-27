@@ -4,7 +4,14 @@ import { X, Award, Plus, Trash2, Info, ChevronDown, CheckCircle2 } from "lucide-
 import { useState, useEffect } from "react";
 
 export default function BadgeModal({ isOpen, onClose, badge = null, onSave }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => badge ? {
+    name: badge.name || "",
+    description: badge.description || "",
+    discount: badge.discount || 0,
+    color: badge.color || "#3b82f6",
+    conditions: badge.conditions || [],
+    status: badge.status !== undefined ? badge.status : true,
+  } : {
     name: "",
     description: "",
     discount: 0,
@@ -20,21 +27,6 @@ export default function BadgeModal({ isOpen, onClose, badge = null, onSave }) {
   });
 
   const [showConditions, setShowConditions] = useState(true);
-
-  useEffect(() => {
-    if (badge) {
-      setFormData(badge);
-    } else {
-      setFormData({
-        name: "",
-        description: "",
-        discount: 0,
-        color: "#3b82f6",
-        conditions: [],
-        status: true,
-      });
-    }
-  }, [badge, isOpen]);
 
   if (!isOpen) return null;
 

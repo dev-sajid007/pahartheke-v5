@@ -4,27 +4,15 @@ import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function ExpenseCategoryModal({ isOpen, onClose, category = null, onSave }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => category ? {
+    name: category.name || "",
+    description: category.description || "",
+    status: category.status !== undefined ? category.status : true,
+  } : {
     name: "",
     description: "",
     status: true,
   });
-
-  useEffect(() => {
-    if (category) {
-      setFormData({
-        name: category.name || "",
-        description: category.description || "",
-        status: category.status !== undefined ? category.status : true,
-      });
-    } else {
-      setFormData({
-        name: "",
-        description: "",
-        status: true,
-      });
-    }
-  }, [category, isOpen]);
 
   if (!isOpen) return null;
 

@@ -106,10 +106,25 @@ export const getSingleCustomer =
 export const updateCustomer = asyncHandler(
   async (req, res) => {
     const { id } = req.params;
-    
+    const { name, phone, email, address, status, badge } = req.body;
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (phone !== undefined) {
+      const duplicate = await Customer.findOne({ phone, _id: { $ne: id } });
+      if (duplicate) {
+        throw new ApiError(400, "Phone number already in use");
+      }
+      updateData.phone = phone;
+    }
+    if (email !== undefined) updateData.email = email;
+    if (address !== undefined) updateData.address = address;
+    if (status !== undefined) updateData.status = status;
+    if (badge !== undefined) updateData.badge = badge;
+
     const customer = await Customer.findByIdAndUpdate(
       id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 

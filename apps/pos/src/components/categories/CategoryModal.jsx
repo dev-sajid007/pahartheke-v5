@@ -5,31 +5,12 @@ import { useState, useEffect } from "react";
 
 export default function CategoryModal({ isOpen, onClose, category = null, onSave }) {
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    status: true,
+    name: category?.name || "",
+    description: category?.description || "",
+    status: category?.status !== undefined ? category.status : true,
   });
   const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-
-  useEffect(() => {
-    if (category) {
-      setFormData({
-        name: category.name || "",
-        description: category.description || "",
-        status: category.status,
-      });
-      setImagePreview(category.image || null);
-    } else {
-      setFormData({
-        name: "",
-        description: "",
-        status: true,
-      });
-      setImagePreview(null);
-    }
-    setImageFile(null);
-  }, [category, isOpen]);
+  const [imagePreview, setImagePreview] = useState(category?.image || null);
 
   if (!isOpen) return null;
 

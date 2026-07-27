@@ -11,6 +11,7 @@ export default function SalesHistoryPage() {
   const [sales, setSales] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -35,8 +36,8 @@ export default function SalesHistoryPage() {
   }, []);
 
   useEffect(() => {
-    fetchSales(currentPage, searchQuery);
-  }, [currentPage]);
+    fetchSales(currentPage, debouncedSearch);
+  }, [currentPage, debouncedSearch]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -44,8 +45,8 @@ export default function SalesHistoryPage() {
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(value);
       setCurrentPage(1);
-      fetchSales(1, value);
     }, 400);
   };
 

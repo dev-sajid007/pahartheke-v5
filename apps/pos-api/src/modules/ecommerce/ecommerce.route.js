@@ -9,9 +9,9 @@ import apiKeyMiddleware from "../../middleware/apiKeyMiddleware.js";
 
 const router = express.Router();
 
-router.get("/categories", getCategories);
-router.get("/products", getProducts);
-router.get("/products/:id", getProduct);
+router.get("/categories", apiKeyMiddleware, getCategories);
+router.get("/products", apiKeyMiddleware, getProducts);
+router.get("/products/:id", apiKeyMiddleware, getProduct);
 
 router.post("/orders", apiKeyMiddleware, createOrder);
 

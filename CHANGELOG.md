@@ -6,18 +6,15 @@ All notable changes to the Pahartheke.com project.
 
 ## [Unreleased]
 
-### Added
-- Expense Category module with full CRUD (model, controller, route)
-- Expense date field with month filter in expenses page
-- Payment method (Cash/Bank/Card) on expenses
-- Reference number persistence on expenses
-- `apps/storefront/.env.example`, `apps/admin/.env.example`, `apps/pos/.env.example`
-- `RUN_PROD.md` — production deployment guide
-- Admin footer form: dynamic social links (add/remove/edit with platform, URL, icon, color)
-- Admin footer form: editable text labels (Quick Links, Policies, Contact Us titles, copyright lines)
-- Admin footer form: logo upload via ImageUploader component
-- Main API: local disk storage for file uploads (replaces Cloudinary)
-- `getLandingPageSSR` / `getSectionSSR` — server-side landing page data helpers
+### Removed
+- `apps/main-api` — Express 4 e-commerce backend (removed from project)
+- `apps/admin` — Next.js admin CMS (removed from project)
+- `apps/storefront` — Next.js customer storefront (removed from project)
+- `docker/compose.main.yml` — Main MongoDB compose file
+
+### Changed
+- Project scoped to POS & Inventory only (no e-commerce)
+- All documentation updated to reflect POS-only structure
 - Category page: `transformProduct` mapping for consistent field names
 - Category page: real category name from API (not slug-derived)
 

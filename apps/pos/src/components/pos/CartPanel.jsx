@@ -35,14 +35,30 @@ export default function CartPanel({
 
   const [paidAmount, setPaidAmount] = useState(0);
   const [shippingCost, setShippingCost] = useState(0);
-  const [invoiceDiscountType, setInvoiceDiscountType] = useState("None");
-  const [invoiceDiscountValue, setInvoiceDiscountValue] = useState(0);
-  const [itemDiscounts, setItemDiscounts] = useState({}); // { key: { value: 0, type: 'None' } }
+  const [itemDiscounts, setItemDiscounts] = useState({});
   const [notes, setNotes] = useState("");
 
   const selectedCustomer = customers.find(c => c._id === selectedCustomerId);
   const previousDue = selectedCustomer?.previousDue || 0;
   const activeBadge = selectedCustomer?.badge;
+
+  const [invoiceDiscountType, setInvoiceDiscountType] = useState(() => activeBadge ? "Percentage" : "None");
+  const [invoiceDiscountValue, setInvoiceDiscountValue] = useState(() => activeBadge?.discount || 0);
+
+  const prevBadgeId = useRef(activeBadge?._id);
+  useEffect(() => {
+    const currentBadgeId = activeBadge?._id;
+    if (prevBadgeId.current !== currentBadgeId) {
+      prevBadgeId.current = currentBadgeId;
+      if (activeBadge) {
+        setInvoiceDiscountType("Percentage");
+        setInvoiceDiscountValue(activeBadge.discount || 0);
+      } else if (!selectedCustomerId) {
+        setInvoiceDiscountType("None");
+        setInvoiceDiscountValue(0);
+      }
+    }
+  }, [selectedCustomerId, activeBadge]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -54,22 +70,18 @@ export default function CartPanel({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleSelectCustomer = (customer) => {
+    setSelectedCustomerId(customer?._id || "");
+    setCustomerSearchQuery(customer ? `${customer.name} (${customer.phone})` : "");
+    setIsCustomerDropdownOpen(false);
+  };
+
   // Auto-select newly added customer
   useEffect(() => {
     if (newCustomer) {
       handleSelectCustomer(newCustomer);
     }
   }, [newCustomer]);
-
-  useEffect(() => {
-    if (activeBadge) {
-      setInvoiceDiscountType("Percentage");
-      setInvoiceDiscountValue(activeBadge.discount || 0);
-    } else if (!selectedCustomerId) {
-      setInvoiceDiscountType("None");
-      setInvoiceDiscountValue(0);
-    }
-  }, [selectedCustomerId, activeBadge?.discount]);
 
   const filteredCustomers = customers.filter(c => 
     c.name.toLowerCase().includes(customerSearchQuery.toLowerCase()) ||
@@ -109,12 +121,6 @@ export default function CartPanel({
   const balance = paidAmount - totalPayable;
   const due = balance < 0 ? Math.abs(balance) : 0;
   const change = balance > 0 ? balance : 0;
-
-  const handleSelectCustomer = (customer) => {
-    setSelectedCustomerId(customer?._id || "");
-    setCustomerSearchQuery(customer ? `${customer.name} (${customer.phone})` : "");
-    setIsCustomerDropdownOpen(false);
-  };
 
   return (
     <div className="flex h-full flex-col rounded-3xl border border-border bg-card shadow-2xl shadow-slate-200/50 overflow-hidden">

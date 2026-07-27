@@ -28,10 +28,6 @@ export default function NewProductPage() {
     variants: [],
   });
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const fetchCategories = async () => {
     try {
       const res = await api.get("/categories");
@@ -40,6 +36,10 @@ export default function NewProductPage() {
       console.error("Failed to fetch categories", error);
     }
   };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

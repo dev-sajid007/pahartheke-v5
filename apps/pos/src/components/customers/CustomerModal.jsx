@@ -4,27 +4,19 @@ import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function CustomerModal({ isOpen, onClose, customer = null, onSave }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => customer ? {
+    name: customer.name || "",
+    phone: customer.phone || "",
+    email: customer.email || "",
+    address: customer.address || "",
+    status: customer.status !== undefined ? customer.status : true,
+  } : {
     name: "",
     phone: "",
     email: "",
     address: "",
     status: true,
   });
-
-  useEffect(() => {
-    if (customer) {
-      setFormData(customer);
-    } else {
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        address: "",
-        status: true,
-      });
-    }
-  }, [customer, isOpen]);
 
   if (!isOpen) return null;
 

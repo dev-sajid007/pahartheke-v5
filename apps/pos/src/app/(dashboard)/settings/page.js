@@ -23,23 +23,24 @@ export default function SettingsPage() {
 
   const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace("/api", "");
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
   const fetchSettings = async () => {
     try {
       const res = await api.get("/settings");
       if (res.data.data) {
         setSettings(res.data.data);
         if (res.data.data.logo) {
-          setLogoPreview(res.data.data.logo.startsWith("http") ? res.data.data.logo : `${BASE_URL}${res.data.data.logo}`);
+          const logo = res.data.data.logo || '';
+          setLogoPreview(logo.startsWith("http") ? logo : `${BASE_URL}${logo}`);
         }
       }
     } catch (error) {
       console.error("Failed to fetch settings", error);
     }
   };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

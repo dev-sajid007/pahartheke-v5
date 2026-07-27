@@ -11,10 +11,6 @@ export default function ExpenseCategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
@@ -26,6 +22,10 @@ export default function ExpenseCategoriesPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleAdd = () => {
     setSelectedCategory(null);
@@ -148,6 +148,7 @@ export default function ExpenseCategoriesPage() {
       </div>
 
       <ExpenseCategoryModal
+        key={selectedCategory?._id || 'new'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         category={selectedCategory}

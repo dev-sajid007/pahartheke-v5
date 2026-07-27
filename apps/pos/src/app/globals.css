@@ -32,6 +32,14 @@
   --color-sidebar-accent: var(--sidebar-accent);
   
   --color-border: var(--border);
+
+  --animate-progress: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { width: 0%; transform: translateX(0); }
+  50% { width: 70%; transform: translateX(0); }
+  100% { width: 100%; transform: translateX(100%); }
 }
 
 @media (prefers-color-scheme: dark) {

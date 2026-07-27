@@ -10,10 +10,6 @@ export default function PurchasesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    fetchPurchases();
-  }, []);
-
   const fetchPurchases = async () => {
     try {
       setIsLoading(true);
@@ -28,8 +24,12 @@ export default function PurchasesPage() {
     }
   };
 
+  useEffect(() => {
+    fetchPurchases();
+  }, []);
+
   const filteredPurchases = purchases.filter(p => 
-    p.invoiceNo.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (p.invoiceNo || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
     p.supplier?.companyName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -94,7 +94,14 @@ export default function PurchasesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filteredPurchases.map((purchase) => (
+              {filteredPurchases.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-8 text-center text-sidebar-foreground">
+                    {isLoading ? "Loading..." : "No purchases found."}
+                  </td>
+                </tr>
+              ) : (
+                filteredPurchases.map((purchase) => (
                 <tr key={purchase._id} className="hover:bg-sidebar-accent/30 transition-colors group">
                   <td className="px-6 py-4 font-medium text-foreground">{purchase.invoiceNo}</td>
                   <td className="px-6 py-4">
@@ -131,7 +138,7 @@ export default function PurchasesPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

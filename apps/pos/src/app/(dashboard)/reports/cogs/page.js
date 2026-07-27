@@ -12,10 +12,6 @@ export default function COGSReport() {
   const [data, setData] = useState({ totalCOGS: 0, totalSoldQuantity: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReport();
-  }, [dateRange]);
-
   const fetchReport = async () => {
     try {
       setIsLoading(true);
@@ -29,6 +25,10 @@ export default function COGSReport() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReport();
+  }, [dateRange]);
 
   return (
     <div className="space-y-8">

@@ -9,10 +9,6 @@ export default function DailySalesReport() {
   const [data, setData] = useState({ sales: [], summary: {} });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReport();
-  }, [dateRange]);
-
   const fetchReport = async () => {
     try {
       setIsLoading(true);
@@ -29,6 +25,10 @@ export default function DailySalesReport() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReport();
+  }, [dateRange]);
 
   const handlePrint = () => window.print();
 

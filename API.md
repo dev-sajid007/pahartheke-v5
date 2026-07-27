@@ -1,74 +1,8 @@
 # API Documentation
 
-Pahartheke.com exposes **79 total API endpoints** across two backend services.
-
----
-
-## Services
-
-| Service | Base URL | Port | Framework | Auth |
-|---------|----------|------|-----------|------|
-| E-commerce Backend | `http://localhost:5000/api` | 5000 | Express 4 | JWT |
-| POS Backend | `http://localhost:4001/api` | 4001 | Express 5 | JWT + API Key |
-
----
-
-## Main API (`apps/main-api`) — 21 endpoints
-
-### Auth (`/api/auth`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | No | Register new user |
-| POST | `/api/auth/login` | No | Login (returns JWT cookie) |
-| GET | `/api/auth/me` | JWT | Current user profile |
-| POST | `/api/auth/logout` | JWT | Clear auth cookie |
-| PUT | `/api/auth/password` | JWT | Change password |
-
-Rate limit: 10 requests per 15 minutes on login/register.
-
-### Products (`/api/products`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/products` | No | List all products |
-| POST | `/api/products` | JWT | Create product |
-| GET | `/api/products/:id` | No | Get single product |
-| PUT | `/api/products/:id` | JWT | Update product |
-| DELETE | `/api/products/:id` | JWT | Delete product |
-
-### Orders (`/api/orders`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/orders` | JWT | List user orders |
-| POST | `/api/orders` | JWT | Create order |
-| GET | `/api/orders/:id` | JWT | Get single order |
-| PUT | `/api/orders/:id` | JWT | Update order |
-| DELETE | `/api/orders/:id` | JWT | Delete order |
-
-### Landing Page (`/api/landing-page`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/landing-page` | No | Get landing page content |
-| PUT | `/api/landing-page/:id` | JWT | Update landing page section |
-
-### Upload (`/api/upload`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/upload` | JWT | Upload file to local `public/uploads/` |
-
-### Health
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/health` | No | Health check |
-
----
-
 ## POS API (`apps/pos-api`) — 58 endpoints
+
+Base URL: `http://localhost:4001/api`
 
 ### Auth (`/api/auth`)
 
@@ -82,7 +16,7 @@ Rate limit: 10 requests per 15 minutes on login/register.
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/products` | JWT | List products (filterable) |
+| GET | `/api/products` | JWT | List products |
 | POST | `/api/products` | JWT | Create product |
 | GET | `/api/products/:id` | JWT | Get product |
 | PUT | `/api/products/:id` | JWT | Update product |
@@ -208,7 +142,7 @@ Rate limit: 10 requests per 15 minutes on login/register.
 | GET | `/api/ecommerce/products` | API Key | List products for storefront |
 | GET | `/api/ecommerce/products/:id` | API Key | Get product (by id or slug) |
 | GET | `/api/ecommerce/categories` | API Key | List categories |
-| POST | `/api/ecommerce/orders` | API Key | Create order from storefront |
+| POST | `/api/ecommerce/orders` | API Key | Create order |
 
 ### Invoice
 
@@ -218,55 +152,16 @@ Rate limit: 10 requests per 15 minutes on login/register.
 
 ---
 
-## Frontend Proxy Routes
-
-The Next.js storefront (port 3000) proxies API calls through its App Router:
-
-| Route | Proxies To |
-|-------|-----------|
-| `/api/products` | `POS_BACKEND/api/ecommerce/products` |
-| `/api/products/[slug]` | `POS_BACKEND/api/ecommerce/products/[slug]` |
-| `/api/products/by-category/[slug]` | `POS_BACKEND/api/ecommerce/products?category=[slug]` |
-| `/api/categories` | `POS_BACKEND/api/ecommerce/categories` |
-| `/api/orders` | `POS_BACKEND/api/ecommerce/orders` |
-| `/api/auth/*` | `MAIN_BACKEND/api/auth/*` |
-| `/api/landing-page/*` | `MAIN_BACKEND/api/landing-page/*` |
-
----
-
 ## Auth
 
 ### JWT Authentication
-- JWT is stored in an HTTP-only cookie (e-commerce) or returned in response body (POS)
-- Send as `Authorization: Bearer <token>` header for API requests
+- Send as `Authorization: Bearer <token>` header
 - Token contains: `{ id, role }`
 
-### API Key Authentication (Ecommerce endpoints)
+### API Key Authentication
 - POS ecommerce endpoints use `x-api-key` header
-- Key: `pahar_pos_api_key_2024`
 
 ### Role-Based Access
 - `admin` — full access
 - `staff` — limited POS operations
-
----
-
-## Error Responses
-
-```json
-{
-  "success": false,
-  "message": "Error description",
-  "stack": "..." (development only)
-}
-```
-
-## Success Responses
-
-```json
-{
-  "success": true,
-  "data": { ... },
-  "message": "Optional message"
-}
-```
+- `manager` — management operations

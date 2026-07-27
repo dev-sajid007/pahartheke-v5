@@ -5,44 +5,25 @@ import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 
 export default function ExpenseModal({ isOpen, onClose, expense = null, onSave }) {
-  const [formData, setFormData] = useState({
+  const today = new Date().toISOString().split("T")[0];
+  const [formData, setFormData] = useState(() => expense ? {
+    title: expense.title || "",
+    category: expense.category?._id || expense.category || "",
+    amount: expense.amount || 0,
+    date: expense.date ? new Date(expense.date).toISOString().split("T")[0] : today,
+    paymentMethod: expense.paymentMethod || "Cash",
+    reference: expense.reference || "",
+    note: expense.note || "",
+  } : {
     title: "",
     category: "",
     amount: 0,
-    date: new Date().toISOString().split("T")[0],
+    date: today,
     paymentMethod: "Cash",
     reference: "",
     note: "",
   });
   const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    fetchCategories();
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (expense) {
-      setFormData({
-        title: expense.title || "",
-        category: expense.category?._id || expense.category || "",
-        amount: expense.amount || 0,
-        date: expense.date ? new Date(expense.date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
-        paymentMethod: expense.paymentMethod || "Cash",
-        reference: expense.reference || "",
-        note: expense.note || "",
-      });
-    } else {
-      setFormData({
-        title: "",
-        category: "",
-        amount: 0,
-        date: new Date().toISOString().split("T")[0],
-        paymentMethod: "Cash",
-        reference: "",
-        note: "",
-      });
-    }
-  }, [expense, isOpen]);
 
   const fetchCategories = async () => {
     try {
@@ -52,6 +33,10 @@ export default function ExpenseModal({ isOpen, onClose, expense = null, onSave }
       console.error("Failed to fetch expense categories", error);
     }
   };
+
+  useEffect(() => {
+    fetchCategories();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

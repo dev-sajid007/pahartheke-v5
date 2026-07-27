@@ -17,10 +17,6 @@ export default function ExpensesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
 
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
-
   const fetchExpenses = async () => {
     try {
       setIsLoading(true);
@@ -35,6 +31,10 @@ export default function ExpensesPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
 
   const handleAddExpense = () => {
     setSelectedExpense(null);
@@ -85,7 +85,7 @@ export default function ExpensesPage() {
   const filteredExpenses = expensesInMonth.filter((e) => {
     const q = searchQuery.toLowerCase();
     return (
-      e.title.toLowerCase().includes(q) ||
+      (e.title || '').toLowerCase().includes(q) ||
       (e.category?.name || "").toLowerCase().includes(q) ||
       (e.paymentMethod || "").toLowerCase().includes(q)
     );
@@ -109,7 +109,7 @@ export default function ExpensesPage() {
     }
   };
 
-  const monthTotal = expensesInMonth.reduce((sum, e) => sum + e.amount, 0);
+  const monthTotal = expensesInMonth.reduce((sum, e) => sum + (e.amount || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -242,6 +242,7 @@ export default function ExpensesPage() {
       </div>
 
       <ExpenseModal
+        key={selectedExpense?._id || 'new'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         expense={selectedExpense}

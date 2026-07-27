@@ -16,10 +16,6 @@ export default function ProductsPage() {
   const [total, setTotal] = useState(0);
   
   // Fetch products on mount and when page changes
-  useEffect(() => {
-    fetchProducts();
-  }, [currentPage]);
-
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
@@ -39,6 +35,10 @@ export default function ProductsPage() {
     }
   };
 
+  useEffect(() => {
+    fetchProducts();
+  }, [currentPage]);
+
   const handleDeleteProduct = async (id) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
@@ -55,8 +55,8 @@ export default function ProductsPage() {
   };
 
   const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    p.sku.toLowerCase().includes(searchQuery.toLowerCase())
+    (p.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (p.sku || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Generate page numbers to show
@@ -155,7 +155,7 @@ export default function ProductsPage() {
                             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-200">
                               {product.image ? (
                                 <img 
-                                  src={product.image.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${product.image}`} 
+                                  src={product.image?.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${product.image || ''}`} 
                                   alt={product.name} 
                                   className="h-full w-full object-cover" 
                                 />

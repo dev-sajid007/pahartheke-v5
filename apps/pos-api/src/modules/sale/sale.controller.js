@@ -17,10 +17,7 @@ import apiResponse from "../../utils/apiResponse.js";
 import ApiError from "../../core/ApiError.js";
 
 const generateInvoice = () => {
-  return (
-    "SALE-" +
-    Date.now()
-  );
+  return "SALE-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
 };
 
 export const createSale = asyncHandler(
@@ -37,43 +34,43 @@ export const createSale = asyncHandler(
       order_date,
     } = req.body;
 
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new ApiError(400, "At least one item is required");
+    }
+
     let subtotal = 0;
-
     let totalCost = 0;
-
     let totalProfit = 0;
-
     const saleItems = [];
 
     for (const item of items) {
-      const product = await Product.findById(
-        item.product
-      );
-
-      if (!product) {
-        throw new ApiError(
-          404,
-          "Product not found"
-        );
+      if (!item.product) {
+        throw new ApiError(400, "Each item must have a product ID");
+      }
+      if (!item.salePrice || item.salePrice <= 0) {
+        throw new ApiError(400, "Each item must have a valid sale price");
+      }
+      if (!item.quantity || item.quantity <= 0) {
+        throw new ApiError(400, "Each item must have a valid quantity");
       }
 
-      // Stock check
+      const product = await Product.findById(item.product);
+      if (!product) {
+        throw new ApiError(404, `Product not found: ${item.product}`);
+      }
+
       if (product.hasVariants && item.variantId) {
         const variant = product.variants.find(v => v.variantId === item.variantId);
         if (!variant || variant.currentStock < item.quantity) {
           throw new ApiError(400, `Insufficient stock for ${product.name} (${item.variantName || 'Selected Variant'})`);
         }
       } else if (product.currentStock < item.quantity) {
-        throw new ApiError(
-          400,
-          `Insufficient stock for ${product.name}`
-        );
+        throw new ApiError(400, `Insufficient stock for ${product.name}`);
       }
 
       let remainingQty = item.quantity;
       let itemCost = 0;
 
-      // FIFO batches - filter by variantId if it exists
       const batchQuery = {
         product: product._id,
         remainingQuantity: { $gt: 0 },
@@ -82,55 +79,102 @@ export const createSale = asyncHandler(
         batchQuery.variantId = item.variantId;
       }
 
-      const batches = await PurchaseBatch.find(batchQuery).sort({
-        createdAt: 1,
-      });
+      const batches = await PurchaseBatch.find(batchQuery).sort({ createdAt: 1 });
 
       for (const batch of batches) {
         if (remainingQty <= 0) break;
 
-        const deductQty = Math.min(
-          remainingQty,
-          batch.remainingQuantity
+        const deductQty = Math.min(remainingQty, batch.remainingQuantity);
+        itemCost += deductQty * batch.purchasePrice;
+
+        await PurchaseBatch.findOneAndUpdate(
+          { _id: batch._id, remainingQuantity: { $gte: deductQty } },
+          { $inc: { remainingQuantity: -deductQty } }
         );
-
-        itemCost +=
-          deductQty * batch.purchasePrice;
-
-        batch.remainingQuantity = parseFloat((batch.remainingQuantity - deductQty).toFixed(6));
-
-        await batch.save();
 
         remainingQty = parseFloat((remainingQty - deductQty).toFixed(6));
       }
 
       if (remainingQty > 0.0001) {
-        throw new ApiError(
-          400,
-          `Batch stock mismatch for ${product.name}`
-        );
+        throw new ApiError(400, `Batch stock mismatch for ${product.name}`);
       }
 
-      const itemSubtotal =
-        item.quantity * item.salePrice;
+      const baseTotal = item.quantity * item.salePrice;
+      let discAmount = 0;
+      if (item.itemDiscountType === "Percentage") {
+        discAmount = baseTotal * (item.itemDiscount || 0) / 100;
+      } else if (item.itemDiscountType === "Fixed") {
+        discAmount = item.itemDiscount || 0;
+      }
+      const lineTotal = baseTotal - discAmount;
 
-      const itemProfit =
-        itemSubtotal - itemCost;
+      const itemProfit = lineTotal - itemCost;
 
-      subtotal += itemSubtotal;
+      subtotal += lineTotal;
       totalCost += itemCost;
       totalProfit += itemProfit;
+
+      saleItems.push({
+        product: item.product,
+        variantId: item.variantId,
+        variantName: item.variantName,
+        quantity: item.quantity,
+        salePrice: item.salePrice,
+        itemDiscountType: item.itemDiscountType || "None",
+        itemDiscount: discAmount,
+        subtotal: lineTotal,
+        cost: itemCost,
+        profit: itemProfit,
+      });
+    }
+
+    const safeDiscount = Number(discount) || 0;
+    const safeBadgeDiscount = Number(badgeDiscount) || 0;
+    const safeShippingCost = Number(shippingCost) || 0;
+    const safePaidAmount = Number(paidAmount) || 0;
+
+    const grandTotal = subtotal - safeDiscount - safeBadgeDiscount + safeShippingCost;
+    const dueAmount = Math.max(0, grandTotal - safePaidAmount);
+
+    const sale = await Sale.create({
+      invoiceNo: generateInvoice(),
+      customer,
+      items: saleItems,
+      subtotal,
+      shippingCost: safeShippingCost,
+      discount: safeDiscount,
+      badgeName,
+      badgeDiscount: safeBadgeDiscount,
+      grandTotal,
+      paidAmount: safePaidAmount,
+      dueAmount,
+      totalCost,
+      totalProfit,
+      note,
+      soldBy: req.user?._id || null,
+      source: "pos",
+      order_date: order_date ? new Date(order_date) : new Date(),
+    });
+
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (!product) continue;
 
       let previousStock;
       let newStock;
 
       if (product.hasVariants && item.variantId) {
         const vIndex = product.variants.findIndex(v => v.variantId === item.variantId);
-        previousStock = product.variants[vIndex].currentStock;
-        product.variants[vIndex].currentStock = parseFloat((product.variants[vIndex].currentStock - item.quantity).toFixed(6));
-        // Also update total product stock
-        product.currentStock = parseFloat((product.currentStock - item.quantity).toFixed(6));
-        newStock = product.variants[vIndex].currentStock;
+        if (vIndex !== -1) {
+          previousStock = product.variants[vIndex].currentStock;
+          product.variants[vIndex].currentStock = parseFloat((product.variants[vIndex].currentStock - item.quantity).toFixed(6));
+          product.currentStock = parseFloat((product.currentStock - item.quantity).toFixed(6));
+          newStock = product.variants[vIndex].currentStock;
+        } else {
+          previousStock = product.currentStock;
+          product.currentStock = parseFloat((product.currentStock - item.quantity).toFixed(6));
+          newStock = product.currentStock;
+        }
       } else {
         previousStock = product.currentStock;
         product.currentStock = parseFloat((product.currentStock - item.quantity).toFixed(6));
@@ -146,91 +190,58 @@ export const createSale = asyncHandler(
         quantity: item.quantity,
         previousStock,
         newStock,
-        referenceId: null,
+        referenceId: sale._id,
         createdBy: req.user?._id || null,
       });
-
-      saleItems.push({
-        product: item.product,
-        variantId: item.variantId,
-        variantName: item.variantName,
-        quantity: item.quantity,
-        salePrice: item.salePrice,
-        itemDiscountType: item.itemDiscountType || "None",
-        itemDiscount: item.itemDiscount || 0,
-        subtotal: itemSubtotal,
-        cost: itemCost,
-        profit: itemProfit,
-      });
     }
-
-    const grandTotal = subtotal - discount - badgeDiscount + Number(shippingCost);
-
-    const dueAmount =
-      grandTotal - paidAmount;
 
     if (customer) {
-      const customerDoc = await Customer.findById(customer);
-      if (customerDoc) {
-        customerDoc.totalSpent += grandTotal;
-        customerDoc.totalOrders += 1;
-        customerDoc.previousDue += dueAmount;
-        customerDoc.loyaltyPoints += Math.floor(grandTotal / 100);
+      try {
+        const customerDoc = await Customer.findById(customer);
+        if (customerDoc) {
+          const previousSpent = customerDoc.totalSpent || 0;
+          const previousOrders = customerDoc.totalOrders || 0;
 
-        // Find applicable badge
-        const allBadges = await Badge.find({ status: true });
-        
-        let applicableBadge = null;
-        let highestDiscount = -1;
+          customerDoc.totalSpent = previousSpent + grandTotal;
+          customerDoc.totalOrders = previousOrders + 1;
+          customerDoc.previousDue = (customerDoc.previousDue || 0) + dueAmount;
+          customerDoc.loyaltyPoints = (customerDoc.loyaltyPoints || 0) + Math.floor(grandTotal / 100);
 
-        for (const b of allBadges) {
-          if (b.conditions && b.conditions.length > 0) {
-            const matchesAll = b.conditions.every(cond => {
-              const val = customerDoc[cond.field];
-              switch (cond.operator) {
-                case 'gt': return val > cond.value;
-                case 'lt': return val < cond.value;
-                case 'gte': return val >= cond.value;
-                case 'lte': return val <= cond.value;
-                case 'eq': return val === cond.value;
-                default: return false;
+          const allBadges = await Badge.find({ status: true });
+          let applicableBadge = null;
+          let highestDiscount = -1;
+
+          for (const b of allBadges) {
+            if (b.conditions && b.conditions.length > 0) {
+              const matchesAll = b.conditions.every(cond => {
+                const val = customerDoc[cond.field];
+                switch (cond.operator) {
+                  case 'gt': return val > cond.value;
+                  case 'lt': return val < cond.value;
+                  case 'gte': return val >= cond.value;
+                  case 'lte': return val <= cond.value;
+                  case 'eq': return val === cond.value;
+                  default: return false;
+                }
+              });
+
+              if (matchesAll && b.discount > highestDiscount) {
+                applicableBadge = b;
+                highestDiscount = b.discount;
               }
-            });
-
-            if (matchesAll && b.discount > highestDiscount) {
-              applicableBadge = b;
-              highestDiscount = b.discount;
             }
           }
-        }
 
-        if (applicableBadge) {
-          customerDoc.badge = applicableBadge._id;
-        }
+          if (applicableBadge) {
+            customerDoc.badge = applicableBadge._id;
+          }
 
-        await customerDoc.save();
+          await customerDoc.save();
+        }
+      } catch (error) {
+        console.error("Failed to update customer stats:", error);
       }
     }
-
-    const sale = await Sale.create({
-      invoiceNo: generateInvoice(),
-      customer,
-      items: saleItems,
-      subtotal,
-      shippingCost,
-      discount,
-      badgeName,
-      badgeDiscount,
-      grandTotal,
-      paidAmount,
-      dueAmount,
-      totalCost,
-      totalProfit,
-      note,
-      soldBy: req.user?._id || null,
-      source: "pos",
-      order_date: order_date ? new Date(order_date) : new Date(),
-    });
 
     return apiResponse({
       res,
@@ -250,17 +261,18 @@ export const getSales = asyncHandler(
     const query = {};
 
     if (search) {
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const matchingCustomers = await Customer.find({
         $or: [
-          { name: { $regex: search, $options: "i" } },
-          { phone: { $regex: search, $options: "i" } },
+          { name: { $regex: escapedSearch, $options: "i" } },
+          { phone: { $regex: escapedSearch, $options: "i" } },
         ],
       }).select("_id");
 
       const customerIds = matchingCustomers.map((c) => c._id);
 
       query.$or = [
-        { invoiceNo: { $regex: search, $options: "i" } },
+        { invoiceNo: { $regex: escapedSearch, $options: "i" } },
         ...(customerIds.length > 0 ? [{ customer: { $in: customerIds } }] : []),
       ];
     }

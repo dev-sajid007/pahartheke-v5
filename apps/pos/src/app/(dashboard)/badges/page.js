@@ -13,10 +13,6 @@ export default function BadgesPage() {
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchBadges();
-  }, []);
-
   const fetchBadges = async () => {
     try {
       setIsLoading(true);
@@ -30,6 +26,10 @@ export default function BadgesPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBadges();
+  }, []);
 
   const handleSaveBadge = async (formData) => {
     try {
@@ -57,7 +57,7 @@ export default function BadgesPage() {
   };
 
   const filteredBadges = badges.filter(b => 
-    b.name.toLowerCase().includes(searchQuery.toLowerCase())
+    (b.name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -186,6 +186,7 @@ export default function BadgesPage() {
       </div>
 
       <BadgeModal 
+        key={selectedBadge?._id || 'new'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         badge={selectedBadge}

@@ -14,13 +14,6 @@ export default function PurchaseViewPage() {
 
   const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace("/api", "");
 
-  useEffect(() => {
-    if (id) {
-      fetchPurchase();
-      fetchSettings();
-    }
-  }, [id]);
-
   const fetchSettings = async () => {
     try {
       const res = await api.get("/settings");
@@ -41,6 +34,13 @@ export default function PurchaseViewPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchPurchase();
+      fetchSettings();
+    }
+  }, [id]);
 
   const handlePrint = () => window.print();
 
@@ -86,7 +86,7 @@ export default function PurchaseViewPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 {settings?.logo ? (
-                  <img src={settings.logo.startsWith("http") ? settings.logo : `${BASE_URL}${settings.logo}`} alt="Logo" className="h-12 w-auto object-contain" />
+                  <img src={settings?.logo?.startsWith("http") ? settings.logo : `${BASE_URL}${settings?.logo || ''}`} alt="Logo" className="h-12 w-auto object-contain" />
                 ) : (
                   <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-white text-xl font-black">
                     {settings?.storeName?.charAt(0) || "P"}

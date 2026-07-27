@@ -22,10 +22,6 @@ export default function CustomersPage() {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [currentPage, searchQuery]);
-
   const fetchCustomers = async () => {
     try {
       setIsLoading(true);
@@ -44,6 +40,10 @@ export default function CustomersPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [currentPage, searchQuery]);
 
   const handleAddCustomer = () => {
     setSelectedCustomer(null);
@@ -182,19 +182,19 @@ export default function CustomersPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 font-medium text-foreground">
-                          ৳ {customer.totalSpent}
+                          ৳ {customer.totalSpent || 0}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1.5 text-pink-600 font-semibold bg-pink-50 dark:bg-pink-900/10 px-2 py-1 rounded-md w-fit">
                             <Heart className="w-3.5 h-3.5 fill-pink-600" />
-                            {customer.loyaltyPoints} pts
+                            {(customer.loyaltyPoints || 0)} pts
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          {customer.previousDue > 0 ? (
+                          {(customer.previousDue || 0) > 0 ? (
                             <div className="flex items-center gap-1.5 text-rose-600 font-semibold bg-rose-50 dark:bg-rose-900/10 px-2 py-1 rounded-md w-fit">
                               <AlertCircle className="w-3.5 h-3.5" />
-                              ৳ {customer.previousDue}
+                              ৳ {customer.previousDue || 0}
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5 text-emerald-600 font-medium">
@@ -284,6 +284,7 @@ export default function CustomersPage() {
       </div>
 
       <CustomerModal 
+        key={selectedCustomer?._id || 'new'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         customer={selectedCustomer}

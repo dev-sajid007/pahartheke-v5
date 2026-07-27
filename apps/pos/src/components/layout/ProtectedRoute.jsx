@@ -5,16 +5,12 @@ import { useRouter } from "next/navigation";
 
 export default function ProtectedRoute({ children }) {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
+  const [isAuthenticated] = useState(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
+    if (token) return true;
+    router.push("/login");
+    return false;
+  });
 
   // Don't render children until we know they are authenticated to prevent UI flashing
   if (!isAuthenticated) {

@@ -32,21 +32,17 @@ export default function EditProductPage() {
     variants: [],
   });
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
-
   const fetchData = async () => {
     try {
       setIsLoading(true);
       const [productRes, catRes] = await Promise.all([
-        api.get(`/products`),
+        api.get(`/products/${id}`),
         api.get("/categories")
       ]);
 
       if (catRes.data.data) setCategories(catRes.data.data);
       
-      const product = productRes.data.data.products.find(p => p._id === id);
+      const product = productRes.data.data;
       if (product) {
         setFormData({
           ...product,
@@ -69,6 +65,10 @@ export default function EditProductPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

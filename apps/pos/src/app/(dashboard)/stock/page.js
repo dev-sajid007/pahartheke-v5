@@ -9,10 +9,6 @@ export default function StockLedgerPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    fetchMovements();
-  }, []);
-
   const fetchMovements = async () => {
     try {
       setIsLoading(true);
@@ -26,6 +22,10 @@ export default function StockLedgerPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchMovements();
+  }, []);
 
   const filteredMovements = movements.filter(m => 
     m.product?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||

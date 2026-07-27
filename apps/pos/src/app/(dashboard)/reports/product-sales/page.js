@@ -18,16 +18,6 @@ export default function ProductWiseSalesReport() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    if (selectedProduct) {
-      fetchReport();
-    }
-  }, [dateRange, selectedProduct]);
-
   const fetchProducts = async () => {
     try {
       const res = await api.get("/products", { params: { limit: 0 } });
@@ -38,6 +28,16 @@ export default function ProductWiseSalesReport() {
       console.error("Failed to fetch products", error);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      fetchReport();
+    }
+  }, [dateRange, selectedProduct]);
 
   const fetchReport = useCallback(async () => {
     if (!selectedProduct) return;
@@ -71,7 +71,7 @@ export default function ProductWiseSalesReport() {
   };
 
   const filteredProducts = allProducts.filter(p =>
-    p.name.toLowerCase().includes(productSearch.toLowerCase())
+    (p.name || '').toLowerCase().includes(productSearch.toLowerCase())
   );
 
   const filteredSales = salesDetail.filter(s =>

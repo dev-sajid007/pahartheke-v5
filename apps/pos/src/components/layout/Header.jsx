@@ -6,18 +6,14 @@ import { useState, useEffect } from "react";
 import { Bell, Search, Menu } from "lucide-react";
 
 export default function Header() {
-  const [user, setUser] = useState({ name: "User", role: "" });
-
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {
-        // ignore
-      }
+  const [user] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : { name: "User", role: "" };
+    } catch {
+      return { name: "User", role: "" };
     }
-  }, []);
+  });
 
   const initials = user.name
     ? user.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()

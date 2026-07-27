@@ -29,11 +29,7 @@ export default function POSPage() {
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
 
   const [newCustomer, setNewCustomer] = useState(null);
-  const [dateString, setDateString] = useState("");
-
-  useEffect(() => {
-    setDateString(new Date().toLocaleDateString());
-  }, []);
+  const [dateString] = useState(() => new Date().toLocaleDateString());
 
   const fetchProducts = useCallback(async (page = 1, append = false) => {
     if (append) {
@@ -266,6 +262,7 @@ export default function POSPage() {
       />
 
       <CustomerModal 
+        key="new"
         isOpen={isCustomerModalOpen}
         onClose={() => setIsCustomerModalOpen(false)}
         onSave={handleSaveCustomer}

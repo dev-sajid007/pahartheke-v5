@@ -13,10 +13,6 @@ export default function SuppliersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
 
-  useEffect(() => {
-    fetchSuppliers();
-  }, []);
-
   const fetchSuppliers = async () => {
     try {
       setIsLoading(true);
@@ -31,6 +27,10 @@ export default function SuppliersPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
   const handleAddSupplier = () => {
     setSelectedSupplier(null);
@@ -69,9 +69,9 @@ export default function SuppliersPage() {
   };
 
   const filteredSuppliers = suppliers.filter(s => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    s.companyName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.phone.includes(searchQuery)
+    (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (s.companyName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (s.phone || '').includes(searchQuery)
   );
 
   return (
@@ -200,6 +200,7 @@ export default function SuppliersPage() {
       </div>
 
       <SupplierModal 
+        key={selectedSupplier?._id || 'new'}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         supplier={selectedSupplier}

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Category from "../category/category.model.js";
 import Product from "../product/product.model.js";
 import Sale from "../sale/sale.model.js";
+import Customer from "../customer/customer.model.js";
 import PurchaseBatch from "../product/purchaseBatch.model.js";
 import createStockMovement from "../../helpers/createStockMovement.js";
 import asyncHandler from "../../utils/asyncHandler.js";
@@ -9,7 +10,7 @@ import apiResponse from "../../utils/apiResponse.js";
 import ApiError from "../../core/ApiError.js";
 
 const generateInvoice = () => {
-  return "WEB-" + Date.now();
+  return "WEB-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
 };
 
 export const getCategories = asyncHandler(async (req, res) => {
@@ -75,8 +76,12 @@ export const getProduct = asyncHandler(async (req, res) => {
 export const createOrder = asyncHandler(async (req, res) => {
   const { items, customerInfo, note, payment_type, discount, shippingCost } = req.body;
 
-  if (!items || !items.length) {
+  if (!Array.isArray(items) || items.length === 0) {
     throw new ApiError(400, "No items in order");
+  }
+
+  if (!customerInfo || !customerInfo.phone) {
+    throw new ApiError(400, "Customer phone is required");
   }
 
   let subtotal = 0;
@@ -85,8 +90,11 @@ export const createOrder = asyncHandler(async (req, res) => {
   const saleItems = [];
 
   for (const item of items) {
-    const product = await Product.findById(item.product);
+    if (!item.product || !item.quantity || item.quantity <= 0) {
+      throw new ApiError(400, "Each item must have a product ID and valid quantity");
+    }
 
+    const product = await Product.findById(item.product);
     if (!product) {
       throw new ApiError(404, `Product not found: ${item.product}`);
     }
@@ -123,9 +131,7 @@ export const createOrder = asyncHandler(async (req, res) => {
       batchQuery.variantId = item.variantId;
     }
 
-    const batches = await PurchaseBatch.find(batchQuery).sort({
-      createdAt: 1,
-    });
+    const batches = await PurchaseBatch.find(batchQuery).sort({ createdAt: 1 });
 
     const totalBatchQty = batches.reduce(
       (sum, b) => sum + b.remainingQuantity,
@@ -134,11 +140,14 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     if (totalBatchQty < item.quantity) {
       const shortfall = item.quantity - totalBatchQty;
-      batches.push({
+      const fallbackBatch = await PurchaseBatch.create({
+        product: product._id,
+        variantId: item.variantId,
+        quantity: shortfall,
         remainingQuantity: shortfall,
         purchasePrice: product.purchasePrice || 0,
-        save: async () => {},
       });
+      batches.push(fallbackBatch);
     }
 
     for (const batch of batches) {
@@ -161,6 +170,72 @@ export const createOrder = asyncHandler(async (req, res) => {
     totalCost += itemCost;
     totalProfit += itemProfit;
 
+    saleItems.push({
+      product: item.product,
+      variantId: item.variantId,
+      variantName: item.variantName,
+      quantity: item.quantity,
+      salePrice,
+      subtotal: itemSubtotal,
+      cost: itemCost,
+      profit: itemProfit,
+    });
+  }
+
+  const orderDiscount = Math.max(Number(discount) || 0, 0);
+  const orderShipping = Math.max(Number(shippingCost) || 0, 0);
+  const grandTotal = subtotal + orderShipping - orderDiscount;
+  const paidAmount = grandTotal;
+
+  const sale = await Sale.create({
+    invoiceNo: generateInvoice(),
+    items: saleItems,
+    subtotal,
+    discount: orderDiscount,
+    shippingCost: orderShipping,
+    grandTotal,
+    paidAmount,
+    dueAmount: 0,
+    totalCost,
+    totalProfit,
+    note: note || "Order from website",
+    source: "website",
+    order_date: new Date(),
+    customerName: customerInfo?.name || "",
+    customerPhone: customerInfo?.phone || "",
+    customerEmail: customerInfo?.email || "",
+    customerAddress: customerInfo?.address || "",
+    customerCity: customerInfo?.city || "",
+    paymentType: payment_type || "cash_on_delivery",
+  });
+
+  let customerRecord = null;
+  try {
+    if (customerInfo?.phone) {
+      customerRecord = await Customer.findOne({ phone: customerInfo.phone });
+      if (customerRecord) {
+        customerRecord.totalSpent += grandTotal;
+        customerRecord.totalOrders += 1;
+        if (customerInfo.name) customerRecord.name = customerInfo.name;
+        if (customerInfo.address) customerRecord.address = customerInfo.address;
+        await customerRecord.save();
+      } else {
+        customerRecord = await Customer.create({
+          name: customerInfo.name || "Website Customer",
+          phone: customerInfo.phone,
+          email: customerInfo.email || "",
+          address: customerInfo.address || "",
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Failed to create/update customer:", error);
+  }
+
+  for (const item of items) {
+    const product = await Product.findById(item.product);
+    if (!product) continue;
+
     let previousStock;
     let newStock;
 
@@ -168,16 +243,22 @@ export const createOrder = asyncHandler(async (req, res) => {
       const vIndex = product.variants.findIndex(
         (v) => v.variantId === item.variantId
       );
-      previousStock = product.variants[vIndex].currentStock;
-      product.variants[vIndex].currentStock = parseFloat(
-        (
-          product.variants[vIndex].currentStock - item.quantity
-        ).toFixed(6)
-      );
-      product.currentStock = parseFloat(
-        (product.currentStock - item.quantity).toFixed(6)
-      );
-      newStock = product.variants[vIndex].currentStock;
+      if (vIndex !== -1) {
+        previousStock = product.variants[vIndex].currentStock;
+        product.variants[vIndex].currentStock = parseFloat(
+          (product.variants[vIndex].currentStock - item.quantity).toFixed(6)
+        );
+        product.currentStock = parseFloat(
+          (product.currentStock - item.quantity).toFixed(6)
+        );
+        newStock = product.variants[vIndex].currentStock;
+      } else {
+        previousStock = product.currentStock;
+        product.currentStock = parseFloat(
+          (product.currentStock - item.quantity).toFixed(6)
+        );
+        newStock = product.currentStock;
+      }
     } else {
       previousStock = product.currentStock;
       product.currentStock = parseFloat(
@@ -195,49 +276,10 @@ export const createOrder = asyncHandler(async (req, res) => {
       quantity: item.quantity,
       previousStock,
       newStock,
-      referenceId: null,
-      createdBy: null,
-    });
-
-    saleItems.push({
-      product: item.product,
-      variantId: item.variantId,
-      variantName: item.variantName,
-      quantity: item.quantity,
-      salePrice,
-      subtotal: itemSubtotal,
-      cost: itemCost,
-      profit: itemProfit,
+      referenceId: sale._id,
+      createdBy: customerRecord?._id || null,
     });
   }
-
-  const orderDiscount = Math.max(Number(discount) || 0, 0);
-  const orderShipping = Math.max(Number(shippingCost) || 0, 0);
-  const grandTotal = subtotal + orderShipping - orderDiscount;
-  const paidAmount = grandTotal;
-  const dueAmount = 0;
-
-  const sale = await Sale.create({
-    invoiceNo: generateInvoice(),
-    items: saleItems,
-    subtotal,
-    discount: orderDiscount,
-    shippingCost: orderShipping,
-    grandTotal,
-    paidAmount,
-    dueAmount,
-    totalCost,
-    totalProfit,
-    note: note || "Order from website",
-    source: "website",
-    order_date: new Date(),
-    customerName: customerInfo?.name || "",
-    customerPhone: customerInfo?.phone || "",
-    customerEmail: customerInfo?.email || "",
-    customerAddress: customerInfo?.address || "",
-    customerCity: customerInfo?.city || "",
-    paymentType: payment_type || "cash_on_delivery",
-  });
 
   return apiResponse({
     res,

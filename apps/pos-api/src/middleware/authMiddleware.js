@@ -36,7 +36,7 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    next(new ApiError(401, error.message || "Unauthorized"));
+    next(new ApiError(401, "Unauthorized"));
   }
 };
 

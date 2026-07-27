@@ -12,10 +12,6 @@ export default function ExpenseReport() {
   const [data, setData] = useState({ expenses: [], total: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReport();
-  }, [dateRange]);
-
   const fetchReport = async () => {
     try {
       setIsLoading(true);
@@ -29,6 +25,10 @@ export default function ExpenseReport() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReport();
+  }, [dateRange]);
 
   return (
     <div className="space-y-6">

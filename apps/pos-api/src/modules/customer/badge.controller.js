@@ -53,6 +53,12 @@ export const updateBadge = asyncHandler(async (req, res) => {
 export const deleteBadge = asyncHandler(async (req, res) => {
   const badge = await Badge.findByIdAndDelete(req.params.id);
   if (!badge) throw new ApiError(404, "Badge not found");
+
+  await Customer.updateMany(
+    { badge: req.params.id },
+    { $set: { badge: null } }
+  );
+
   return apiResponse({
     res,
     message: "Badge deleted successfully",

@@ -168,11 +168,12 @@ export const getCOGSReport = asyncHandler(async (req, res) => {
 
   const cogsStats = await Sale.aggregate([
     { $match: match },
+    { $unwind: "$items" },
     {
       $group: {
         _id: null,
         totalCOGS: { $sum: "$totalCost" },
-        totalSoldQuantity: { $sum: { $sum: "$items.quantity" } }
+        totalSoldQuantity: { $sum: "$items.quantity" }
       }
     }
   ]);

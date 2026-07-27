@@ -5,16 +5,20 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
 import path from "path";
+import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
 
 import notFoundMiddleware from "./middleware/notFoundMiddleware.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const allowedOrigins = [
+const defaultOrigins = [
   "https://pos.pahartheke.com",
   "http://localhost:3000",
   "http://localhost:3001",
@@ -23,6 +27,10 @@ const allowedOrigins = [
   "http://pos.pahartheke.com",
   "https://v2.pahartheke.com"
 ];
+
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map(o => o.trim())
+  : defaultOrigins;
 
 app.use(cors({
   origin: (origin, callback) => {

@@ -4,7 +4,15 @@ import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function ProductModal({ isOpen, onClose, product = null, categories = [], onSave }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => product ? {
+    ...product,
+    slug: product.slug || "",
+    description: product.description || "",
+    tags: Array.isArray(product.tags) ? product.tags : [],
+    category: product.category?._id || product.category || "",
+    hasVariants: product.hasVariants || false,
+    variants: product.variants || [],
+  } : {
     name: "",
     sku: "",
     slug: "",
@@ -20,37 +28,6 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
     hasVariants: false,
     variants: [],
   });
-
-  useEffect(() => {
-    if (product) {
-      setFormData({
-        ...product,
-        slug: product.slug || "",
-        description: product.description || "",
-        tags: Array.isArray(product.tags) ? product.tags : [],
-        category: product.category?._id || product.category || "",
-        hasVariants: product.hasVariants || false,
-        variants: product.variants || [],
-      });
-    } else {
-      setFormData({
-        name: "",
-        sku: "",
-        slug: "",
-        description: "",
-        tags: [],
-        category: "",
-        productType: "piece",
-        unit: "pcs",
-        purchasePrice: 0,
-        salePrice: 0,
-        minimumStockAlert: 5,
-        status: true,
-        hasVariants: false,
-        variants: [],
-      });
-    }
-  }, [product, isOpen]);
 
   if (!isOpen) return null;
 

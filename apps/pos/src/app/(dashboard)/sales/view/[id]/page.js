@@ -15,13 +15,6 @@ export default function SaleViewPage() {
 
   const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace("/api", "");
 
-  useEffect(() => {
-    if (id) {
-      fetchSaleDetails();
-      fetchSettings();
-    }
-  }, [id]);
-
   const fetchSettings = async () => {
     try {
       const res = await api.get("/settings");
@@ -46,6 +39,13 @@ export default function SaleViewPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchSaleDetails();
+      fetchSettings();
+    }
+  }, [id]);
 
   const handlePrint = () => {
     window.print();
@@ -100,7 +100,7 @@ export default function SaleViewPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 {settings?.logo ? (
-                  <img src={settings.logo.startsWith("http") ? settings.logo : `${BASE_URL}${settings.logo}`} alt="Logo" className="h-12 w-auto object-contain" />
+                  <img src={settings?.logo?.startsWith("http") ? settings.logo : `${BASE_URL}${settings?.logo || ''}`} alt="Logo" className="h-12 w-auto object-contain" />
                 ) : (
                   <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-white text-xl font-black">
                     {settings?.storeName?.charAt(0) || "P"}
@@ -217,14 +217,14 @@ export default function SaleViewPage() {
             <div className="w-full max-w-[250px] space-y-1">
               <div className="flex justify-between items-center text-gray-600 text-[10px]">
                 <span className="font-bold uppercase tracking-widest">Subtotal</span>
-                <span className="font-bold">৳{sale.subtotal}</span>
+                  <span className="font-bold">৳{sale.subtotal || 0}</span>
               </div>
               {sale.badgeName && (
                 <div className="flex justify-between items-center text-primary text-[10px]">
                   <span className="font-black uppercase tracking-widest flex items-center gap-1">
                     <Award className="h-2 w-2" /> {sale.badgeName} Reward
                   </span>
-                  <span className="font-black">- ৳{sale.badgeDiscount}</span>
+                  <span className="font-black">- ৳{sale.badgeDiscount || 0}</span>
                 </div>
               )}
               {sale.discount > (sale.badgeDiscount || 0) && (
@@ -236,23 +236,23 @@ export default function SaleViewPage() {
               {sale.shippingCost > 0 && (
                 <div className="flex justify-between items-center text-sky-600 text-[10px]">
                   <span className="font-bold uppercase tracking-widest">Shipping</span>
-                  <span className="font-bold">+ ৳{sale.shippingCost}</span>
+                  <span className="font-bold">+ ৳{sale.shippingCost || 0}</span>
                 </div>
               )}
               <div className="h-px bg-gray-200 my-2"></div>
               <div className="flex justify-between items-center">
                 <span className="font-black uppercase text-xs tracking-widest text-primary">Total</span>
-                <span className="text-xl font-black text-primary">৳{sale.grandTotal}</span>
+                  <span className="text-xl font-black text-primary">৳{sale.grandTotal || 0}</span>
               </div>
               <div className="pt-2 space-y-1">
                 <div className="flex justify-between items-center text-emerald-600 text-[10px]">
                   <span className="font-bold uppercase tracking-widest">Paid</span>
-                  <span className="font-black">৳{sale.paidAmount}</span>
+                  <span className="font-black">৳{sale.paidAmount || 0}</span>
                 </div>
                 {sale.dueAmount > 0 && (
                   <div className="flex justify-between items-center text-rose-600 text-[10px]">
                     <span className="font-bold uppercase tracking-widest">Due</span>
-                    <span className="font-black">৳{sale.dueAmount}</span>
+                    <span className="font-black">৳{sale.dueAmount || 0}</span>
                   </div>
                 )}
               </div>

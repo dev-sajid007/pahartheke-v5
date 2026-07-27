@@ -4,7 +4,14 @@ import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function SupplierModal({ isOpen, onClose, supplier = null, onSave }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => supplier ? {
+    name: supplier.name || "",
+    phone: supplier.phone || "",
+    email: supplier.email || "",
+    companyName: supplier.companyName || "",
+    address: supplier.address || "",
+    status: supplier.status !== undefined ? supplier.status : true,
+  } : {
     name: "",
     phone: "",
     email: "",
@@ -12,21 +19,6 @@ export default function SupplierModal({ isOpen, onClose, supplier = null, onSave
     address: "",
     status: true,
   });
-
-  useEffect(() => {
-    if (supplier) {
-      setFormData(supplier);
-    } else {
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        companyName: "",
-        address: "",
-        status: true,
-      });
-    }
-  }, [supplier, isOpen]);
 
   if (!isOpen) return null;
 

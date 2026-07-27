@@ -17,12 +17,6 @@ export default function NewPurchasePage() {
   const [suppliers, setSuppliers] = useState([]);
   const [costTypes, setCostTypes] = useState([]);
 
-  useEffect(() => {
-    fetchProducts();
-    fetchSuppliers();
-    fetchCostTypes();
-  }, []);
-
   const fetchProducts = async () => {
     try {
       const res = await api.get("/products?limit=0");
@@ -38,6 +32,17 @@ export default function NewPurchasePage() {
   };
 
   const fetchCostTypes = async () => {
+    try {
+      const res = await api.get("/purchase-costs");
+      if (res.data.data) setCostTypes(res.data.data.filter(c => c.status === true));
+    } catch (error) { console.error(error); }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+    fetchSuppliers();
+    fetchCostTypes();
+  }, []);
     try {
       const res = await api.get("/purchase-costs");
       if (res.data.data) setCostTypes(res.data.data.filter(c => c.status === true));

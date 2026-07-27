@@ -24,11 +24,13 @@ export default function SearchableSelect({
 
   const selectedOption = options.find((o) => getValue(o) === value);
 
+  const prevOpen = useRef(isOpen);
   useEffect(() => {
-    if (!isOpen) {
+    if (prevOpen.current && !isOpen) {
       setSearch("");
       setHighlightedIndex(-1);
     }
+    prevOpen.current = isOpen;
   }, [isOpen]);
 
   const filtered = search

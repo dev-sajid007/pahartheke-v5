@@ -12,10 +12,6 @@ export default function GrossProfitReport() {
   const [data, setData] = useState({ totalRevenue: 0, totalCost: 0, totalProfit: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReport();
-  }, [dateRange]);
-
   const fetchReport = async () => {
     try {
       setIsLoading(true);
@@ -29,6 +25,10 @@ export default function GrossProfitReport() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchReport();
+  }, [dateRange]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-BD', {

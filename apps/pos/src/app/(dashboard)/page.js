@@ -21,10 +21,6 @@ export default function DashboardPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
   const fetchStats = async () => {
     try {
       setIsLoading(true);
@@ -38,6 +34,10 @@ export default function DashboardPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -128,7 +128,7 @@ export default function DashboardPage() {
                 <tr key={i} className="hover:bg-sidebar-accent/50 transition-colors">
                   <td className="px-6 py-4 font-medium text-foreground">{sale.invoiceNo}</td>
                   <td className="px-6 py-4">{sale.customer?.name || "Walk-in Customer"}</td>
-                  <td className="px-6 py-4 font-semibold text-emerald-600 text-right">৳ {sale.subtotal - sale.discount}</td>
+                  <td className="px-6 py-4 font-semibold text-emerald-600 text-right">৳ {Math.max(0, (sale.subtotal || 0) - (sale.discount || 0))}</td>
                 </tr>
               ))}
               {(!stats.recentSales || stats.recentSales.length === 0) && (
