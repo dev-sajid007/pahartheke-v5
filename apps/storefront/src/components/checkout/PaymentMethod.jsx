@@ -3,7 +3,7 @@
 function SectionHeader({ title }) {
   return (
     <div className="flex items-center gap-3 px-5 py-3">
-      <span className="block h-5 w-1 rounded-full bg-[#E07B2E]" />
+      <span className="block h-5 w-1 rounded-full bg-[#22c55e]" />
       <h2 className="text-base font-bold text-[#1A1A1A]">{title}</h2>
     </div>
   )
@@ -16,7 +16,7 @@ function TruckIcon() {
       height="20"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#E07B2E"
+      stroke="#22c55e"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -42,7 +42,7 @@ export default function PaymentMethod({ selected, onSelect }) {
           onClick={() => onSelect("cash_on_delivery")}
           className={`relative flex w-full cursor-pointer items-center gap-3 rounded-lg border px-4 py-3.5 text-left transition ${
             isSelected
-              ? "border-[#E07B2E]"
+              ? "border-[#22c55e]"
               : "border-[#E0E0E0] hover:border-gray-300"
           }`}
         >
@@ -51,7 +51,7 @@ export default function PaymentMethod({ selected, onSelect }) {
             Cash on Delivery
           </span>
           {isSelected && (
-            <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#E07B2E] text-white">
+            <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#22c55e] text-white">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>

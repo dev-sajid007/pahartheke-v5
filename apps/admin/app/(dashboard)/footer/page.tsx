@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
 import Link from "next/link";
 import SaveButton, { useSaveToast } from "@/components/SaveButton";
+import ImageUploader from "@/components/ImageUploader";
 import { getSectionByType, upsertSection } from "@/lib/api";
 
 interface LinkItem {
@@ -12,14 +13,25 @@ interface LinkItem {
   href: string;
 }
 
+interface SocialLinkItem {
+  id: number;
+  platform: string;
+  url: string;
+  icon: string;
+  color: string;
+}
+
 interface FooterData {
   logoUrl: string;
   description: string;
-  facebookUrl: string;
-  instagramUrl: string;
-  youtubeUrl: string;
+  socialLinks: SocialLinkItem[];
   quickLinks: LinkItem[];
   policies: LinkItem[];
+  quickLinksTitle: string;
+  policiesTitle: string;
+  contactTitle: string;
+  copyrightText: string;
+  copyrightCredit: string;
   address: string;
   phone: string;
   email: string;
@@ -30,9 +42,11 @@ const DEFAULT: FooterData = {
   logoUrl: "https://pahartheke.com/assets/img/logo.png",
   description:
     "Online platform revolutionizing food industry by promoting ancient cultivation and sustainable agriculture. Supporting underprivileged hill tract farmers.",
-  facebookUrl: "https://facebook.com",
-  instagramUrl: "https://instagram.com",
-  youtubeUrl: "https://youtube.com",
+  socialLinks: [
+    { id: 1, platform: "Facebook", url: "https://facebook.com", icon: "f", color: "#1877F2" },
+    { id: 2, platform: "Instagram", url: "https://instagram.com", icon: "ig", color: "#E4405F" },
+    { id: 3, platform: "YouTube", url: "https://youtube.com", icon: "yt", color: "#FF0000" },
+  ],
   quickLinks: [
     { id: 1, label: "About Us", href: "/about" },
     { id: 2, label: "Track Order", href: "/track-order" },
@@ -43,6 +57,11 @@ const DEFAULT: FooterData = {
     { id: 3, label: "Terms of use", href: "/terms" },
     { id: 4, label: "Refund Policy", href: "/refund-policy" },
   ],
+  quickLinksTitle: "Quick Links",
+  policiesTitle: "Policies",
+  contactTitle: "Contact Us",
+  copyrightText: "© {year} PaharTheke. All rights reserved.",
+  copyrightCredit: "Designed & Developed in Bangladesh",
   address: "House - 2/5, Road - 2 Block-F,\nLalmatia, Dhaka-1207, Bangladesh.\n02-223311311, 01531532139",
   phone: "01531532139",
   email: "pahar.theke@gmail.com",
@@ -116,6 +135,24 @@ export default function FooterPage() {
     }));
   };
 
+  const addSocialLink = () => {
+    setData((d) => ({
+      ...d,
+      socialLinks: [...d.socialLinks, { id: Date.now(), platform: "New", url: "https://", icon: "link", color: "#666666" }],
+    }));
+  };
+
+  const removeSocialLink = (id: number) => {
+    setData((d) => ({ ...d, socialLinks: d.socialLinks.filter((l) => l.id !== id) }));
+  };
+
+  const updateSocialLink = (id: number, field: keyof Omit<SocialLinkItem, "id">, value: string) => {
+    setData((d) => ({
+      ...d,
+      socialLinks: d.socialLinks.map((l) => (l.id === id ? { ...l, [field]: value } : l)),
+    }));
+  };
+
   if (loading)
     return (
       <div className="flex items-center justify-center h-64">
@@ -151,13 +188,21 @@ export default function FooterPage() {
           <h2 className="text-sm font-semibold text-[#1a1a2e]">Brand</h2>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Logo URL</label>
-            <input
-              type="text"
-              value={data.logoUrl}
-              onChange={(e) => setData({ ...data, logoUrl: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Logo</label>
+            <div className="flex gap-3 items-start">
+              <input
+                type="text"
+                value={data.logoUrl}
+                onChange={(e) => setData({ ...data, logoUrl: e.target.value })}
+                className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+                placeholder="https://example.com/logo.png"
+              />
+              <ImageUploader
+                currentUrl={data.logoUrl}
+                onUpload={(url) => setData({ ...data, logoUrl: url })}
+                label="Upload Logo"
+              />
+            </div>
           </div>
 
           <div>
@@ -172,37 +217,65 @@ export default function FooterPage() {
         </div>
 
         {/* Social Links */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-          <h2 className="text-sm font-semibold text-[#1a1a2e]">Social Links</h2>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Facebook URL</label>
-            <input
-              type="text"
-              value={data.facebookUrl}
-              onChange={(e) => setData({ ...data, facebookUrl: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-[#1a1a2e]">Social Links ({data.socialLinks.length})</h2>
+            <button
+              onClick={addSocialLink}
+              className="flex items-center gap-1.5 rounded-lg bg-[#1a1a2e] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2a2a4e]"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add Social
+            </button>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Instagram URL</label>
-            <input
-              type="text"
-              value={data.instagramUrl}
-              onChange={(e) => setData({ ...data, instagramUrl: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">YouTube URL</label>
-            <input
-              type="text"
-              value={data.youtubeUrl}
-              onChange={(e) => setData({ ...data, youtubeUrl: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
+          <div className="space-y-3">
+            {data.socialLinks.map((link, i) => (
+              <div key={link.id} className="flex gap-3 items-center rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <div className="flex items-center gap-2 shrink-0">
+                  <GripVertical className="h-4 w-4 text-gray-300" />
+                  <span
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
+                    style={{ backgroundColor: link.color }}
+                  >
+                    {link.icon}
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={link.platform}
+                  onChange={(e) => updateSocialLink(link.id, "platform", e.target.value)}
+                  className="w-28 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+                  placeholder="Platform"
+                />
+                <input
+                  type="text"
+                  value={link.url}
+                  onChange={(e) => updateSocialLink(link.id, "url", e.target.value)}
+                  className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+                  placeholder="https://..."
+                />
+                <input
+                  type="text"
+                  value={link.icon}
+                  onChange={(e) => updateSocialLink(link.id, "icon", e.target.value)}
+                  className="w-12 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+                  placeholder="icon"
+                />
+                <input
+                  type="text"
+                  value={link.color}
+                  onChange={(e) => updateSocialLink(link.id, "color", e.target.value)}
+                  className="w-20 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+                  placeholder="#color"
+                />
+                <button
+                  onClick={() => removeSocialLink(link.id)}
+                  className="rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -295,6 +368,62 @@ export default function FooterPage() {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Text Labels */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+          <h2 className="text-sm font-semibold text-[#1a1a2e]">Text Labels</h2>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Quick Links Section Title</label>
+            <input
+              type="text"
+              value={data.quickLinksTitle}
+              onChange={(e) => setData({ ...data, quickLinksTitle: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Policies Section Title</label>
+            <input
+              type="text"
+              value={data.policiesTitle}
+              onChange={(e) => setData({ ...data, policiesTitle: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Contact Section Title</label>
+            <input
+              type="text"
+              value={data.contactTitle}
+              onChange={(e) => setData({ ...data, contactTitle: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Copyright Text</label>
+            <input
+              type="text"
+              value={data.copyrightText}
+              onChange={(e) => setData({ ...data, copyrightText: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+              placeholder={'© {year} PaharTheke. All rights reserved.'}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Copyright Credit Line</label>
+            <input
+              type="text"
+              value={data.copyrightCredit}
+              onChange={(e) => setData({ ...data, copyrightCredit: e.target.value })}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
+            />
           </div>
         </div>
 

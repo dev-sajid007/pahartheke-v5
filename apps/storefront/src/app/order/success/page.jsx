@@ -31,7 +31,6 @@ export default function OrderSuccessPage() {
             Browse products
           </Link>
         </main>
-        <Footer />
       </>
     )
   }

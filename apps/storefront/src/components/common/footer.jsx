@@ -2,63 +2,40 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { getSection } from "@/services/landing";
-
-const DEFAULTS = {
-  logoUrl: "https://pahartheke.com/assets/img/logo.png",
-  description:
-    "Online platform revolutionizing food industry by promoting ancient cultivation and sustainable agriculture. Supporting underprivileged hill tract farmers.",
-  facebookUrl: "https://facebook.com",
-  instagramUrl: "https://instagram.com",
-  youtubeUrl: "https://youtube.com",
-  quickLinks: [
-    { label: "Shop", href: "/shop" },
-    { label: "Invest", href: "/invest" },
-  ],
-  policies: [
-    { label: "Privacy Policy", href: "/privacy-policy" },
-    { label: "FAQs", href: "/faqs" },
-    { label: "Terms of use", href: "/terms" },
-    { label: "Refund Policy", href: "/refund-policy" },
-  ],
-  address: "House - 2/5, Road - 2 Block-F,\nLalmatia, Dhaka-1207, Bangladesh.\n02-223311311, 01531532139",
-  phone: "01531532139",
-  email: "pahar.theke@gmail.com",
-  mapEmbedUrl: "",
-};
+import { getSection } from "@/services/landing"
 
 export default function Footer() {
+  const [data, setData] = useState(null)
   const year = new Date().getFullYear()
-  const [data, setData] = useState(DEFAULTS);
 
   useEffect(() => {
     getSection("home", "footer").then((s) => {
       if (s?.content) {
         try {
-          const parsed = JSON.parse(s.content);
-          setData({ ...DEFAULTS, ...parsed });
-        } catch (e) {
-          console.error("Footer parse error:", e);
-        }
+          setData(JSON.parse(s.content))
+        } catch {}
       }
-    }).catch((err) => {
-      console.error("Footer data fetch failed:", err);
-    });
-  }, []);
+    }).catch(() => {})
+  }, [])
+
+  if (!data) return null
 
   const {
     logoUrl,
     description,
-    facebookUrl,
-    instagramUrl,
-    youtubeUrl,
-    quickLinks,
-    policies,
+    socialLinks = [],
+    quickLinks = [],
+    policies = [],
+    quickLinksTitle = "Quick Links",
+    policiesTitle = "Policies",
+    contactTitle = "Contact Us",
+    copyrightText = "© {year} PaharTheke. All rights reserved.",
+    copyrightCredit = "Designed & Developed in Bangladesh",
     address,
     phone,
     email,
     mapEmbedUrl,
-  } = data;
+  } = data
 
   return (
     <div className="bg-[#1a3a1a]">
@@ -77,68 +54,80 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
           <div className="flex flex-col gap-5">
-            <img src={logoUrl} className="w-28 h-auto" />
+            {logoUrl && (
+              <img src={logoUrl} className="w-28 h-auto" />
+            )}
 
-            <p className="text-sm text-gray-400 leading-relaxed">
-              {description}
-            </p>
+            {description && (
+              <p className="text-sm text-gray-400 leading-relaxed">
+                {description}
+              </p>
+            )}
 
-            <div className="flex gap-3">
-              {facebookUrl && (
-                <a className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm"
-                   href={facebookUrl} target="_blank" rel="noopener noreferrer">f</a>
-              )}
-              {instagramUrl && (
-                <a className="w-9 h-9 bg-pink-600 rounded-full flex items-center justify-center text-white text-sm"
-                   href={instagramUrl} target="_blank" rel="noopener noreferrer">ig</a>
-              )}
-              {youtubeUrl && (
-                <a className="w-9 h-9 bg-red-600 rounded-full flex items-center justify-center text-white text-sm"
-                   href={youtubeUrl} target="_blank" rel="noopener noreferrer">yt</a>
-              )}
+            {socialLinks.length > 0 && (
+              <div className="flex gap-3">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm"
+                    style={{ backgroundColor: link.color || "#666" }}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {link.icon}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {quickLinks.length > 0 && (
+            <div>
+              <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
+                {quickLinksTitle}
+              </h3>
+
+              <ul className="flex flex-col gap-3">
+                {quickLinks.map((link) => (
+                  <li key={link.id}>
+                    <Link href={link.href} className="text-gray-400 hover:text-white text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
+          )}
+
+          {policies.length > 0 && (
+            <div>
+              <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
+                {policiesTitle}
+              </h3>
+
+              <ul className="flex flex-col gap-3">
+                {policies.map((policy) => (
+                  <li key={policy.id}>
+                    <Link href={policy.href} className="text-gray-400 hover:text-white text-sm">
+                      {policy.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div>
             <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
-              Quick Links
+              {contactTitle}
             </h3>
 
-            <ul className="flex flex-col gap-3">
-              {quickLinks.map((link, i) => (
-                <li key={i}>
-                  <Link href={link.href} className="text-gray-400 hover:text-white text-sm">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
-              Policies
-            </h3>
-
-            <ul className="flex flex-col gap-3">
-              {policies.map((policy, i) => (
-                <li key={i}>
-                  <Link href={policy.href} className="text-gray-400 hover:text-white text-sm">
-                    {policy.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">
-              Contact Us
-            </h3>
-
-            <p className="text-sm text-gray-400 leading-relaxed mb-4 whitespace-pre-line">
-              {address}
-            </p>
+            {address && (
+              <p className="text-sm text-gray-400 leading-relaxed mb-4 whitespace-pre-line">
+                {address}
+              </p>
+            )}
 
             {mapEmbedUrl && (
               <iframe
@@ -169,8 +158,8 @@ export default function Footer() {
 
       <div className="bg-[#122a12] border-t border-green-900 py-4 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-2">
-          <p>&copy; {year} PaharTheke. All rights reserved.</p>
-          <p>Designed &amp; Developed in Bangladesh</p>
+          <p>{copyrightText.replace("{year}", year)}</p>
+          <p>{copyrightCredit}</p>
         </div>
       </div>
 

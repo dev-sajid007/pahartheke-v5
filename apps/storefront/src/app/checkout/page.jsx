@@ -165,7 +165,7 @@ export default function CheckoutPage() {
     return (
       <>
         <Header />
-        <main className="bg-[#f5f5f5] py-10 dark:bg-background">
+        <main className="bg-[#f8f9fa] py-10 dark:bg-background">
           <div className="container mx-auto px-4">
             <div className="rounded-xl border border-[#E0E0E0] bg-white p-12 text-center">
               <h2 className="text-xl font-semibold text-[#1A1A1A]">
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
                 Add some products before placing an order.
               </p>
               <Link href="/shop">
-                <button className="mt-5 rounded-lg bg-[#E07B2E] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
+                <button className="mt-5 rounded-lg bg-[#22c55e] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
                   Return to shop
                 </button>
               </Link>
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
   return (
     <>
       <Header />
-      <main className="bg-[#f5f5f5] py-6 dark:bg-background">
+      <main className="bg-[#f8f9fa] py-6 dark:bg-background">
         <div className="container mx-auto px-4">
           {/* Title */}
           <h1 className="text-2xl font-bold text-[#1A1A1A]">Checkout</h1>
@@ -198,11 +198,11 @@ export default function CheckoutPage() {
           <p className="mt-1 text-xs text-[#888]">
             Home{" "}
             <span className="mx-1 text-[#ccc]">›</span>{" "}
-            <span className="text-[#E07B2E]">Checkout</span>
+            <span className="text-[#22c55e]">Checkout</span>
           </p>
 
           {/* Login Banner */}
-          <div className="mt-4 flex flex-col items-start justify-between gap-3 rounded-lg bg-[#E07B2E] px-5 py-3 sm:flex-row sm:items-center">
+          <div className="mt-4 flex flex-col items-start justify-between gap-3 rounded-lg bg-[#22c55e] px-5 py-3 sm:flex-row sm:items-center">
             <p className="text-sm font-medium text-white">
               Have any account? please login or register
             </p>
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
                 </button>
               </Link>
               <Link href="/auth/register">
-                <button className="rounded-lg bg-white px-4 py-1.5 text-xs font-semibold text-[#E07B2E] hover:bg-white/90">
+                <button className="rounded-lg bg-white px-4 py-1.5 text-xs font-semibold text-[#22c55e] hover:bg-white/90">
                   Register
                 </button>
               </Link>

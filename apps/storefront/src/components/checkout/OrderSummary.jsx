@@ -47,15 +47,15 @@ export default function OrderSummary({
           type="checkbox"
           checked={agreed}
           onChange={(e) => setAgreed(e.target.checked)}
-          className="mt-0.5 h-4 w-4 appearance-none rounded border-2 border-[#E07B2E] bg-white checked:bg-[#E07B2E] checked:border-[#E07B2E] transition-colors"
+          className="mt-0.5 h-4 w-4 appearance-none rounded border-2 border-[#22c55e] bg-white checked:bg-[#22c55e] checked:border-[#22c55e] transition-colors"
         />
         <span className="text-xs leading-relaxed text-[#555]">
           I have read and agree to the{" "}
-          <a href="/terms" className="text-[#E07B2E] underline">Terms and Conditions</a>
+          <a href="/terms" className="text-[#22c55e] underline">Terms and Conditions</a>
           ,{" "}
-          <a href="/privacy-policy" className="text-[#E07B2E] underline">Privacy Policy</a>
+          <a href="/privacy-policy" className="text-[#22c55e] underline">Privacy Policy</a>
           {" & "}
-          <a href="/refund-policy" className="text-[#E07B2E] underline">Refund and Return Policy</a>.
+          <a href="/refund-policy" className="text-[#22c55e] underline">Refund and Return Policy</a>.
         </span>
       </label>
 
@@ -65,7 +65,7 @@ export default function OrderSummary({
         disabled={!agreed || loading}
         className={`mt-4 w-full rounded-lg py-3 text-sm font-bold uppercase tracking-wide text-white transition ${
           agreed && !loading
-            ? "bg-[#E07B2E] hover:opacity-90"
+            ? "bg-[#22c55e] hover:opacity-90"
             : "cursor-not-allowed bg-gray-300"
         }`}
       >

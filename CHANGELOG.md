@@ -13,6 +13,13 @@ All notable changes to the Pahartheke.com project.
 - Reference number persistence on expenses
 - `apps/storefront/.env.example`, `apps/admin/.env.example`, `apps/pos/.env.example`
 - `RUN_PROD.md` — production deployment guide
+- Admin footer form: dynamic social links (add/remove/edit with platform, URL, icon, color)
+- Admin footer form: editable text labels (Quick Links, Policies, Contact Us titles, copyright lines)
+- Admin footer form: logo upload via ImageUploader component
+- Main API: local disk storage for file uploads (replaces Cloudinary)
+- `getLandingPageSSR` / `getSectionSSR` — server-side landing page data helpers
+- Category page: `transformProduct` mapping for consistent field names
+- Category page: real category name from API (not slug-derived)
 
 ### Changed
 - Monorepo restructured to conventional `apps/` layout
@@ -22,12 +29,22 @@ All notable changes to the Pahartheke.com project.
 - ExpenseModal: fetches categories from API instead of hardcoded dropdown
 - Sidebar: Expenses changed to dropdown with sub-items
 - All documentation updated to reflect new structure
+- Storefront footer: fully dynamic — no hardcoded DEFAULTS, shows nothing when API data missing
+- Storefront footer: fetches via BFF proxy (client component) — no async server component
+- Main API upload route: local disk storage (`public/uploads/`) instead of Cloudinary
+- Checkout page: accent color changed from `#E07B2E` (orange) to `#22c55e` (green)
+- Checkout page: background changed from `bg-[#f5f5f5]` to `bg-[#f8f9fa]` to match homepage
+- Category page: added Header/Footer, uses `transformProduct`, fetches real category name
+- API.md: upload endpoint updated (Cloudinary → local storage)
 
 ### Fixed
 - Purchase quantity input accepts decimal values (added `step="any"`)
 - Turbopack root resolution for pnpm monorepo
 - POS API MongoDB port corrected to 27018 in `.env.example`
 - Expense category display (was plain string, now populated object)
+- Storefront build: "Footer is not defined" error on `/order/success` (leftover `<Footer />` reference)
+- Category page: missing Header/Footer, raw API field names causing 0 price and out-of-stock display
+- Category page: `params` not awaited (Next.js 15+ pattern)
 
 ### Planned
 - Pagination for product listing (Batch A)

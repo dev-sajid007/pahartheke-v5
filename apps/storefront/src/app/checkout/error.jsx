@@ -19,7 +19,7 @@ export default function CheckoutError({ error, reset }) {
           <div className="mt-6 flex items-center justify-center gap-3">
             <button
               onClick={reset}
-              className="rounded-lg bg-[#E07B2E] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+              className="rounded-lg bg-[#22c55e] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
             >
               Try again
             </button>

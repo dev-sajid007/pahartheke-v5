@@ -87,12 +87,12 @@ export default function CouponAccordion({ onApply }) {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Enter coupon code"
-                className="flex-1 rounded-lg border border-[#E0E0E0] bg-white px-3 py-2 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#E07B2E]"
+                className="flex-1 rounded-lg border border-[#E0E0E0] bg-white px-3 py-2 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#22c55e]"
               />
               <button
                 type="button"
                 onClick={handleApply}
-                className="rounded-lg bg-[#E07B2E] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+                className="rounded-lg bg-[#22c55e] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
               >
                 Apply
               </button>

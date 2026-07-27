@@ -3,7 +3,7 @@
 function SectionHeader({ title }) {
   return (
     <div className="flex items-center gap-3 px-5 py-3">
-      <span className="block h-5 w-1 rounded-full bg-[#E07B2E]" />
+      <span className="block h-5 w-1 rounded-full bg-[#22c55e]" />
       <h2 className="text-base font-bold text-[#1A1A1A]">{title}</h2>
     </div>
   )
@@ -29,7 +29,7 @@ export default function DeliveryOptions({ selectedCity, onSelect }) {
               onClick={() => onSelect(opt.value)}
               className={`flex w-full cursor-pointer items-center justify-between rounded-lg border px-4 py-3 text-left transition ${
                 isSelected
-                  ? "border-[#E07B2E] bg-[#FEF5ED]"
+                  ? "border-[#22c55e] bg-[#FEF5ED]"
                   : "border-[#E0E0E0] bg-white hover:border-gray-300"
               }`}
             >
@@ -37,12 +37,12 @@ export default function DeliveryOptions({ selectedCity, onSelect }) {
                 <span
                   className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition ${
                     isSelected
-                      ? "border-[#E07B2E]"
+                      ? "border-[#22c55e]"
                       : "border-[#ccc]"
                   }`}
                 >
                   {isSelected && (
-                    <span className="h-2 w-2 rounded-full bg-[#E07B2E]" />
+                    <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
                   )}
                 </span>
                 <span className="text-sm font-medium text-[#1A1A1A]">

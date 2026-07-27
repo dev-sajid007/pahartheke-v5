@@ -420,8 +420,8 @@ export default function ShopPage() {
         </div>
       )}
 
-      {/* FOOTER */}
-      <Footer/>
+
+      <Footer />
     </div>
 </>
   );

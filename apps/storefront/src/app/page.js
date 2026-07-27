@@ -20,7 +20,7 @@ export default function HomePage() {
         <WhyBengalMeatSection />
         <CustomerReviewSection />
       </main>
-      <Footer/>
+      <Footer />
     </>
   )
 }

@@ -8,7 +8,7 @@ import { removeFromCart, increaseQty, decreaseQty } from "@/features/cart/cartSl
 function SectionHeader({ title }) {
   return (
     <div className="flex items-center gap-3 px-5 py-3">
-      <span className="block h-5 w-1 rounded-full bg-[#E07B2E]" />
+      <span className="block h-5 w-1 rounded-full bg-[#22c55e]" />
       <h2 className="text-base font-bold text-[#1A1A1A]">{title}</h2>
     </div>
   )

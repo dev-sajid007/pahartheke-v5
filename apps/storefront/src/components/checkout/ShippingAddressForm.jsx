@@ -3,7 +3,7 @@
 function SectionHeader({ title }) {
   return (
     <div className="flex items-center gap-3 px-5 py-3">
-      <span className="block h-5 w-1 rounded-full bg-[#E07B2E]" />
+      <span className="block h-5 w-1 rounded-full bg-[#22c55e]" />
       <h2 className="text-base font-bold text-[#1A1A1A]">{title}</h2>
     </div>
   )
@@ -24,7 +24,7 @@ export default function ShippingAddressForm({ formData, handleChange }) {
             value={formData.full_name}
             onChange={handleChange}
             placeholder="Your full name"
-            className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#E07B2E]"
+            className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#22c55e]"
           />
         </div>
 
@@ -38,7 +38,7 @@ export default function ShippingAddressForm({ formData, handleChange }) {
               value={formData.phone}
               onChange={handleChange}
               placeholder="01XXXXXXXXX"
-              className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#E07B2E]"
+              className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#22c55e]"
             />
           </div>
           <div>
@@ -50,7 +50,7 @@ export default function ShippingAddressForm({ formData, handleChange }) {
               value={formData.email}
               onChange={handleChange}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#E07B2E]"
+              className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#22c55e]"
             />
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function ShippingAddressForm({ formData, handleChange }) {
             value={formData.address}
             onChange={handleChange}
             placeholder="Thana, District, Area"
-            className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#E07B2E]"
+            className="w-full rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#22c55e]"
           />
         </div>
 
@@ -78,7 +78,7 @@ export default function ShippingAddressForm({ formData, handleChange }) {
             onChange={handleChange}
             placeholder="Any special instructions for your order..."
             rows={3}
-            className="w-full resize-none rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#E07B2E]"
+            className="w-full resize-none rounded-lg border border-[#E0E0E0] bg-white px-3.5 py-2.5 text-sm text-[#1A1A1A] outline-none placeholder:text-[#aaa] focus:border-[#22c55e]"
           />
         </div>
       </div>

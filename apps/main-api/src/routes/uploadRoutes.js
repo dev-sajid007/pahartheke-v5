@@ -1,9 +1,26 @@
 import { Router } from 'express';
 import multer from 'multer';
-import cloudinary from '../config/cloudinary.js';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { randomUUID } from 'crypto';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 
-const storage = multer.memoryStorage();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadDir = path.join(__dirname, '../../public/uploads');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${randomUUID()}${ext}`);
+  },
+});
+
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -25,30 +42,18 @@ router.post('/', authMiddleware, adminMiddleware, upload.single('file'), async (
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const isVideo = req.file.mimetype.startsWith('video/');
-
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          resource_type: isVideo ? 'video' : 'image',
-          folder: 'pahar-theke',
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(req.file.buffer);
-    });
+    const port = process.env.PORT || 5000;
+    const host = req.get('host') || `localhost:${port}`;
+    const protocol = req.protocol || 'http';
+    const url = `${protocol}://${host}/uploads/${req.file.filename}`;
 
     res.json({
       success: true,
       data: {
-        url: result.secure_url,
-        publicId: result.public_id,
-        width: result.width,
-        height: result.height,
-        format: result.format,
+        url,
+        filename: req.file.filename,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
       },
     });
   } catch (error) {

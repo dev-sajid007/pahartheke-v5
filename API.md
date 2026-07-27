@@ -58,7 +58,7 @@ Rate limit: 10 requests per 15 minutes on login/register.
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/api/upload` | JWT | Upload file to Cloudinary |
+| POST | `/api/upload` | JWT | Upload file to local `public/uploads/` |
 
 ### Health
 
