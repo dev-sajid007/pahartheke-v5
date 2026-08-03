@@ -43,12 +43,7 @@ export default function NewPurchasePage() {
     fetchSuppliers();
     fetchCostTypes();
   }, []);
-    try {
-      const res = await api.get("/purchase-costs");
-      if (res.data.data) setCostTypes(res.data.data.filter(c => c.status === true));
-    } catch (error) { console.error(error); }
-  };
-  
+
   const [items, setItems] = useState([
     { product: "", variantId: "", quantity: 1, purchasePrice: 0, subtotal: 0 }
   ]);

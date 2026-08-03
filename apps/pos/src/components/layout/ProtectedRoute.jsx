@@ -1,19 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+
+function getTokenSnapshot() {
+  return typeof window === "undefined" ? "" : localStorage.getItem("token") ?? "";
+}
+
+const emptySubscribe = () => () => {};
 
 export default function ProtectedRoute({ children }) {
   const router = useRouter();
-  const [isAuthenticated] = useState(() => {
-    const token = localStorage.getItem("token");
-    if (token) return true;
-    router.push("/login");
-    return false;
-  });
+  const token = useSyncExternalStore(emptySubscribe, getTokenSnapshot, () => "");
+
+  useEffect(() => {
+    if (!token) {
+      router.replace("/login");
+    }
+  }, [token, router]);
 
   // Don't render children until we know they are authenticated to prevent UI flashing
-  if (!isAuthenticated) {
+  if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center">
