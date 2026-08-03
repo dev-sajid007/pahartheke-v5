@@ -28,6 +28,7 @@ ECOMMERCE_API_KEY=<generate-unique-key>
 
 **`apps/pos/.env.local`**
 ```
+PORT=4000
 NEXT_PUBLIC_API_URL=https://pos-api.yourdomain.com/api
 ```
 

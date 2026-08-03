@@ -6,6 +6,12 @@ All notable changes to the Pahartheke.com project.
 
 ## [Unreleased]
 
+### Added
+- `apps/pos/.env.example` with `PORT` and `NEXT_PUBLIC_API_URL`
+
+### Changed
+- POS frontend `dev`/`start` read `PORT` from `.env`/`.env.local` via new `apps/pos/scripts/run.mjs` wrapper (Next.js cannot read `PORT` from `.env` itself)
+
 ### Removed
 - `apps/main-api` — Express 4 e-commerce backend (removed from project)
 - `apps/admin` — Next.js admin CMS (removed from project)

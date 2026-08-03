@@ -79,8 +79,11 @@ pos/
 ## Environment
 
 ```
+PORT=4000
 NEXT_PUBLIC_API_URL=http://localhost:4001/api
 ```
+
+`PORT` is read from `.env` (or `.env.local`) by `scripts/run.mjs` and passed to `next dev`/`next start`, since Next.js cannot read `PORT` from `.env` itself. Defaults to `4000` when unset.
 
 ## Dependencies
 

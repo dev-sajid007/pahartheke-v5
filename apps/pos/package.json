@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "node scripts/run.mjs dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/run.mjs start",
     "lint": "eslint"
   },
   "dependencies": {

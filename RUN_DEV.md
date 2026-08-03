@@ -18,8 +18,11 @@ cp apps/pos/.env.example apps/pos/.env
 
 **`apps/pos/.env`**
 ```
+PORT=4000
 NEXT_PUBLIC_API_URL=http://localhost:4001/api
 ```
+
+> `PORT` is read from `.env` by `apps/pos/scripts/run.mjs` and passed to `next dev`/`next start` (Next.js itself cannot read `PORT` from `.env`).
 
 ---
 
