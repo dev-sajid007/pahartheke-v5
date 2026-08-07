@@ -108,6 +108,22 @@ export const getProducts = asyncHandler(
 
 import ApiError from "../../core/ApiError.js";
 
+export const getProduct = asyncHandler(
+  async (req, res) => {
+    const product = await Product.findById(req.params.id).populate("category");
+
+    if (!product) {
+      throw new ApiError(404, "Product not found");
+    }
+
+    return apiResponse({
+      res,
+      statusCode: 200,
+      data: product,
+    });
+  }
+);
+
 export const updateProduct = asyncHandler(
   async (req, res) => {
     const { id } = req.params;
