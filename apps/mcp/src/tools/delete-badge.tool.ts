@@ -1,0 +1,22 @@
+import { BadgeService } from "../services/badge.service.js";
+import type { ToolDefinition } from "../types.js";
+
+export const deleteBadgeTool: ToolDefinition = {
+  name: "delete_badge",
+  description: "Delete a badge from Pahar POS by ID",
+  inputSchema: {
+    type: "object",
+    properties: {
+      id: { type: "string", description: "Badge MongoDB ObjectId" },
+    },
+    required: ["id"],
+  },
+  handler: async ({ id }) => {
+    try {
+      const result = await BadgeService.delete(id);
+      return { content: [{ type: "text", text: `Badge deleted successfully` }] };
+    } catch (error) {
+      return { content: [{ type: "text", text: `Error: ${(error as Error).message}` }], isError: true };
+    }
+  },
+};

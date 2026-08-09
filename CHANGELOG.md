@@ -11,6 +11,8 @@ All notable changes to the Pahartheke.com project.
 
 ### Changed
 - POS frontend `dev`/`start` read `PORT` from `.env`/`.env.local` via new `apps/pos/scripts/run.mjs` wrapper (Next.js cannot read `PORT` from `.env` itself)
+- MCP server: switched from stdio to Streamable HTTP (Express 5) — now serves on port `4002` at `/mcp`, with per-session transport management; `opencode.json` updated to `"type": "http"`
+- MCP server: entire `apps/mcp/src` converted from JavaScript to TypeScript (56 files) — tools, services (typed Mongoose models), utils, and entry; compiled with `tsc` to `dist/` (`build` script), `tsx watch` for dev
 
 ### Fixed
 - Missing `GET /api/products/:id` — product edit page returned 404 (now matches by id or slug)

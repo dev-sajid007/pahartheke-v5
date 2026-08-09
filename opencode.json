@@ -2,11 +2,8 @@
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "pahar-pos": {
-      "type": "local",
-      "command": ["node", "/var/www/pahartheke-v5/apps/mcp/src/index.js"],
-      "env": {
-        "MONGO_URI": "mongodb://admin:CHANGE_ME@localhost:27018/pahar_pos_v5?authSource=admin"
-      },  
+      "type": "http",
+      "url": "http://localhost:4002/mcp",
       "enabled": true
     }
   }

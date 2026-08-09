@@ -10,11 +10,12 @@ POS & Inventory Management system. Migrated from Laravel to Node.js/Next.js.
 |---------|------|-----------|
 | POS Dashboard | 4000 | `apps/pos` |
 | POS API | 4001 | `apps/pos-api` |
-| MCP Server | stdio | `apps/mcp` |
+| MCP Server | 4002 | `apps/mcp` |
 
 ## Tech Stack
 
 - **Backend:** Express 5 + Mongoose 9 (ESM)
+- **MCP Server:** TypeScript (compiled with `tsc` to `dist/`)
 - **Frontend:** Next.js 16 + React 19 + Tailwind 4
 - **Database:** MongoDB 7 (Docker)
 - **Auth:** JWT + bcryptjs + role-based + API key

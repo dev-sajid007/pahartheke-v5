@@ -15,7 +15,7 @@ Point-of-Sale and Inventory Management system migrated from Laravel/PHP to Node.
 apps/
 ├── pos/            Next.js 16  :4000   POS Dashboard
 ├── pos-api/        Express 5   :4001   POS + inventory API
-└── mcp/            MCP server  stdio   55 AI tools
+└── mcp/            MCP server  :4002   Streamable HTTP (55 AI tools)
 docker/
 └── compose.pos.yml  MongoDB    :27018  pahar_pos_v5
 ```
@@ -34,6 +34,7 @@ pnpm dev
 |---------|-----|
 | POS Dashboard | http://localhost:4000 |
 | POS API | http://localhost:4001 |
+| MCP Server | http://localhost:4002/mcp |
 
 ---
 

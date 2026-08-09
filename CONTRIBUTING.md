@@ -7,7 +7,7 @@ pahartheke-v5/
 ├── apps/
 │   ├── pos/            # POS dashboard (port 4000)
 │   ├── pos-api/        # Express 5 backend (port 4001)
-│   └── mcp/            # MCP AI server (stdio)
+│   └── mcp/            # MCP AI server (Streamable HTTP :4002)
 ├── docker/
 │   └── compose.pos.yml # MongoDB (port 27018)
 ├── package.json
@@ -41,4 +41,4 @@ pahartheke-v5/
 |---------|------|-----|
 | POS Dashboard | 4000 | `apps/pos` |
 | POS API | 4001 | `apps/pos-api` |
-| MCP Server | stdio | `apps/mcp` |
+| MCP Server | 4002 | `apps/mcp` |

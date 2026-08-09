@@ -64,13 +64,15 @@ pnpm dev
 |---------|------|-----|
 | POS API | 4001 | http://localhost:4001 |
 | POS Dashboard | 4000 | http://localhost:4000 |
+| MCP Server | 4002 | http://localhost:4002/mcp |
 
 ### Individual Services
 
 ```bash
 pnpm dev:pos-backend   # POS API only (port 4001)
 pnpm dev:pos-frontend  # POS Dashboard only (port 4000)
-pnpm dev:mcp           # MCP Server (stdio)
+pnpm --filter pahar-pos-mcp-server build   # compile TS -> dist/ (once)
+pnpm dev:mcp           # MCP Server (Streamable HTTP, port 4002, from dist/)
 ```
 
 ---

@@ -35,7 +35,7 @@ Three-tier POS & Inventory system with an Express 5 API, Next.js dashboard, Mong
 | POS Dashboard | 4000 | POS terminal & inventory management |
 | POS API | 4001 | All POS CRUD + ecommerce public API |
 | MongoDB (POS) | 27018 | `pahar_pos_v5` database |
-| MCP Server | stdio | AI/LLM integration (55 tools) |
+| MCP Server | 4002 | AI/LLM integration over Streamable HTTP (55 tools) |
 
 ## Database Schema
 
@@ -60,7 +60,7 @@ pahartheke-v5/
 │   │       ├── middleware/ # Auth, roles, error handling
 │   │       ├── config/    # DB + Cloudinary
 │   │       └── routes/    # Route aggregator
-│   └── mcp/         # MCP AI server
+│   └── mcp/         # MCP AI server (Streamable HTTP :4002)
 │       ├── tools/   # 55 MCP tools
 │       ├── services/ # Business logic
 │       └── scripts/  # Import utilities
