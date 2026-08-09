@@ -5,7 +5,7 @@
       "type": "local",
       "command": ["node", "/var/www/pahartheke-v5/apps/mcp/src/index.js"],
       "env": {
-        "MONGO_URI": "mongodb://localhost:27018/pahar_pos_v5"
+        "MONGO_URI": "mongodb://admin:CHANGE_ME@localhost:27018/pahar_pos_v5?authSource=admin"
       },  
       "enabled": true
     }
