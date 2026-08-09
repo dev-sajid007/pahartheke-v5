@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Store, Receipt, Lock, Save, Upload, X } from "lucide-react";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function SettingsPage() {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState("store");
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState({
@@ -77,11 +79,11 @@ export default function SettingsPage() {
 
       await api.put("/settings", formData);
       
-      alert("Settings saved successfully!");
+      toast.success("Settings saved successfully!");
       fetchSettings(); // Refresh to get the actual logo URL from server
     } catch (error) {
       console.error("Failed to save settings", error);
-      alert("Failed to save settings");
+      toast.error("Failed to save settings");
     } finally {
       setIsLoading(false);
     }

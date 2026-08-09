@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, CheckCircle2, AlertCircle, DollarSign, X, Save } from "lucide-react";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function PurchaseCostsPage() {
+  const toast = useToast();
   const [costs, setCosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,9 +52,10 @@ export default function PurchaseCostsPage() {
         await api.post("/purchase-costs", formData);
       }
       setIsModalOpen(false);
+      toast.success(selectedCost ? "Cost type updated successfully!" : "Cost type created successfully!");
       fetchCosts();
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to save");
+      toast.error(error.response?.data?.message || "Failed to save");
     }
   };
 
@@ -61,7 +64,7 @@ export default function PurchaseCostsPage() {
       await api.put(`/purchase-costs/${cost._id}`, { status: !cost.status });
       fetchCosts();
     } catch (error) {
-      alert("Failed to update status");
+      toast.error("Failed to update status");
     }
   };
 
@@ -69,9 +72,10 @@ export default function PurchaseCostsPage() {
     if (!confirm("Delete this cost type?")) return;
     try {
       await api.delete(`/purchase-costs/${id}`);
+      toast.success("Cost type deleted successfully!");
       fetchCosts();
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to delete");
+      toast.error(error.response?.data?.message || "Failed to delete");
     }
   };
 

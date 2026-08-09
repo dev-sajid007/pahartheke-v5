@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Edit, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 import SupplierModal from "@/components/suppliers/SupplierModal";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function SuppliersPage() {
+  const toast = useToast();
   const [suppliers, setSuppliers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,7 +24,7 @@ export default function SuppliersPage() {
       }
     } catch (error) {
       console.error("Failed to fetch suppliers", error);
-      alert("Error fetching suppliers");
+      toast.error("Error fetching suppliers");
     } finally {
       setIsLoading(false);
     }
@@ -50,10 +52,11 @@ export default function SuppliersPage() {
         await api.post("/suppliers", formData);
       }
       setIsModalOpen(false);
+      toast.success(selectedSupplier ? "Supplier updated successfully!" : "Supplier created successfully!");
       fetchSuppliers();
     } catch (error) {
       console.error("Failed to save supplier", error);
-      alert(error.response?.data?.message || "Failed to save supplier");
+      toast.error(error.response?.data?.message || "Failed to save supplier");
     }
   };
 
@@ -61,10 +64,11 @@ export default function SuppliersPage() {
     if (!confirm("Are you sure you want to delete this supplier?")) return;
     try {
       await api.delete(`/suppliers/${id}`);
+      toast.success("Supplier deleted successfully!");
       fetchSuppliers();
     } catch (error) {
       console.error("Failed to delete supplier", error);
-      alert(error.response?.data?.message || "Failed to delete supplier");
+      toast.error(error.response?.data?.message || "Failed to delete supplier");
     }
   };
 

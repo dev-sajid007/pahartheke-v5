@@ -5,11 +5,13 @@ import { ArrowLeft, Save, X, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const { id } = params;
+  const toast = useToast();
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -60,7 +62,7 @@ export default function EditProductPage() {
       }
     } catch (error) {
       console.error("Failed to fetch product data", error);
-      alert("Error loading product");
+      toast.error("Error loading product");
     } finally {
       setIsLoading(false);
     }
@@ -162,11 +164,11 @@ export default function EditProductPage() {
         }
       });
       
-      alert("Product updated successfully!");
+      toast.success("Product updated successfully!");
       router.push("/products");
     } catch (error) {
       console.error("Failed to update product", error);
-      alert(error.response?.data?.message || "Failed to update product");
+      toast.error(error.response?.data?.message || "Failed to update product");
     }
   };
 

@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Edit, Trash2, Heart, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import CustomerModal from "@/components/customers/CustomerModal";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function CustomersPage() {
+  const toast = useToast();
   const [customers, setCustomers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,7 +37,7 @@ export default function CustomersPage() {
       }
     } catch (error) {
       console.error("Failed to fetch customers", error);
-      alert("Error fetching customers");
+      toast.error("Error fetching customers");
     } finally {
       setIsLoading(false);
     }
@@ -63,10 +65,11 @@ export default function CustomersPage() {
         await api.post("/customers", formData);
       }
       setIsModalOpen(false);
+      toast.success(selectedCustomer ? "Customer updated successfully!" : "Customer created successfully!");
       fetchCustomers();
     } catch (error) {
       console.error("Failed to save customer", error);
-      alert(error.response?.data?.message || "Failed to save customer");
+      toast.error(error.response?.data?.message || "Failed to save customer");
     }
   };
 
@@ -74,10 +77,11 @@ export default function CustomersPage() {
     if (!confirm("Are you sure you want to delete this customer?")) return;
     try {
       await api.delete(`/customers/${id}`);
+      toast.success("Customer deleted successfully!");
       fetchCustomers();
     } catch (error) {
       console.error("Failed to delete customer", error);
-      alert(error.response?.data?.message || "Failed to delete customer");
+      toast.error(error.response?.data?.message || "Failed to delete customer");
     }
   };
 

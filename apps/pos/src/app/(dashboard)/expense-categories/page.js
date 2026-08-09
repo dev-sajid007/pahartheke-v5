@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import ExpenseCategoryModal from "@/components/expenses/ExpenseCategoryModal";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function ExpenseCategoriesPage() {
+  const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,10 +47,11 @@ export default function ExpenseCategoriesPage() {
         await api.post("/expense-categories", formData);
       }
       setIsModalOpen(false);
+      toast.success(selectedCategory ? "Expense category updated successfully!" : "Expense category created successfully!");
       fetchCategories();
     } catch (error) {
       console.error("Failed to save expense category", error);
-      alert(error.response?.data?.message || "Failed to save");
+      toast.error(error.response?.data?.message || "Failed to save");
     }
   };
 
@@ -56,10 +59,11 @@ export default function ExpenseCategoriesPage() {
     if (!confirm("Delete this expense category?")) return;
     try {
       await api.delete(`/expense-categories/${id}`);
+      toast.success("Expense category deleted successfully!");
       fetchCategories();
     } catch (error) {
       console.error("Failed to delete", error);
-      alert(error.response?.data?.message || "Failed to delete");
+      toast.error(error.response?.data?.message || "Failed to delete");
     }
   };
 

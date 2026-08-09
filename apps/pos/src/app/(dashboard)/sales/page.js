@@ -7,10 +7,12 @@ import CartPanel from "@/components/pos/CartPanel";
 import VariantSelector from "@/components/pos/VariantSelector";
 import CustomerModal from "@/components/customers/CustomerModal";
 import { Loader2, RefreshCw } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 const PRODUCTS_PER_PAGE = 30;
 
 export default function POSPage() {
+  const toast = useToast();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -72,7 +74,7 @@ export default function POSPage() {
       setCustomers(custRes.data.data || []);
     } catch (error) {
       console.error("Error fetching POS data:", error);
-      alert("Failed to load POS data. Please check your connection.");
+      toast.error("Failed to load POS data. Please check your connection.");
     }
   }, []);
 
@@ -140,10 +142,10 @@ export default function POSPage() {
       setCustomers((prev) => [addedCustomer, ...prev]);
       setNewCustomer(addedCustomer);
       setIsCustomerModalOpen(false);
-      alert("Customer added successfully!");
+      toast.success("Customer added successfully!");
     } catch (error) {
       console.error("Error adding customer:", error);
-      alert(error.response?.data?.message || "Failed to add customer");
+      toast.error(error.response?.data?.message || "Failed to add customer");
     }
   };
 
@@ -176,12 +178,12 @@ export default function POSPage() {
       };
 
       await api.post("/sales", payload);
-      alert("Sale completed successfully!");
+      toast.success("Sale completed successfully!");
       setCart([]);
       fetchProducts(); // Refresh stock with pagination reset
     } catch (error) {
       console.error("Error processing sale:", error);
-      alert(error.response?.data?.message || "Failed to complete sale");
+      toast.error(error.response?.data?.message || "Failed to complete sale");
     } finally {
       setIsProcessing(false);
     }

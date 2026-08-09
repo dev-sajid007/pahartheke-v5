@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 import CategoryModal from "@/components/categories/CategoryModal";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function CategoriesPage() {
+  const toast = useToast();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,10 +54,11 @@ export default function CategoriesPage() {
         await api.post("/categories", formData, config);
       }
       setIsModalOpen(false);
+      toast.success(selectedCategory ? "Category updated successfully!" : "Category created successfully!");
       fetchCategories();
     } catch (error) {
       console.error("Failed to save category", error);
-      alert(error.response?.data?.message || "Failed to save category");
+      toast.error(error.response?.data?.message || "Failed to save category");
     }
   };
 
@@ -63,10 +66,11 @@ export default function CategoriesPage() {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
       await api.delete(`/categories/${id}`);
+      toast.success("Category deleted successfully!");
       fetchCategories();
     } catch (error) {
       console.error("Failed to delete category", error);
-      alert(error.response?.data?.message || "Failed to delete category");
+      toast.error(error.response?.data?.message || "Failed to delete category");
     }
   };
 

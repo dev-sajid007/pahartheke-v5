@@ -6,9 +6,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import { useToast } from "@/components/ui/toast";
 
 export default function NewPurchasePage() {
   const router = useRouter();
+  const toast = useToast();
   const [supplier, setSupplier] = useState("");
   const [note, setNote] = useState("");
   const [paidAmount, setPaidAmount] = useState(0);
@@ -113,7 +115,7 @@ export default function NewPurchasePage() {
 
     const validItems = items.filter(i => i.product);
     if (validItems.length === 0) {
-      alert("কমপক্ষে একটি প্রোডাক্ট সিলেক্ট করুন");
+      toast.error("কমপক্ষে একটি প্রোডাক্ট সিলেক্ট করুন");
       return;
     }
 
@@ -132,12 +134,12 @@ export default function NewPurchasePage() {
       };
       
       const res = await api.post("/purchases", payload);
-      alert("Purchase created successfully!");
+      toast.success("Purchase created successfully!");
       router.push("/purchases");
     } catch (error) {
       console.error("Failed to create purchase", error);
       const msg = error.response?.data?.message || "Failed to create purchase";
-      alert(msg);
+      toast.error(msg);
     }
   };
 

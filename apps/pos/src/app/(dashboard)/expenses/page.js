@@ -4,8 +4,10 @@ import { useState, useEffect, useMemo } from "react";
 import { Plus, Search, Filter, X, Edit, Trash2 } from "lucide-react";
 import ExpenseModal from "@/components/expenses/ExpenseModal";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function ExpensesPage() {
+  const toast = useToast();
   const [expenses, setExpenses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,7 +28,7 @@ export default function ExpensesPage() {
       }
     } catch (error) {
       console.error("Failed to fetch expenses", error);
-      alert("Error fetching expenses");
+      toast.error("Error fetching expenses");
     } finally {
       setIsLoading(false);
     }
@@ -54,10 +56,11 @@ export default function ExpensesPage() {
         await api.post("/expenses", formData);
       }
       setIsModalOpen(false);
+      toast.success(selectedExpense ? "Expense updated successfully!" : "Expense created successfully!");
       fetchExpenses();
     } catch (error) {
       console.error("Failed to save expense", error);
-      alert(error.response?.data?.message || "Failed to save expense");
+      toast.error(error.response?.data?.message || "Failed to save expense");
     }
   };
 
@@ -65,10 +68,11 @@ export default function ExpensesPage() {
     if (!confirm("Are you sure you want to delete this expense?")) return;
     try {
       await api.delete(`/expenses/${id}`);
+      toast.success("Expense deleted successfully!");
       fetchExpenses();
     } catch (error) {
       console.error("Failed to delete expense", error);
-      alert(error.response?.data?.message || "Failed to delete expense");
+      toast.error(error.response?.data?.message || "Failed to delete expense");
     }
   };
 

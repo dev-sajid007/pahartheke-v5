@@ -5,9 +5,11 @@ import { ArrowLeft, Save, X, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 export default function NewProductPage() {
   const router = useRouter();
+  const toast = useToast();
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -130,11 +132,11 @@ export default function NewProductPage() {
         }
       });
       
-      alert("Product created successfully!");
+      toast.success("Product created successfully!");
       router.push("/products");
     } catch (error) {
       console.error("Failed to create product", error);
-      alert(error.response?.data?.message || "Failed to create product");
+      toast.error(error.response?.data?.message || "Failed to create product");
     }
   };
 

@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/axios";
+import { useToast } from "@/components/ui/toast";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function ProductsPage() {
+  const toast = useToast();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,7 +31,7 @@ export default function ProductsPage() {
       }
     } catch (error) {
       console.error("Failed to fetch products", error);
-      alert("Error fetching products");
+      toast.error("Error fetching products");
     } finally {
       setIsLoading(false);
     }
@@ -43,10 +45,11 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
       await api.delete(`/products/${id}`);
+      toast.success("Product deleted successfully!");
       fetchProducts();
     } catch (error) {
       console.error("Failed to delete product", error);
-      alert(error.response?.data?.message || "Failed to delete product");
+      toast.error(error.response?.data?.message || "Failed to delete product");
     }
   };
 
