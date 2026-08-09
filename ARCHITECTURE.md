@@ -56,7 +56,7 @@ pahartheke-v5/
 │   ├── pos/         # Next.js dashboard
 │   ├── pos-api/     # Express 5 API
 │   │   └── src/
-│   │       ├── modules/   # 12 feature modules (MVC)
+│       │   ├── modules/   # 15 feature modules (MVC)
 │   │       ├── middleware/ # Auth, roles, error handling
 │   │       ├── config/    # DB + Cloudinary
 │   │       └── routes/    # Route aggregator

@@ -1,5 +1,7 @@
 import Product from "./product.model.js";
 
+import mongoose from "mongoose";
+
 import asyncHandler from "../../utils/asyncHandler.js";
 
 import apiResponse from "../../utils/apiResponse.js";
@@ -107,6 +109,30 @@ export const getProducts = asyncHandler(
 );
 
 import ApiError from "../../core/ApiError.js";
+
+export const getProduct = asyncHandler(
+  async (req, res) => {
+    const { id } = req.params;
+
+    let product;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      product = await Product.findById(id).populate("category");
+    }
+
+    if (!product) {
+      product = await Product.findOne({ slug: id }).populate("category");
+    }
+
+    if (!product) {
+      throw new ApiError(404, "Product not found");
+    }
+
+    return apiResponse({
+      res,
+      data: product,
+    });
+  }
+);
 
 export const updateProduct = asyncHandler(
   async (req, res) => {

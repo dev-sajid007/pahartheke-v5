@@ -47,7 +47,7 @@ pnpm dev
 | `API.md` | All API endpoints documented |
 | `CHANGELOG.md` | Full changelog |
 | `CONTRIBUTING.md` | Coding standards, PR process |
-| `SECURITY.md` | Auth, rate limiting, vulnerability reporting |
+| `SECURITY.md` | Auth, CORS, vulnerability reporting |
 
 ---
 

@@ -4,31 +4,40 @@
 
 Base URL: `http://localhost:4001/api`
 
+Image uploads (products, categories, settings logo) are accepted via `multipart/form-data` with a `image` field and uploaded to Cloudinary (2 MB limit; JPEG, PNG, WEBP).
+
 ### Auth (`/api/auth`)
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | POST | `/api/auth/register` | No | Register POS user |
-| POST | `/api/auth/login` | No | Login (returns JWT) |
-| GET | `/api/auth/profile` | JWT | Get profile |
+| POST | `/api/auth/login` | No | Login (returns JWT, 30-day expiry) |
+| GET | `/api/auth/me` | JWT | Get profile |
 
-### Products (`/api/products`)
+### Debug (`/api/test`)
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/products` | JWT | List products |
-| POST | `/api/products` | JWT | Create product |
-| GET | `/api/products/:id` | JWT | Get product |
-| PUT | `/api/products/:id` | JWT | Update product |
+| GET | `/api/test/admin-only` | JWT (admin) | Leftover test route — not used by the app |
 
 ### Categories (`/api/categories`)
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/categories` | JWT | List categories |
-| POST | `/api/categories` | JWT | Create category |
-| GET | `/api/categories/:id` | JWT | Get category |
-| PUT | `/api/categories/:id` | JWT | Update category |
+| GET | `/api/categories` | No | List categories |
+| POST | `/api/categories` | JWT (admin, manager) | Create category |
+| PUT | `/api/categories/:id` | JWT (admin, manager) | Update category |
+| DELETE | `/api/categories/:id` | JWT (admin, manager) | Delete category |
+
+### Products (`/api/products`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/products` | No | List products |
+| GET | `/api/products/:id` | No | Get product (by id or slug) |
+| POST | `/api/products` | JWT (admin, manager) | Create product |
+| PUT | `/api/products/:id` | JWT (admin, manager) | Update product |
+| DELETE | `/api/products/:id` | JWT (admin, manager) | Delete product |
 
 ### Customers (`/api/customers`)
 
@@ -55,7 +64,6 @@ Base URL: `http://localhost:4001/api`
 |--------|----------|------|-------------|
 | GET | `/api/suppliers` | JWT | List suppliers |
 | POST | `/api/suppliers` | JWT | Create supplier |
-| GET | `/api/suppliers/:id` | JWT | Get supplier |
 | PUT | `/api/suppliers/:id` | JWT | Update supplier |
 | DELETE | `/api/suppliers/:id` | JWT | Delete supplier |
 
@@ -64,7 +72,7 @@ Base URL: `http://localhost:4001/api`
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/api/purchases` | JWT | List purchases |
-| POST | `/api/purchases` | JWT | Create purchase |
+| POST | `/api/purchases` | JWT (admin, manager) | Create purchase |
 | GET | `/api/purchases/:id` | JWT | Get purchase |
 
 ### Purchase Costs (`/api/purchase-costs`)
@@ -72,9 +80,9 @@ Base URL: `http://localhost:4001/api`
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/api/purchase-costs` | JWT | List costs |
-| POST | `/api/purchase-costs` | JWT | Create cost |
-| GET | `/api/purchase-costs/:id` | JWT | Get cost |
-| PUT | `/api/purchase-costs/:id` | JWT | Update cost |
+| POST | `/api/purchase-costs` | JWT (admin, manager) | Create cost |
+| PUT | `/api/purchase-costs/:id` | JWT (admin, manager) | Update cost |
+| DELETE | `/api/purchase-costs/:id` | JWT (admin, manager) | Delete cost |
 
 ### Sales (`/api/sales`)
 
@@ -83,13 +91,11 @@ Base URL: `http://localhost:4001/api`
 | GET | `/api/sales` | JWT | List sales |
 | POST | `/api/sales` | JWT | Create sale |
 | GET | `/api/sales/:id` | JWT | Get sale |
-| PUT | `/api/sales/:id` | JWT | Update sale |
 
 ### Stock (`/api/stock`)
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/stock` | JWT | Stock levels |
 | GET | `/api/stock/movements` | JWT | Stock movement history |
 
 ### Expenses (`/api/expenses`)
@@ -98,7 +104,6 @@ Base URL: `http://localhost:4001/api`
 |--------|----------|------|-------------|
 | GET | `/api/expenses` | JWT | List expenses |
 | POST | `/api/expenses` | JWT | Create expense |
-| GET | `/api/expenses/:id` | JWT | Get expense |
 | PUT | `/api/expenses/:id` | JWT | Update expense |
 | DELETE | `/api/expenses/:id` | JWT | Delete expense |
 
@@ -107,9 +112,9 @@ Base URL: `http://localhost:4001/api`
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/api/expense-categories` | JWT | List expense categories |
-| POST | `/api/expense-categories` | JWT | Create expense category |
-| PUT | `/api/expense-categories/:id` | JWT | Update expense category |
-| DELETE | `/api/expense-categories/:id` | JWT | Delete expense category |
+| POST | `/api/expense-categories` | JWT (admin, manager) | Create expense category |
+| PUT | `/api/expense-categories/:id` | JWT (admin, manager) | Update expense category |
+| DELETE | `/api/expense-categories/:id` | JWT (admin, manager) | Delete expense category |
 
 ### Settings (`/api/settings`)
 
@@ -128,12 +133,12 @@ Base URL: `http://localhost:4001/api`
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/reports/daily-sales` | JWT | Daily sales report |
-| GET | `/api/reports/product-sales` | JWT | Product-wise sales |
-| GET | `/api/reports/cogs` | JWT | Cost of goods sold |
-| GET | `/api/reports/profit` | JWT | Gross profit |
-| GET | `/api/reports/returns` | JWT | Returns report |
-| GET | `/api/reports/expenses` | JWT | Expenses report |
+| GET | `/api/reports/daily-sales` | JWT | Daily sales report (`?date=` or `?startDate&endDate`) |
+| GET | `/api/reports/product-wise-sales` | JWT | Product-wise sales (`?startDate&endDate&productId`) |
+| GET | `/api/reports/gross-profit` | JWT | Gross profit (`?startDate&endDate`) |
+| GET | `/api/reports/cogs` | JWT | Cost of goods sold (`?startDate&endDate`) |
+| GET | `/api/reports/returns` | JWT | Returns report (placeholder — returns `[]`) |
+| GET | `/api/reports/expenses` | JWT | Expenses report (`?startDate&endDate`) |
 
 ### Ecommerce (Public)
 
@@ -156,12 +161,12 @@ Base URL: `http://localhost:4001/api`
 
 ### JWT Authentication
 - Send as `Authorization: Bearer <token>` header
-- Token contains: `{ id, role }`
+- Token contains: `{ id, role }`, expires in 30 days
 
 ### API Key Authentication
 - POS ecommerce endpoints use `x-api-key` header
 
 ### Role-Based Access
 - `admin` — full access
-- `staff` — limited POS operations
-- `manager` — management operations
+- `manager` — management operations (products, categories, purchases, purchase costs, expense categories)
+- `cashier` — limited POS operations (sales, customers, suppliers, expenses)

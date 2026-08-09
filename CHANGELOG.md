@@ -12,6 +12,10 @@ All notable changes to the Pahartheke.com project.
 ### Changed
 - POS frontend `dev`/`start` read `PORT` from `.env`/`.env.local` via new `apps/pos/scripts/run.mjs` wrapper (Next.js cannot read `PORT` from `.env` itself)
 
+### Fixed
+- Missing `GET /api/products/:id` — product edit page returned 404 (now matches by id or slug)
+- `GET /api/reports/daily-sales` ignored `startDate`/`endDate` — date-range queries now work
+
 ### Removed
 - `apps/main-api` — Express 4 e-commerce backend (removed from project)
 - `apps/admin` — Next.js admin CMS (removed from project)

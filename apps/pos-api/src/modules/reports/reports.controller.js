@@ -7,18 +7,28 @@ import mongoose from "mongoose";
 
 // 1. Daily Sales Report
 export const getDailySalesReport = asyncHandler(async (req, res) => {
-  const { date } = req.query;
-  const startOfDay = date ? new Date(date) : new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(startOfDay);
-  endOfDay.setHours(23, 59, 59, 999);
+  const { date, startDate, endDate } = req.query;
 
-  const sales = await Sale.find({
-    order_date: { $gte: startOfDay, $lte: endOfDay }
-  }).populate("customer", "name");
+  let start;
+  let end;
+  if (startDate && endDate) {
+    start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+  } else {
+    start = date ? new Date(date) : new Date();
+    start.setHours(0, 0, 0, 0);
+    end = new Date(start);
+    end.setHours(23, 59, 59, 999);
+  }
+
+  const match = { order_date: { $gte: start, $lte: end } };
+
+  const sales = await Sale.find(match).populate("customer", "name");
 
   const stats = await Sale.aggregate([
-    { $match: { order_date: { $gte: startOfDay, $lte: endOfDay } } },
+    { $match: match },
     {
       $group: {
         _id: null,
