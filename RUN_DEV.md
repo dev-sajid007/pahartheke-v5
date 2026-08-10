@@ -25,7 +25,7 @@ Notes:
 
 - **`apps/pos/.env`** — `PORT` is read from `.env` by `apps/pos/scripts/run.mjs` and passed to `next dev`/`next start` (Next.js cannot read `PORT` from `.env` itself).
 - **`apps/admin/.env.local`** — must set `NEXT_PUBLIC_API_URL=http://localhost:5000/api` (lib/api.ts otherwise defaults to an internal host).
-- **`apps/storefront/.env`** — `BACKEND_API_URL` drives the BFF proxy routes (`/api/orders`, `/api/auth/*`, `/api/landing-page`). For a fully local stack point it at the local main-api (`http://localhost:5000`); keep the hosted URL (`https://v3api.pahartheke.com`) to use the remote backend instead. `EXTERNAL_PRODUCT_API`/`EXTERNAL_CATEGORIES_API` point at the POS API (`http://localhost:4001/api/ecommerce/...` locally, or `https://posapi.pahartheke.com/...`).
+- **`apps/storefront/.env`** — `BACKEND_API_URL` drives the BFF proxy routes (`/api/auth/*`, `/api/landing-page`). For a fully local stack point it at the local main-api (`http://localhost:5000`); keep the hosted URL (`https://v3api.pahartheke.com`) to use the remote backend instead. `EXTERNAL_PRODUCT_API`/`EXTERNAL_CATEGORIES_API` point at the POS API (`http://localhost:4001/api/ecommerce/...` locally, or `https://posapi.pahartheke.com/...`). Checkout orders (`POST /api/orders`) go to the **POS API** via `POS_API_URL` (e.g. `http://localhost:4001`) with the `ECOMMERCE_API_KEY` header and are stored as website Sales in `pahar_pos_v5`.
 - `.env` files hold real credentials (Mongo/Cloudinary/API keys) and are gitignored.
 
 ---

@@ -1,0 +1,132 @@
+[
+  {
+    "_id": "6a793ac4ab4c6b44eff6ce32",
+    "name": "Hilly Chicken",
+    "slug": "mountain-chicken",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:16.569Z",
+    "updatedAt": "2026-08-10T02:43:16.569Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac4ab4c6b44eff6ce33",
+    "name": "Kaptai fishes",
+    "slug": "kaptai-lake-fishes",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:16.849Z",
+    "updatedAt": "2026-08-10T02:43:16.849Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac5ab4c6b44eff6ce34",
+    "name": "Kitchen & Catering",
+    "slug": "mountain-kitchen-qf08j",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:17.164Z",
+    "updatedAt": "2026-08-10T02:43:17.164Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac5ab4c6b44eff6ce35",
+    "name": "Monster Fish",
+    "slug": "kaptai-monster-fish",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:17.447Z",
+    "updatedAt": "2026-08-10T02:43:17.447Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac5ab4c6b44eff6ce36",
+    "name": "Mountain Mango",
+    "slug": "mountain-mango",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:17.723Z",
+    "updatedAt": "2026-08-10T02:43:17.723Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac6ab4c6b44eff6ce37",
+    "name": "Mountain Spices",
+    "slug": "mountain-organic-spices",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:18.021Z",
+    "updatedAt": "2026-08-10T02:43:18.021Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac6ab4c6b44eff6ce38",
+    "name": "Seasonal fruits",
+    "slug": "mountain-organic-fruits",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:18.347Z",
+    "updatedAt": "2026-08-10T02:43:18.347Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac6ab4c6b44eff6ce39",
+    "name": "sticky rice",
+    "slug": "mountain-binni-stiky-rice",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:18.733Z",
+    "updatedAt": "2026-08-10T02:43:18.733Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac6ab4c6b44eff6ce3a",
+    "name": "কাপ্তাই ছোটো মাছ",
+    "slug": "kaptai-choto-mach",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:18.933Z",
+    "updatedAt": "2026-08-10T02:43:18.933Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac7ab4c6b44eff6ce3b",
+    "name": "কাপ্তাই মাছের ১ কেজি প্যাক বা ভাগা",
+    "slug": "kaptai-1kg-pack",
+    "image": "",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:19.349Z",
+    "updatedAt": "2026-08-10T02:43:19.349Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac7ab4c6b44eff6ce3c",
+    "name": "কাপ্তাই লেকের দেশি বড় মাছ",
+    "slug": "kaptai-deshi-boro-mach",
+    "image": "https://res.cloudinary.com/c33lyki9/image/upload/v1786330474/pahar-pos/xcrxqdnwdm2m2jjchny6.jpg",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:19.766Z",
+    "updatedAt": "2026-08-10T02:54:35.037Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac7ab4c6b44eff6ce3d",
+    "name": "পাহাড়ি বুনো আচার",
+    "slug": "pahari-buno-achar",
+    "image": "https://res.cloudinary.com/c33lyki9/image/upload/v1786330462/pahar-pos/yloqg3xcrp3pltsv8efq.jpg",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:19.999Z",
+    "updatedAt": "2026-08-10T02:54:23.772Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a793ac8ab4c6b44eff6ce3e",
+    "name": "পাহাড়ি সবজি ও আনানো",
+    "slug": "pahari-shobji",
+    "image": "https://res.cloudinary.com/c33lyki9/image/upload/v1786330398/pahar-pos/v1sa23ajuivutyewee43.jpg",
+    "status": true,
+    "createdAt": "2026-08-10T02:43:20.383Z",
+    "updatedAt": "2026-08-10T02:53:19.399Z",
+    "__v": 0
+  }
+]

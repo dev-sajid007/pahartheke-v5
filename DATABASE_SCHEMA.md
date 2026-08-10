@@ -168,6 +168,7 @@ FIFO stock batches, consumed on sale to compute cost of goods.
 | Field | Type | Notes |
 |-------|------|-------|
 | `invoiceNo` | String | unique |
+| `externalOrderId` | String | unique, sparse; idempotency key for website orders |
 | `customer` | ObjectId → `Customer` | |
 | `customerName` | String | snapshot (denormalized) |
 | `customerPhone` | String | snapshot |

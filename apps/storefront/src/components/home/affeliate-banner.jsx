@@ -11,6 +11,7 @@ const DEFAULTS = {
     "Three simple steps on the way to your first payout — no upfront cost, no inventory to hold.",
   ctaButtonText: "Register",
   ctaButtonLink: "/auth/register?role=affiliate",
+  bgBanner: "",
   steps: [
     {
       step: "Step 1",
@@ -54,6 +55,7 @@ export default function EarnMoneySection() {
               sectionSubtitle: parsed.sectionSubtitle || DEFAULTS.sectionSubtitle,
               ctaButtonText: parsed.ctaButtonText || DEFAULTS.ctaButtonText,
               ctaButtonLink: parsed.ctaButtonLink || DEFAULTS.ctaButtonLink,
+              bgBanner: parsed.bgBanner || s.bannerImage || DEFAULTS.bgBanner,
               steps: parsed.steps?.length ? parsed.steps : DEFAULTS.steps,
             });
           } catch { }
@@ -66,6 +68,19 @@ export default function EarnMoneySection() {
 
   return (
     <section className="relative w-full overflow-hidden bg-slate-50 py-16 md:py-24 text-slate-900 dark:bg-[#0c1410] dark:text-slate-100">
+      {/* Background Image Layer */}
+      {data.bgBanner && (
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={data.bgBanner}
+            alt="Affiliate background"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-slate-50/95 dark:bg-[#0c1410]/95" />
+        </div>
+      )}
+
       {/* Background Ripple Pattern */}
       <svg
         className="pointer-events-none absolute right-0 top-1/2 h-[700px] w-[700px] -translate-y-1/2 translate-x-1/4 text-emerald-900/5 dark:text-emerald-500/5 sm:h-[900px] sm:w-[900px]"

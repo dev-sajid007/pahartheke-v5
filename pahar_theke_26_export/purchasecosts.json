@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "6a792303a8bed2a0ae61df19",
+    "name": "Transport",
+    "description": "Freight and delivery costs",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.964Z",
+    "updatedAt": "2026-08-10T01:01:55.964Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df1b",
+    "name": "Packaging",
+    "description": "Packaging materials",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.964Z",
+    "updatedAt": "2026-08-10T01:01:55.964Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df1a",
+    "name": "Labour",
+    "description": "Loading/unloading labour",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.964Z",
+    "updatedAt": "2026-08-10T01:01:55.964Z",
+    "__v": 0
+  }
+]

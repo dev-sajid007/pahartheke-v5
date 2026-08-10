@@ -1,0 +1,13 @@
+[
+  {
+    "_id": "6a792303a8bed2a0ae61df04",
+    "name": "Super Admin",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$789wkU33iXW3UazSuqLRG.CNlcfSqFlIyC1.PKByItMG8cQi4m5i.",
+    "role": "admin",
+    "isActive": true,
+    "createdAt": "2026-08-10T01:01:55.880Z",
+    "updatedAt": "2026-08-10T01:01:55.880Z",
+    "__v": 0
+  }
+]

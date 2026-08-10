@@ -74,7 +74,29 @@ export const getProduct = asyncHandler(async (req, res) => {
 });
 
 export const createOrder = asyncHandler(async (req, res) => {
-  const { items, customerInfo, note, payment_type, discount, shippingCost } = req.body;
+  const {
+    externalOrderId,
+    items,
+    customerInfo,
+    note,
+    payment_type,
+    payment_status,
+    discount,
+    shippingCost,
+  } = req.body;
+
+  if (!externalOrderId) {
+    throw new ApiError(400, "Checkout ID is required");
+  }
+
+  const existingSale = await Sale.findOne({ externalOrderId });
+  if (existingSale) {
+    return apiResponse({
+      res,
+      message: "Order already placed",
+      data: existingSale,
+    });
+  }
 
   if (!Array.isArray(items) || items.length === 0) {
     throw new ApiError(400, "No items in order");
@@ -103,14 +125,20 @@ export const createOrder = asyncHandler(async (req, res) => {
       throw new ApiError(400, `Product is unavailable: ${product.name}`);
     }
 
-    if (product.hasVariants && item.variantId) {
-      const variant = product.variants.find(
-        (v) => v.variantId === item.variantId
-      );
-      if (!variant || variant.currentStock < item.quantity) {
+    if (product.hasVariants) {
+      const variant = item.variantId
+        ? product.variants.find((v) => v.variantId === item.variantId)
+        : null;
+      if (variant && variant.currentStock < item.quantity) {
         throw new ApiError(
           400,
           `Insufficient stock for ${product.name} (${item.variantName || "Selected Variant"})`
+        );
+      }
+      if (!variant && product.currentStock < item.quantity) {
+        throw new ApiError(
+          400,
+          `Insufficient stock for ${product.name}`
         );
       }
     } else if (product.currentStock < item.quantity) {
@@ -185,9 +213,10 @@ export const createOrder = asyncHandler(async (req, res) => {
   const orderDiscount = Math.max(Number(discount) || 0, 0);
   const orderShipping = Math.max(Number(shippingCost) || 0, 0);
   const grandTotal = subtotal + orderShipping - orderDiscount;
-  const paidAmount = grandTotal;
+  const paidAmount = payment_status === "paid" ? grandTotal : 0;
 
   const sale = await Sale.create({
+    externalOrderId,
     invoiceNo: generateInvoice(),
     items: saleItems,
     subtotal,
@@ -195,7 +224,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     shippingCost: orderShipping,
     grandTotal,
     paidAmount,
-    dueAmount: 0,
+    dueAmount: grandTotal - paidAmount,
     totalCost,
     totalProfit,
     note: note || "Order from website",
@@ -225,8 +254,13 @@ export const createOrder = asyncHandler(async (req, res) => {
           phone: customerInfo.phone,
           email: customerInfo.email || "",
           address: customerInfo.address || "",
+          totalSpent: grandTotal,
+          totalOrders: 1,
         });
       }
+
+      sale.customer = customerRecord._id;
+      await sale.save();
     }
   } catch (error) {
     console.error("Failed to create/update customer:", error);
@@ -277,7 +311,7 @@ export const createOrder = asyncHandler(async (req, res) => {
       previousStock,
       newStock,
       referenceId: sale._id,
-      createdBy: customerRecord?._id || null,
+      createdBy: null,
     });
   }
 

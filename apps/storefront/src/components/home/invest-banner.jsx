@@ -15,6 +15,7 @@ const DEFAULTS = {
     "Minimum entry starts at ৳25,000. Full prospectus and risk disclosure available before you commit.",
   ctaButtonText: "View investment details",
   ctaButtonLink: "/invest",
+  bgBanner: "",
   features: [
     {
       title: "Secure & audited",
@@ -58,6 +59,7 @@ export default function InvestSection() {
               minEntryText: parsed.minEntryText || DEFAULTS.minEntryText,
               ctaButtonText: parsed.ctaButtonText || DEFAULTS.ctaButtonText,
               ctaButtonLink: parsed.ctaButtonLink || DEFAULTS.ctaButtonLink,
+              bgBanner: parsed.bgBanner || s.bannerImage || DEFAULTS.bgBanner,
               features: parsed.features?.length ? parsed.features : DEFAULTS.features,
             });
           } catch { }
@@ -83,6 +85,19 @@ export default function InvestSection() {
       style={{ backgroundColor: "#76B432" }}
       className="relative w-full overflow-hidden py-16 md:py-24 text-slate-300"
     >
+      {/* Background Image Layer */}
+      {data.bgBanner && (
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={data.bgBanner}
+            alt="Invest background"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#76B432]/90" />
+        </div>
+      )}
+
       {/* Background Subtle Overlay Pattern */}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:3.5rem_3.5rem]" />
 

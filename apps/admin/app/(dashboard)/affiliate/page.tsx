@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
-import Link from "next/link";
+import { Plus, Trash2, GripVertical, Loader2, BadgeDollarSign, Image } from "lucide-react";
 import SaveButton, { useSaveToast } from "@/components/SaveButton";
 import ImageUploader from "@/components/ImageUploader";
 import { getSectionByType, upsertSection } from "@/lib/api";
+import { PageHeader, Card, Field, TextInput, TextArea } from "@/components/ui";
 
 interface Step {
   id: number;
@@ -41,12 +41,11 @@ export default function AffiliatePage() {
       .then((s) => {
         if (s?.content) {
           try {
-            const parsed = JSON.parse(s.content);
-            setData(parsed);
-          } catch { }
+            setData(JSON.parse(s.content));
+          } catch {}
         }
       })
-      .catch(() => { })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -64,169 +63,107 @@ export default function AffiliatePage() {
     }
   };
 
+  const set = <K extends keyof AffiliateData>(key: K, value: AffiliateData[K]) =>
+    setData((d) => ({ ...d, [key]: value }));
+
   const updateStep = (id: number, field: keyof Omit<Step, "id">, value: string) => {
-    setData((d) => ({
-      ...d,
-      steps: d.steps.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
-    }));
+    set("steps", data.steps.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
   const addStep = () => {
-    const newId = Date.now();
-    setData((d) => ({
-      ...d,
-      steps: [...d.steps, { id: newId, title: "NEW STEP", description: "" }],
-    }));
+    set("steps", [...data.steps, { id: Date.now(), title: "NEW STEP", description: "" }]);
   };
 
   const removeStep = (id: number) => {
-    setData((d) => ({ ...d, steps: d.steps.filter((s) => s.id !== id) }));
+    set("steps", data.steps.filter((s) => s.id !== id));
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-[#fdc700] border-t-transparent" />
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-7 w-7 animate-spin text-[#fdc700]" />
       </div>
     );
+  }
 
   return (
-    <div className="max-w-2xl">
+    <div>
       {Toast}
+      <PageHeader
+        title="Affiliate Banner"
+        description="Manage the “Earn Money With Us” section on the homepage."
+        breadcrumb={[{ href: "/", label: "Dashboard" }, { href: "/affiliate", label: "Affiliate Banner" }]}
+        actions={<SaveButton onSave={handleSave} />}
+      />
 
-      <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/" className="hover:text-[#1a1a2e] flex items-center gap-1">
-          <ArrowLeft className="h-3.5 w-3.5" /> Dashboard
-        </Link>
-        <span>/</span>
-        <span className="text-[#1a1a2e] font-medium">Affiliate Banner</span>
-      </div>
-
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-[#1a1a2e]">Affiliate Banner</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Manage the &ldquo;Earn Money With Us&rdquo; section on the homepage.
-          </p>
-        </div>
-        <SaveButton onSave={handleSave} />
-      </div>
-
-      <div className="space-y-5">
-        {/* General Settings */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-          <h2 className="text-sm font-semibold text-[#1a1a2e]">General Settings</h2>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Section Title</label>
-            <input
-              type="text"
-              value={data.sectionTitle}
-              onChange={(e) => setData({ ...data, sectionTitle: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
+      <div className="max-w-4xl space-y-5">
+        <Card title="General Settings" icon={<BadgeDollarSign className="h-4 w-4" />}>
+          <div className="space-y-4">
+            <Field label="Section Title">
+              <TextInput type="text" value={data.sectionTitle} onChange={(e) => set("sectionTitle", e.target.value)} />
+            </Field>
+            <Field label="Background Image" hint="Upload an image or paste a path / URL.">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <TextInput type="text" value={data.bgBanner} onChange={(e) => set("bgBanner", e.target.value)} className="flex-1" placeholder="images/frontand/TheamImage.jpg" />
+                <ImageUploader currentUrl={data.bgBanner} onUpload={(url) => set("bgBanner", url)} label="Upload Image" />
+              </div>
+            </Field>
+            <Field label="CTA Button Text">
+              <TextInput type="text" value={data.ctaButtonText} onChange={(e) => set("ctaButtonText", e.target.value)} />
+            </Field>
           </div>
+        </Card>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Background Image Path</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={data.bgBanner}
-                onChange={(e) => setData({ ...data, bgBanner: e.target.value })}
-                className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-                placeholder="images/frontand/TheamImage.jpg"
-              />
-              <ImageUploader
-                currentUrl={data.bgBanner}
-                onUpload={(url) => setData({ ...data, bgBanner: url })}
-                label="Upload Image"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">CTA Button Text</label>
-            <input
-              type="text"
-              value={data.ctaButtonText}
-              onChange={(e) => setData({ ...data, ctaButtonText: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
-          </div>
-        </div>
-
-        {/* Steps */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-[#1a1a2e]">Steps ({data.steps.length})</h2>
+        <Card
+          title={`Steps (${data.steps.length})`}
+          icon={<Image className="h-4 w-4" />}
+          actions={
             <button
               onClick={addStep}
-              className="flex items-center gap-1.5 rounded-lg bg-[#1a1a2e] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2a2a4e]"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a1a2e] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[#2a2a4e]"
             >
               <Plus className="h-3.5 w-3.5" /> Add Step
             </button>
-          </div>
-
+          }
+        >
           <div className="space-y-3">
             {data.steps.map((step, i) => (
-              <div
-                key={step.id}
-                className="flex gap-3 items-start rounded-xl border border-gray-100 bg-gray-50 p-4"
-              >
-                <div className="flex items-center gap-2 shrink-0 pt-1">
+              <div key={step.id} className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/70 p-4">
+                <div className="flex shrink-0 items-center gap-2 pt-1">
                   <GripVertical className="h-4 w-4 text-gray-300" />
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#fdc700] text-xs font-bold text-[#1a1a2e]">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#fdc700] text-xs font-bold text-[#1a1a2e]">
                     {i + 1}
                   </span>
                 </div>
                 <div className="flex-1 space-y-2">
-                  <input
-                    type="text"
-                    value={step.title}
-                    onChange={(e) => updateStep(step.id, "title", e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold uppercase focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-                    placeholder="Step title (uppercase)"
-                  />
-                  <textarea
-                    value={step.description}
-                    onChange={(e) => updateStep(step.id, "description", e.target.value)}
-                    rows={2}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-                    placeholder="Step description"
-                  />
+                  <TextInput type="text" value={step.title} onChange={(e) => updateStep(step.id, "title", e.target.value)} className="font-semibold uppercase" placeholder="Step title (uppercase)" />
+                  <TextArea value={step.description} onChange={(e) => updateStep(step.id, "description", e.target.value)} rows={2} placeholder="Step description" />
                 </div>
-                <button
-                  onClick={() => removeStep(step.id)}
-                  className="shrink-0 rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600"
-                >
+                <button onClick={() => removeStep(step.id)} className="shrink-0 rounded-lg p-1.5 text-red-400 transition hover:bg-red-50 hover:text-red-600">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             ))}
+            {data.steps.length === 0 && (
+              <p className="py-6 text-center text-sm text-gray-400">No steps yet. Click “Add Step” to create one.</p>
+            )}
           </div>
-        </div>
+        </Card>
 
-        {/* Preview */}
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Preview</p>
-          <div className="rounded-lg bg-gray-800 p-5 text-center">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-white mb-4">
-              {data.sectionTitle}
-            </p>
-            <div className="grid grid-cols-3 gap-3 mb-4">
+        <Card title="Preview" className="border-dashed border-gray-300 bg-gray-50/60">
+          <div className="rounded-xl bg-gray-800 p-5 text-center">
+            <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-white">{data.sectionTitle}</p>
+            <div className="mb-4 grid gap-3 sm:grid-cols-3">
               {data.steps.map((s, i) => (
                 <div key={i} className="text-center">
                   <p className="text-[10px] font-bold uppercase text-white">{s.title}</p>
-                  <p className="text-[9px] text-white/60 mt-1 leading-4">{s.description}</p>
+                  <p className="mt-1 text-[9px] leading-4 text-white/60">{s.description}</p>
                 </div>
               ))}
             </div>
-            <button className="rounded bg-[#22c55e] px-3 py-1 text-[10px] font-medium text-black">
-              {data.ctaButtonText}
-            </button>
+            <button className="rounded-lg bg-[#22c55e] px-3 py-1.5 text-[10px] font-medium text-black">{data.ctaButtonText}</button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

@@ -64,6 +64,12 @@ const saleSchema = new mongoose.Schema(
       unique: true,
     },
 
+    externalOrderId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",

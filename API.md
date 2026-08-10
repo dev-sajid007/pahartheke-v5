@@ -147,7 +147,7 @@ Image uploads (products, categories, settings logo) are accepted via `multipart/
 | GET | `/api/ecommerce/products` | API Key | List products for storefront |
 | GET | `/api/ecommerce/products/:id` | API Key | Get product (by id or slug) |
 | GET | `/api/ecommerce/categories` | API Key | List categories |
-| POST | `/api/ecommerce/orders` | API Key | Create order |
+| POST | `/api/ecommerce/orders` | API Key | Create order. Body: `externalOrderId` (required, unique idempotency key), `items[]` (`product`, `variantId`, `variantName`, `quantity`, `salePrice`), `customerInfo` (`name`, `phone`, `email`, `address`, `city`), `note`, `payment_type`, `payment_status`, `discount`, `shippingCost`. Creates a website Sale (`source: "website"`), updates/creates the Customer, decrements stock, and writes StockMovements |
 
 ### Invoice
 

@@ -1,0 +1,72 @@
+[
+  {
+    "_id": "6a792303a8bed2a0ae61df3e",
+    "title": "Monthly Store Rent",
+    "category": "6a792303a8bed2a0ae61df14",
+    "amount": 25000,
+    "paymentMethod": "Cash",
+    "reference": "JUL-RENT",
+    "note": "July rent for main store",
+    "createdBy": "6a792303a8bed2a0ae61df04",
+    "date": "2026-08-10T01:01:55.988Z",
+    "createdAt": "2026-08-10T01:01:55.988Z",
+    "updatedAt": "2026-08-10T01:01:55.988Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df40",
+    "title": "Internet Bill",
+    "category": "6a792303a8bed2a0ae61df13",
+    "amount": 1200,
+    "paymentMethod": "Bank",
+    "reference": "ISP-07",
+    "note": "July internet",
+    "createdBy": "6a792303a8bed2a0ae61df04",
+    "date": "2026-08-10T01:01:55.988Z",
+    "createdAt": "2026-08-10T01:01:55.988Z",
+    "updatedAt": "2026-08-10T01:01:55.988Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df3f",
+    "title": "Electricity Bill",
+    "category": "6a792303a8bed2a0ae61df13",
+    "amount": 5800,
+    "paymentMethod": "Bank",
+    "reference": "DESCO-07",
+    "note": "July electricity bill",
+    "createdBy": "6a792303a8bed2a0ae61df04",
+    "date": "2026-08-10T01:01:55.988Z",
+    "createdAt": "2026-08-10T01:01:55.988Z",
+    "updatedAt": "2026-08-10T01:01:55.988Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df41",
+    "title": "Staff Salary - July",
+    "category": "6a792303a8bed2a0ae61df15",
+    "amount": 45000,
+    "paymentMethod": "Bank",
+    "reference": "PAY-07",
+    "note": "Monthly payroll",
+    "createdBy": "6a792303a8bed2a0ae61df04",
+    "date": "2026-08-10T01:01:55.988Z",
+    "createdAt": "2026-08-10T01:01:55.988Z",
+    "updatedAt": "2026-08-10T01:01:55.988Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df42",
+    "title": "Facebook Ads",
+    "category": "6a792303a8bed2a0ae61df16",
+    "amount": 3000,
+    "paymentMethod": "Card",
+    "reference": "ADS-07",
+    "note": "July promotions",
+    "createdBy": "6a792303a8bed2a0ae61df04",
+    "date": "2026-08-10T01:01:55.988Z",
+    "createdAt": "2026-08-10T01:01:55.988Z",
+    "updatedAt": "2026-08-10T01:01:55.988Z",
+    "__v": 0
+  }
+]

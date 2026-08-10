@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
-import Link from "next/link";
+import { Plus, Trash2, GripVertical, Loader2, Info } from "lucide-react";
 import SaveButton, { useSaveToast } from "@/components/SaveButton";
 import { getSectionByType, upsertSection } from "@/lib/api";
+import { PageHeader, Card, Field, TextInput, TextArea, Select } from "@/components/ui";
 
 interface ProcessStep {
   id: number;
@@ -71,156 +71,108 @@ export default function AboutPage() {
     }
   };
 
+  const set = <K extends keyof AboutData>(key: K, value: AboutData[K]) =>
+    setData((d) => ({ ...d, [key]: value }));
+
   const updateStep = (id: number, field: keyof Omit<ProcessStep, "id">, value: string) => {
-    setData((d) => ({
-      ...d,
-      steps: d.steps.map((s) =>
-        s.id === id ? { ...s, [field]: value } : s
-      ),
-    }));
+    set("steps", data.steps.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
   const addStep = () => {
-    setData((d) => ({
-      ...d,
-      steps: [...d.steps, { id: Date.now(), title: "New Step", theme: "dark" }],
-    }));
+    set("steps", [...data.steps, { id: Date.now(), title: "New Step", theme: "dark" }]);
   };
 
   const removeStep = (id: number) => {
-    setData((d) => ({ ...d, steps: d.steps.filter((s) => s.id !== id) }));
+    set("steps", data.steps.filter((s) => s.id !== id));
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-[#fdc700] border-t-transparent" />
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-7 w-7 animate-spin text-[#fdc700]" />
       </div>
     );
+  }
 
   return (
-    <div className="max-w-2xl">
+    <div>
       {Toast}
+      <PageHeader
+        title="About Section"
+        description="Edit the “কেন পাহাড় থেকে” heading, description and process steps."
+        breadcrumb={[{ href: "/", label: "Dashboard" }, { href: "/about", label: "About Section" }]}
+        actions={<SaveButton onSave={handleSave} />}
+      />
 
-      <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/" className="hover:text-[#1a1a2e] flex items-center gap-1">
-          <ArrowLeft className="h-3.5 w-3.5" /> Dashboard
-        </Link>
-        <span>/</span>
-        <span className="text-[#1a1a2e] font-medium">About Section</span>
-      </div>
-
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-[#1a1a2e]">About Section</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Edit the &ldquo;কেন পাহাড় থেকে&rdquo; heading, description and process steps.
-          </p>
-        </div>
-        <SaveButton onSave={handleSave} />
-      </div>
-
-      <div className="space-y-5">
-        {/* Heading & Description */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-          <h2 className="text-sm font-semibold text-[#1a1a2e]">Text Content</h2>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Section Heading</label>
-            <input
-              type="text"
-              value={data.heading}
-              onChange={(e) => setData({ ...data, heading: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-              dir="auto"
-            />
+      <div className="max-w-4xl space-y-5">
+        <Card title="Text Content" icon={<Info className="h-4 w-4" />}>
+          <div className="space-y-4">
+            <Field label="Section Heading">
+              <TextInput type="text" value={data.heading} onChange={(e) => set("heading", e.target.value)} dir="auto" />
+            </Field>
+            <Field label="Description" hint="Supports Bengali & English text.">
+              <TextArea value={data.description} onChange={(e) => set("description", e.target.value)} rows={7} dir="auto" />
+            </Field>
           </div>
+        </Card>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Description</label>
-            <textarea
-              value={data.description}
-              onChange={(e) => setData({ ...data, description: e.target.value })}
-              rows={7}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-              dir="auto"
-            />
-            <p className="mt-1 text-xs text-gray-400">Supports Bengali & English text.</p>
-          </div>
-        </div>
-
-        {/* Process Steps */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-[#1a1a2e]">Process Steps ({data.steps.length})</h2>
+        <Card
+          title={`Process Steps (${data.steps.length})`}
+          icon={<Info className="h-4 w-4" />}
+          actions={
             <button
               onClick={addStep}
-              className="flex items-center gap-1.5 rounded-lg bg-[#1a1a2e] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2a2a4e]"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a1a2e] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[#2a2a4e]"
             >
               <Plus className="h-3.5 w-3.5" /> Add Step
             </button>
-          </div>
-
+          }
+        >
           <div className="space-y-3">
             {data.steps.map((step, i) => (
-              <div key={step.id} className="flex gap-3 items-center rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <div className="flex items-center gap-2 shrink-0">
+              <div key={step.id} className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50/70 p-4">
+                <div className="flex shrink-0 items-center gap-2">
                   <GripVertical className="h-4 w-4 text-gray-300" />
                   <div
                     className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold ${
-                      step.theme === "dark"
-                        ? "bg-[#343434] text-white"
-                        : "bg-[#f4ca23] text-[#1f1f1f]"
+                      step.theme === "dark" ? "bg-[#343434] text-white" : "bg-[#f4ca23] text-[#1f1f1f]"
                     }`}
                   >
                     {i + 1}
                   </div>
                 </div>
-                <input
-                  type="text"
-                  value={step.title}
-                  onChange={(e) => updateStep(step.id, "title", e.target.value)}
-                  className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-                />
-                <select
-                  value={step.theme}
-                  onChange={(e) => updateStep(step.id, "theme", e.target.value)}
-                  className="rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-                >
+                <TextInput type="text" value={step.title} onChange={(e) => updateStep(step.id, "title", e.target.value)} className="flex-1" />
+                <Select value={step.theme} onChange={(e) => updateStep(step.id, "theme", e.target.value)} className="w-28">
                   <option value="dark">Dark</option>
                   <option value="yellow">Yellow</option>
-                </select>
-                <button
-                  onClick={() => removeStep(step.id)}
-                  className="rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600"
-                >
+                </Select>
+                <button onClick={() => removeStep(step.id)} className="shrink-0 rounded-lg p-1.5 text-red-400 transition hover:bg-red-50 hover:text-red-600">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             ))}
+            {data.steps.length === 0 && (
+              <p className="py-6 text-center text-sm text-gray-400">No steps yet. Click “Add Step” to create one.</p>
+            )}
           </div>
-        </div>
+        </Card>
 
-        {/* Preview */}
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Preview</p>
-          <p className="text-sm font-bold text-[#2c2c2c] leading-snug">{data.heading}</p>
-          <p className="mt-2 text-xs leading-6 text-gray-500 line-clamp-3">{data.description}</p>
+        <Card title="Preview" className="border-dashed border-gray-300 bg-gray-50/60">
+          <p className="text-sm font-bold leading-snug text-[#2c2c2c]">{data.heading}</p>
+          <p className="mt-2 line-clamp-3 text-xs leading-6 text-gray-500">{data.description}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {data.steps.map((s, i) => (
               <span
                 key={i}
                 className={`rounded px-2.5 py-1 text-[10px] font-semibold ${
-                  s.theme === "dark"
-                    ? "bg-[#343434] text-white"
-                    : "bg-[#f4ca23] text-[#1f1f1f]"
+                  s.theme === "dark" ? "bg-[#343434] text-white" : "bg-[#f4ca23] text-[#1f1f1f]"
                 }`}
               >
                 {s.title}
               </span>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

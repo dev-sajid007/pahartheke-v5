@@ -12,6 +12,7 @@ All notable changes to the Pahartheke.com project.
 
 ### Changed
 - POS frontend `dev`/`start` read `PORT` from `.env`/`.env.local` via new `apps/pos/scripts/run.mjs` wrapper (Next.js cannot read `PORT` from `.env` itself)
+- Storefront checkout now stores orders in the **POS database**: `POST /api/orders` BFF proxies to `POS_API_URL/api/ecommerce/orders` with `x-api-key`, mapping the payload to the POS `createOrder` contract; orders are created as website Sales (`source: "website"`, `externalOrderId` for idempotency, COD unpaid by default)
 - MCP server: switched from stdio to Streamable HTTP (Express 5) — now serves on port `4002` at `/mcp`, with per-session transport management; `opencode.json` updated to `"type": "http"`
 - MCP server: entire `apps/mcp/src` converted from JavaScript to TypeScript (56 files) — tools, services (typed Mongoose models), utils, and entry; compiled with `tsc` to `dist/` (`build` script), `tsx watch` for dev
 

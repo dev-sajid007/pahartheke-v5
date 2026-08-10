@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "6a792303a8bed2a0ae61df16",
+    "name": "Marketing",
+    "slug": "marketing",
+    "description": "Advertising and promotions",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.963Z",
+    "updatedAt": "2026-08-10T01:01:55.963Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df15",
+    "name": "Salary",
+    "slug": "salary",
+    "description": "Staff salaries and wages",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.963Z",
+    "updatedAt": "2026-08-10T01:01:55.963Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df18",
+    "name": "Other",
+    "slug": "other",
+    "description": "Miscellaneous expenses",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.963Z",
+    "updatedAt": "2026-08-10T01:01:55.963Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df13",
+    "name": "Utilities",
+    "slug": "utilities",
+    "description": "Electricity, water, gas, internet",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.962Z",
+    "updatedAt": "2026-08-10T01:01:55.962Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df14",
+    "name": "Rent",
+    "slug": "rent",
+    "description": "Store rent and lease",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.963Z",
+    "updatedAt": "2026-08-10T01:01:55.963Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a792303a8bed2a0ae61df17",
+    "name": "Maintenance",
+    "slug": "maintenance",
+    "description": "Repairs and maintenance",
+    "status": true,
+    "createdAt": "2026-08-10T01:01:55.963Z",
+    "updatedAt": "2026-08-10T01:01:55.963Z",
+    "__v": 0
+  }
+]

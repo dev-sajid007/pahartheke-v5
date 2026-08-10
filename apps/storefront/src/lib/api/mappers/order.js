@@ -51,11 +51,13 @@ export function mapCartStateToOrderPayload({
   userId = null,
 }) {
   return {
+    checkout_id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     user_id: userId ? String(userId) : null,
     payment_type: shippingForm?.payment_type || "cash_on_delivery",
     payment_status: shippingForm?.payment_status || "unpaid",
     coupon_code: shippingForm?.coupon_code || "",
     coupon_discount: toNumber(shippingForm?.coupon_discount || 0),
+    shipping_cost: toNumber(shippingForm?.shippingCost || 0),
     shipping_address: {
       full_name: shippingForm?.full_name || "",
       phone: shippingForm?.phone || "",

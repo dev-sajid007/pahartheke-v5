@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Plus, Trash2, GripVertical } from "lucide-react";
-import Link from "next/link";
+import { Plus, Trash2, GripVertical, Loader2, TrendingUp, Image } from "lucide-react";
 import SaveButton, { useSaveToast } from "@/components/SaveButton";
 import ImageUploader from "@/components/ImageUploader";
 import { getSectionByType, upsertSection } from "@/lib/api";
+import { PageHeader, Card, Field, TextInput, TextArea } from "@/components/ui";
 
 interface Feature {
   id: number;
@@ -40,10 +40,12 @@ export default function InvestPage() {
     getSectionByType("home", "newsletter")
       .then((s) => {
         if (s?.content) {
-          try { setData(JSON.parse(s.content)); } catch { }
+          try {
+            setData(JSON.parse(s.content));
+          } catch {}
         }
       })
-      .catch(() => { })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -61,164 +63,107 @@ export default function InvestPage() {
     }
   };
 
+  const set = <K extends keyof InvestData>(key: K, value: InvestData[K]) =>
+    setData((d) => ({ ...d, [key]: value }));
+
   const updateFeature = (id: number, field: keyof Omit<Feature, "id">, value: string) => {
-    setData((d) => ({
-      ...d,
-      features: d.features.map((f) => (f.id === id ? { ...f, [field]: value } : f)),
-    }));
+    set("features", data.features.map((f) => (f.id === id ? { ...f, [field]: value } : f)));
   };
 
   const addFeature = () => {
-    setData((d) => ({
-      ...d,
-      features: [...d.features, { id: Date.now(), title: "New Feature", description: "" }],
-    }));
+    set("features", [...data.features, { id: Date.now(), title: "New Feature", description: "" }]);
   };
 
   const removeFeature = (id: number) => {
-    setData((d) => ({ ...d, features: d.features.filter((f) => f.id !== id) }));
+    set("features", data.features.filter((f) => f.id !== id));
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-[#fdc700] border-t-transparent" />
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-7 w-7 animate-spin text-[#fdc700]" />
       </div>
     );
+  }
 
   return (
-    <div className="max-w-2xl">
+    <div>
       {Toast}
+      <PageHeader
+        title="Invest Banner"
+        description="Manage the “Invest With Us” section on the homepage."
+        breadcrumb={[{ href: "/", label: "Dashboard" }, { href: "/invest", label: "Invest Banner" }]}
+        actions={<SaveButton onSave={handleSave} />}
+      />
 
-      <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/" className="hover:text-[#1a1a2e] flex items-center gap-1">
-          <ArrowLeft className="h-3.5 w-3.5" /> Dashboard
-        </Link>
-        <span>/</span>
-        <span className="text-[#1a1a2e] font-medium">Invest Banner</span>
-      </div>
-
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-[#1a1a2e]">Invest Banner</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Manage the &ldquo;Invest With Us&rdquo; section on the homepage.
-          </p>
-        </div>
-        <SaveButton onSave={handleSave} />
-      </div>
-
-      <div className="space-y-5">
-        {/* General */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-          <h2 className="text-sm font-semibold text-[#1a1a2e]">General Settings</h2>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Section Title</label>
-            <input
-              type="text"
-              value={data.sectionTitle}
-              onChange={(e) => setData({ ...data, sectionTitle: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
+      <div className="max-w-4xl space-y-5">
+        <Card title="General Settings" icon={<TrendingUp className="h-4 w-4" />}>
+          <div className="space-y-4">
+            <Field label="Section Title">
+              <TextInput type="text" value={data.sectionTitle} onChange={(e) => set("sectionTitle", e.target.value)} />
+            </Field>
+            <Field label="Background Image" hint="Upload an image or paste a path / URL.">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <TextInput type="text" value={data.bgBanner} onChange={(e) => set("bgBanner", e.target.value)} className="flex-1" placeholder="images/frontand/TheamImage.jpg" />
+                <ImageUploader currentUrl={data.bgBanner} onUpload={(url) => set("bgBanner", url)} label="Upload Image" />
+              </div>
+            </Field>
+            <Field label="CTA Button Text">
+              <TextInput type="text" value={data.ctaButtonText} onChange={(e) => set("ctaButtonText", e.target.value)} />
+            </Field>
           </div>
+        </Card>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Background Image Path</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={data.bgBanner}
-                onChange={(e) => setData({ ...data, bgBanner: e.target.value })}
-                className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-              />
-              <ImageUploader
-                currentUrl={data.bgBanner}
-                onUpload={(url) => setData({ ...data, bgBanner: url })}
-                label="Upload Image"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">CTA Button Text</label>
-            <input
-              type="text"
-              value={data.ctaButtonText}
-              onChange={(e) => setData({ ...data, ctaButtonText: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-            />
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-[#1a1a2e]">Features ({data.features.length})</h2>
+        <Card
+          title={`Features (${data.features.length})`}
+          icon={<Image className="h-4 w-4" />}
+          actions={
             <button
               onClick={addFeature}
-              className="flex items-center gap-1.5 rounded-lg bg-[#1a1a2e] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2a2a4e]"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#1a1a2e] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[#2a2a4e]"
             >
               <Plus className="h-3.5 w-3.5" /> Add Feature
             </button>
-          </div>
-
+          }
+        >
           <div className="space-y-3">
             {data.features.map((feat, i) => (
-              <div key={feat.id} className="flex gap-3 items-start rounded-xl border border-gray-100 bg-gray-50 p-4">
-                <div className="flex items-center gap-2 shrink-0 pt-1">
+              <div key={feat.id} className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/70 p-4">
+                <div className="flex shrink-0 items-center gap-2 pt-1">
                   <GripVertical className="h-4 w-4 text-gray-300" />
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs font-bold text-white">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-500 text-xs font-bold text-white">
                     {i + 1}
                   </span>
                 </div>
                 <div className="flex-1 space-y-2">
-                  <input
-                    type="text"
-                    value={feat.title}
-                    onChange={(e) => updateFeature(feat.id, "title", e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-                    placeholder="Feature title"
-                  />
-                  <textarea
-                    value={feat.description}
-                    onChange={(e) => updateFeature(feat.id, "description", e.target.value)}
-                    rows={2}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-[#fdc700]"
-                    placeholder="Feature description"
-                  />
+                  <TextInput type="text" value={feat.title} onChange={(e) => updateFeature(feat.id, "title", e.target.value)} className="font-semibold" placeholder="Feature title" />
+                  <TextArea value={feat.description} onChange={(e) => updateFeature(feat.id, "description", e.target.value)} rows={2} placeholder="Feature description" />
                 </div>
-                <button
-                  onClick={() => removeFeature(feat.id)}
-                  className="shrink-0 rounded-lg p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600"
-                >
+                <button onClick={() => removeFeature(feat.id)} className="shrink-0 rounded-lg p-1.5 text-red-400 transition hover:bg-red-50 hover:text-red-600">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             ))}
+            {data.features.length === 0 && (
+              <p className="py-6 text-center text-sm text-gray-400">No features yet. Click “Add Feature” to create one.</p>
+            )}
           </div>
-        </div>
+        </Card>
 
-        {/* Preview */}
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Preview</p>
-          <div className="rounded-lg bg-gray-700 p-5 text-center">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-white mb-4">
-              {data.sectionTitle}
-            </p>
-            <div className="grid grid-cols-3 gap-3 mb-4">
+        <Card title="Preview" className="border-dashed border-gray-300 bg-gray-50/60">
+          <div className="rounded-xl bg-gray-700 p-5 text-center">
+            <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-white">{data.sectionTitle}</p>
+            <div className="mb-4 grid gap-3 sm:grid-cols-3">
               {data.features.map((f, i) => (
                 <div key={i} className="text-center">
                   <p className="text-[10px] font-bold uppercase text-white">{f.title}</p>
-                  <p className="text-[9px] text-white/60 mt-1 leading-4">{f.description}</p>
+                  <p className="mt-1 text-[9px] leading-4 text-white/60">{f.description}</p>
                 </div>
               ))}
             </div>
-            <button className="rounded bg-[#22c55e] px-3 py-1 text-[10px] font-medium text-black">
-              {data.ctaButtonText}
-            </button>
+            <button className="rounded-lg bg-[#22c55e] px-3 py-1.5 text-[10px] font-medium text-black">{data.ctaButtonText}</button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

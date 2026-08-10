@@ -53,10 +53,13 @@ NEXT_PUBLIC_APP_URL=https://yourdomain.com
 NEXT_PUBLIC_API_URL=/api
 BACKEND_API_URL=https://api.yourdomain.com
 NEXT_PUBLIC_BACKEND_API_URL=https://api.yourdomain.com
+POS_API_URL=https://pos-api.yourdomain.com
 EXTERNAL_PRODUCT_API=https://pos-api.yourdomain.com/api/ecommerce/products
 EXTERNAL_CATEGORIES_API=https://pos-api.yourdomain.com/api/ecommerce/categories
 ECOMMERCE_API_KEY=<same-as-pos-api>
 ```
+
+> Storefront checkout posts to `POS_API_URL` → `POST /api/ecommerce/orders`, storing each order as a website `Sale` in the POS database.
 
 **`apps/admin/.env.local`**
 ```

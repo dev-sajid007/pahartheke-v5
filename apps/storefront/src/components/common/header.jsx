@@ -1,23 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Search, ShoppingCart, User, Menu, Phone } from "lucide-react"
 import { useSelector } from "react-redux"
+import { getSection } from "@/lib/api/landing-page"
 
 import CartSheet from "@/components/cart/cart-sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
+const DEFAULT_LOGO = "https://pahartheke.com/assets/img/logo.png"
+
 export default function Header() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
+  const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO)
 
   const items = useSelector((state) => state.cart.items)
   const totalQty = items.reduce((total, item) => total + item.quantity, 0)
+
+  useEffect(() => {
+    getSection("home", "footer")
+      .then((s) => {
+        if (s?.content) {
+          try {
+            const parsed = JSON.parse(s.content)
+            if (parsed.logoUrl) setLogoUrl(parsed.logoUrl)
+          } catch { }
+        }
+      })
+      .catch(() => { })
+  }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -58,7 +75,7 @@ export default function Header() {
             className="shrink-0 relative z-10 translate-y-6 bg-white p-1.5 rounded-full shadow-xl border-4 border-slate-100 dark:border-slate-900 flex items-center justify-center aspect-square"
           >
             <Image
-              src="https://pahartheke.com/assets/img/logo.png"
+              src={logoUrl}
               alt="Pahar Theke Logo - Authentic Natural Products"
               width={85}
               height={85}
