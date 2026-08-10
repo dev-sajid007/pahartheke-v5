@@ -22,7 +22,7 @@ const defaultOrigins = [
   "https://pos.pahartheke.com",
   "http://localhost:3000",
   "http://localhost:3001",
-  "http://localhost:4000",
+  "http://localhost:7100",
   "http://localhost:8000",
   "http://pos.pahartheke.com",
   "https://v2.pahartheke.com"

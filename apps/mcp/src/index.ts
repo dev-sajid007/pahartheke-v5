@@ -11,7 +11,7 @@ import { tools, getToolByName } from "./tools/index.js";
 import { logger } from "./utils/logger.js";
 import { connectDB } from "./utils/db.js";
 
-const PORT = process.env.PORT || 4002;
+const PORT = process.env.PORT || 7102;
 
 /**
  * Create a configured MCP server instance
