@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, X, Plus } from "lucide-react";
+import { ArrowLeft, Save, X, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import api from "@/lib/axios";
@@ -17,6 +17,7 @@ export default function EditProductPage() {
   const [imagePreview, setImagePreview] = useState(null);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
@@ -130,6 +131,7 @@ export default function EditProductPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsSaving(true);
       const data = new FormData();
       
       // We don't want to send these fields as they are part of the base object or handled separately
@@ -169,6 +171,8 @@ export default function EditProductPage() {
     } catch (error) {
       console.error("Failed to update product", error);
       toast.error(error.response?.data?.message || "Failed to update product");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -469,10 +473,11 @@ export default function EditProductPage() {
             </Link>
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-xl bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/20"
+              disabled={isSaving}
+              className="flex items-center gap-2 rounded-xl bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Save className="h-4 w-4" />
-              Update Product
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {isSaving ? "Updating..." : "Update Product"}
             </button>
           </div>
         </div>

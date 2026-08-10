@@ -45,6 +45,10 @@ export const createProduct = asyncHandler(async (req, res) => {
       sku: rest.sku || generateSKU(),
     };
 
+    if (!productData.slug) {
+      delete productData.slug;
+    }
+
     if (req.file) {
       productData.image = req.file.path;
     }
@@ -160,6 +164,10 @@ export const updateProduct = asyncHandler(
     }
 
     let updateData = { ...rest, hasVariants, tags: Array.isArray(tags) ? tags : [] };
+
+    if (!updateData.slug) {
+      delete updateData.slug;
+    }
 
     if (req.file) {
       updateData.image = req.file.path;

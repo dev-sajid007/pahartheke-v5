@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Package, Search, ChevronDown, Loader2 } from "lucide-react";
 
-export default function ProductGrid({ products, categories = [], onAddToCart, loadMore, isLoadingMore, hasMore }) {
+export default function ProductGrid({ products, categories = [], onAddToCart, loadMore, isLoadingMore, hasMore, priceField = "salePrice" }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const sentinelRef = useRef(null);
@@ -92,7 +92,7 @@ export default function ProductGrid({ products, categories = [], onAddToCart, lo
               >
                 {/* Price Badge */}
                 <div className="absolute left-2 top-2 z-10 rounded-lg bg-black/80 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
-                  ৳{product.salePrice.toLocaleString()}
+                  ৳{product[priceField]?.toLocaleString() || 0}
                 </div>
 
                 {/* Stock Badge */}

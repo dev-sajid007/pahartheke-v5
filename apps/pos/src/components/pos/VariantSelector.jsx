@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 
-export default function VariantSelector({ isOpen, onClose, product, onSelect }) {
+export default function VariantSelector({ isOpen, onClose, product, onSelect, priceField = "salePrice" }) {
   if (!isOpen || !product) return null;
 
   return (
@@ -38,7 +38,7 @@ export default function VariantSelector({ isOpen, onClose, product, onSelect }) 
                 <p className="text-[10px] text-sidebar-foreground uppercase">{v.sku}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-primary">৳ {v.salePrice}</p>
+                <p className="text-sm font-bold text-primary">৳ {v[priceField] || 0}</p>
                 <p className={`text-[10px] font-medium ${v.currentStock > 5 ? 'text-emerald-500' : 'text-rose-500'}`}>
                   {v.currentStock > 0 ? `${v.currentStock} in stock` : 'Out of stock'}
                 </p>

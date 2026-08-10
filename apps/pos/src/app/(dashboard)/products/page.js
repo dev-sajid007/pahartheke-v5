@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Package, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import api from "@/lib/axios";
 import { useToast } from "@/components/ui/toast";
@@ -16,6 +16,7 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [deletingId, setDeletingId] = useState(null);
   
   // Fetch products on mount and when page changes
   const fetchProducts = async () => {
@@ -44,12 +45,15 @@ export default function ProductsPage() {
   const handleDeleteProduct = async (id) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
+      setDeletingId(id);
       await api.delete(`/products/${id}`);
       toast.success("Product deleted successfully!");
       fetchProducts();
     } catch (error) {
       console.error("Failed to delete product", error);
       toast.error(error.response?.data?.message || "Failed to delete product");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -211,9 +215,10 @@ export default function ProductsPage() {
                             </Link>
                             <button 
                               onClick={() => handleDeleteProduct(product._id)}
-                              className="rounded-lg p-2 text-sidebar-foreground hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-900/30 transition-colors"
+                              disabled={deletingId === product._id}
+                              className="rounded-lg p-2 text-sidebar-foreground hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              {deletingId === product._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             </button>
                           </div>
                         </td>

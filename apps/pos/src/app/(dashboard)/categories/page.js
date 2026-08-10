@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Plus, Search, Edit, Trash2, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import CategoryModal from "@/components/categories/CategoryModal";
 import api from "@/lib/axios";
 import { useToast } from "@/components/ui/toast";
@@ -14,6 +14,8 @@ export default function CategoriesPage() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const fetchCategories = async () => {
     try {
@@ -45,6 +47,7 @@ export default function CategoriesPage() {
 
   const handleSaveCategory = async (formData) => {
     try {
+      setIsSaving(true);
       const config = {
         headers: { "Content-Type": "multipart/form-data" },
       };
@@ -59,18 +62,23 @@ export default function CategoriesPage() {
     } catch (error) {
       console.error("Failed to save category", error);
       toast.error(error.response?.data?.message || "Failed to save category");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDeleteCategory = async (id) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
+      setDeletingId(id);
       await api.delete(`/categories/${id}`);
       toast.success("Category deleted successfully!");
       fetchCategories();
     } catch (error) {
       console.error("Failed to delete category", error);
       toast.error(error.response?.data?.message || "Failed to delete category");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -163,9 +171,10 @@ export default function CategoriesPage() {
                       </button>
                       <button 
                         onClick={() => handleDeleteCategory(category._id)}
-                        className="rounded-lg p-2 text-sidebar-foreground hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-900/30 transition-colors"
+                        disabled={deletingId === category._id}
+                        className="rounded-lg p-2 text-sidebar-foreground hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {deletingId === category._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                       </button>
                     </div>
                   </td>
@@ -189,6 +198,7 @@ export default function CategoriesPage() {
         onClose={() => setIsModalOpen(false)}
         category={selectedCategory}
         onSave={handleSaveCategory}
+        loading={isSaving}
       />
     </div>
   );

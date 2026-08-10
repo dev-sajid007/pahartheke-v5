@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Save, X, Plus } from "lucide-react";
+import { ArrowLeft, Save, X, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
@@ -13,6 +13,7 @@ export default function NewProductPage() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
@@ -101,6 +102,7 @@ export default function NewProductPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsSaving(true);
       const data = new FormData();
       
       // Append basic fields
@@ -137,6 +139,8 @@ export default function NewProductPage() {
     } catch (error) {
       console.error("Failed to create product", error);
       toast.error(error.response?.data?.message || "Failed to create product");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -437,10 +441,11 @@ export default function NewProductPage() {
             </Link>
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-xl bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/20"
+              disabled={isSaving}
+              className="flex items-center gap-2 rounded-xl bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Save className="h-4 w-4" />
-              Save Product
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {isSaving ? "Saving..." : "Save Product"}
             </button>
           </div>
         </div>
