@@ -41,7 +41,7 @@ Completed a full production overhaul of **Pahartheke.com** — migrating the ent
 |-------|-------|
 | Backend | Express.js 4 & 5 + Mongoose 8 & 9 |
 | Frontend | Next.js 16 + React 19 + Redux Toolkit + Tailwind CSS 4 |
-| Database | MongoDB 7 (Docker) |
+| Database | MongoDB 7 |
 | CDN | Cloudinary |
 | Auth | JWT + Role-based + API Key |
 | AI | Model Context Protocol (55 POS automation tools) |

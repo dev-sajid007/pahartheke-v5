@@ -1,0 +1,53 @@
+Better version for future safety
+
+If you want stronger reusability, move normalization into a shared file:
+
+src/lib/api/transformers/category.js
+const BACKEND_API_URL = process.env.BACKEND_API_URL;
+
+function getImageUrl(path) {
+  if (!path) return null;
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  const baseUrl = BACKEND_API_URL?.replace(/\/api\/v\d+\/?$/, "") || "";
+  const cleanPath = String(path).replace(/^\/+/, "");
+
+  return `${baseUrl}/${cleanPath}`;
+}
+
+export function normalizeCategory(category) {
+  const parentId =
+    category?.parent_id === null || category?.parent_id === undefined
+      ? null
+      : Number(category.parent_id);
+
+  return {
+    id: Number(category?.id),
+    name: category?.name || "",
+    slug: category?.slug || "",
+    image: getImageUrl(category?.banner || category?.icon),
+    parentId,
+    level: parentId ? 2 : 1,
+  };
+}
+
+Then in route:
+
+import { normalizeCategory } from "@/lib/api/transformers/category";
+
+That is the cleaner long-term structure.
+
+Important note
+
+Your backend endpoint path may be one of these:
+
+${BACKEND_API_URL}/categories
+${BACKEND_API_URL}/category-list
+${BACKEND_API_URL}/get-categories
+
+I used:
+
+${BACKEND_API_URL}/categories

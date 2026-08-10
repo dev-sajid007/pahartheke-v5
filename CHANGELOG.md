@@ -8,6 +8,7 @@ All notable changes to the Pahartheke.com project.
 
 ### Added
 - `apps/pos/.env.example` with `PORT` and `NEXT_PUBLIC_API_URL`
+- `apps/storefront`, `apps/admin`, `apps/main-api` — e-commerce stack integrated into the monorepo
 
 ### Changed
 - POS frontend `dev`/`start` read `PORT` from `.env`/`.env.local` via new `apps/pos/scripts/run.mjs` wrapper (Next.js cannot read `PORT` from `.env` itself)
@@ -19,9 +20,7 @@ All notable changes to the Pahartheke.com project.
 - `GET /api/reports/daily-sales` ignored `startDate`/`endDate` — date-range queries now work
 
 ### Removed
-- `apps/main-api` — Express 4 e-commerce backend (removed from project)
-- `apps/admin` — Next.js admin CMS (removed from project)
-- `apps/storefront` — Next.js customer storefront (removed from project)
+- `docker/` — compose file and per-app Dockerfiles removed; MongoDB is now provided externally
 - `docker/compose.main.yml` — Main MongoDB compose file
 
 ### Changed

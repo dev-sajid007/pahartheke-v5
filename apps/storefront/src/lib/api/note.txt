@@ -1,0 +1,34 @@
+#reusable API functions
+
+Example responsibility:
+
+client.js → base fetch wrapper
+categories.js → get category list
+orders.js → submit order
+products.js → get products by category / product details
+
+#src/lib/api/client.js
+Use it.............................................
+
+import { apiGet, apiPost } from "@/lib/api/client";
+
+// GET
+const products = await apiGet("/products");
+
+// POST
+const order = await apiPost("/order/create", {
+  product_id: 1,
+  quantity: 2,
+});
+
+safe UI-side error handling:...............................
+import { apiGet } from "@/lib/api/client";
+
+try {
+  const data = await apiGet("/products");
+  console.log(data);
+} catch (error) {
+  console.error("API Error:", error.message);
+  console.error("Status:", error.status);
+  console.error("Details:", error.data);
+}

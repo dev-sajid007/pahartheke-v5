@@ -32,6 +32,9 @@ Three-tier POS & Inventory system with an Express 5 API, Next.js dashboard, Mong
 
 | Service | Port | Purpose |
 |---------|------|---------|
+| Storefront | 3000 | E-commerce storefront (Next.js) |
+| Admin | 3001 | Admin CMS (Next.js) |
+| Main API | 5000 | E-commerce API (Express 4, own Mongo) |
 | POS Dashboard | 4000 | POS terminal & inventory management |
 | POS API | 4001 | All POS CRUD + ecommerce public API |
 | MongoDB (POS) | 27018 | `pahar_pos_v5` database |
@@ -53,19 +56,20 @@ Expense
 ```
 pahartheke-v5/
 ├── apps/
+│   ├── storefront/  # Next.js storefront (:3000)
+│   ├── admin/       # Next.js admin CMS (:3001)
+│   ├── main-api/    # Express 4 e-commerce API (:5000)
 │   ├── pos/         # Next.js dashboard
 │   ├── pos-api/     # Express 5 API
 │   │   └── src/
 │       │   ├── modules/   # 15 feature modules (MVC)
-│   │       ├── middleware/ # Auth, roles, error handling
-│   │       ├── config/    # DB + Cloudinary
-│   │       └── routes/    # Route aggregator
+│       │       ├── middleware/ # Auth, roles, error handling
+│       │       ├── config/    # DB + Cloudinary
+│       │       └── routes/    # Route aggregator
 │   └── mcp/         # MCP AI server (Streamable HTTP :4002)
 │       ├── tools/   # 55 MCP tools
 │       ├── services/ # Business logic
 │       └── scripts/  # Import utilities
-├── docker/
-│   └── compose.pos.yml
 ├── package.json
 ├── pnpm-workspace.yaml
 └── turbo.json

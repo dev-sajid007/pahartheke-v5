@@ -8,6 +8,9 @@
     "dev:pos-backend": "pnpm --filter pahar-pos-backend dev",
     "dev:pos-frontend": "pnpm --filter pahar-pos-frontend dev",
     "dev:mcp": "pnpm --filter pahar-pos-mcp-server start",
+    "dev:storefront": "pnpm --filter pahar-storefront dev",
+    "dev:main-api": "pnpm --filter pahar-main-api dev",
+    "dev:admin": "pnpm --filter pahar-admin dev",
     "clean": "pnpm -r exec rm -rf .next node_modules"
   },
   "packageManager": "pnpm@11.15.1",

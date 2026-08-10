@@ -7,9 +7,10 @@ pahartheke-v5/
 ├── apps/
 │   ├── pos/            # POS dashboard (port 4000)
 │   ├── pos-api/        # Express 5 backend (port 4001)
-│   └── mcp/            # MCP AI server (Streamable HTTP :4002)
-├── docker/
-│   └── compose.pos.yml # MongoDB (port 27018)
+│   ├── mcp/            # MCP AI server (Streamable HTTP :4002)
+│   ├── storefront/     # E-commerce storefront (port 3000)
+│   ├── admin/          # Admin CMS (port 3001)
+│   └── main-api/       # E-commerce API (port 5000)
 ├── package.json
 ├── pnpm-workspace.yaml
 └── turbo.json
@@ -20,8 +21,7 @@ pahartheke-v5/
 1. Fork the repo
 2. `pnpm install` at root
 3. Copy `.env.example` → `.env` for each service
-4. `docker compose -f docker/compose.pos.yml up -d`
-5. `pnpm dev`
+4. `pnpm dev`
 
 ## Coding Standards
 
