@@ -14,7 +14,7 @@ module.exports = {
       name: "pos-frontend",
       cwd: "./apps/pos",
       script: "node",
-      args: "node_modules/next/dist/bin/next start -p 4000",
+      args: "scripts/run.mjs start",
       autorestart: true,
       max_restarts: 10,
       kill_timeout: 8000,

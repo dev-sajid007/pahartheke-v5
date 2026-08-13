@@ -20,7 +20,7 @@ pahartheke-v5/
 
 1. Fork the repo
 2. `pnpm install` at root
-3. Copy `.env.example` → `.env` for each service
+3. Follow `DEVELOPMENT.md` for env setup
 4. `pnpm dev`
 
 ## Coding Standards

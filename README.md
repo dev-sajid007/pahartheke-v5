@@ -27,10 +27,13 @@ apps/
 
 ```bash
 pnpm install
+docker compose up -d
 pnpm dev
 ```
 
-> MongoDB 7 must be running and reachable at the `MONGO_URI` in `apps/pos-api/.env` (default `mongodb://localhost:27018/pahar_pos_v5`).
+See `DEVELOPMENT.md` for full local setup.
+
+> MongoDB 7 runs via `docker-compose.yml` and must be reachable at the `MONGO_URI` in `apps/pos-api/.env` (default `mongodb://127.0.0.1:27017/pahar_pos_v5`).
 
 | Service | URL |
 |---------|-----|
@@ -47,7 +50,7 @@ pnpm dev
 
 | File | Contents |
 |------|----------|
-| `RUN_DEV.md` | Development setup (env files, start services, troubleshooting) |
+| `DEVELOPMENT.md` | Main development guide (env files, start services, troubleshooting) |
 | `RUN_PROD.md` | Production deployment (PM2, Nginx, SSL, backup) |
 | `ARCHITECTURE.md` | System architecture, data flows, database schema |
 | `API.md` | All API endpoints documented |

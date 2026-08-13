@@ -17,3 +17,4 @@ next-env.d.ts
 *.pem
 coverage/
 .nyc_output/
+session-ses_*.md

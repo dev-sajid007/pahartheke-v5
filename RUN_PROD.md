@@ -26,7 +26,7 @@ Copy `.env.example` → `.env` for each service and set production values.
 ```
 PORT=4001
 NODE_ENV=production
-MONGO_URI=mongodb://<user>:<pass>@localhost:27018/pahar_pos_v5?authSource=admin
+MONGO_URI=mongodb://<user>:<pass>@localhost:27017/pahar_pos_v5?authSource=admin
 JWT_SECRET=<generate-strong-secret>
 ECOMMERCE_API_KEY=<generate-unique-key>
 CORS_ORIGIN=https://pos.yourdomain.com,https://yourdomain.com,https://admin.yourdomain.com
@@ -41,7 +41,7 @@ NEXT_PUBLIC_API_URL=https://pos-api.yourdomain.com/api
 **`apps/mcp/.env`**
 ```
 PORT=4002
-MONGO_URI=mongodb://<user>:<pass>@localhost:27018/pahar_pos_v5?authSource=admin
+MONGO_URI=mongodb://<user>:<pass>@localhost:27017/pahar_pos_v5?authSource=admin
 JWT_SECRET=<same-as-pos-api>
 ECOMMERCE_API_KEY=<same-as-pos-api>
 ```
@@ -82,10 +82,16 @@ JWT_SECRET=<generate-strong-secret>
 
 ## MongoDB
 
-- POS (`pos-api`, `mcp`) read `MONGO_URI` from `apps/pos-api/.env` / `apps/mcp/.env` (default `mongodb://localhost:27018/pahar_pos_v5`).
+- POS (`pos-api`, `mcp`) read `MONGO_URI` from `apps/pos-api/.env` / `apps/mcp/.env` (default `mongodb://127.0.0.1:27017/pahar_pos_v5`).
 - main-api reads `MONGODB_URI` from `apps/main-api/.env` (its own database).
 
-Run MongoDB yourself (systemd service, managed DB, or Atlas) — it is not bundled with this project.
+Run MongoDB yourself (systemd service, managed DB, or Atlas). On the VPS you can also use the bundled `docker-compose.yml` (mongo:7, port `27017`, persistent volume):
+
+```bash
+docker compose up -d
+```
+
+> Add MongoDB auth (`MONGO_INITDB_ROOT_USERNAME`/`MONGO_INITDB_ROOT_PASSWORD`) to `docker-compose.yml` before exposing it to the network.
 
 ---
 
@@ -96,28 +102,28 @@ pnpm build
 npm install -g pm2
 ```
 
-A ready-made `ecosystem.config.cjs` (pos-backend, pos-frontend) is included. Extend it with the other services:
+The ready-made `ecosystem.config.cjs` at the repo root already includes all services (pos-backend, pos-frontend, storefront, admin, main-api, mcp):
 
 ```js
 module.exports = {
   apps: [
     { name: 'pos-backend', cwd: './apps/pos-api', script: 'node', args: 'server.js', env: { NODE_ENV: 'production' } },
-    { name: 'pos-frontend', cwd: './apps/pos', script: 'node', args: 'node_modules/next/dist/bin/next start -p 4000', env: { NODE_ENV: 'production' } },
-    { name: 'storefront', cwd: './apps/storefront', script: 'node_modules/next/dist/bin/next', args: 'start -p 3000', env: { NODE_ENV: 'production' } },
-    { name: 'admin', cwd: './apps/admin', script: 'node_modules/next/dist/bin/next', args: 'start -p 3001', env: { NODE_ENV: 'production' } },
+    { name: 'pos-frontend', cwd: './apps/pos', script: 'node', args: 'scripts/run.mjs start', env: { NODE_ENV: 'production' } },
+    { name: 'storefront', cwd: './apps/storefront', script: 'node', args: 'node_modules/next/dist/bin/next start -p 3000', env: { NODE_ENV: 'production' } },
+    { name: 'admin', cwd: './apps/admin', script: 'node', args: 'node_modules/next/dist/bin/next start -p 3001', env: { NODE_ENV: 'production' } },
     { name: 'main-api', cwd: './apps/main-api', script: 'node', args: 'src/server.js', env: { NODE_ENV: 'production' } },
     { name: 'mcp', cwd: './apps/mcp', script: 'node', args: 'dist/index.js', env: { NODE_ENV: 'production' } },
   ],
 };
 ```
 
+> `pos-frontend` runs through `scripts/run.mjs`, which reads `PORT` from `.env.local` (set `PORT=4000` there in production). MCP must be built first (`pnpm --filter pahar-pos-mcp-server build`); `pnpm build` at the root already compiles it.
+
 ```bash
 pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
-
-> MCP must be built first (`pnpm --filter pahar-pos-mcp-server build`); `pnpm build` at the root already compiles it.
 
 ---
 
@@ -208,5 +214,5 @@ sudo certbot --nginx \
 ## Backup
 
 ```bash
-mongodump --uri "mongodb://localhost:27018/pahar_pos_v5" --out /data/backup/$(date +%Y%m%d) --gzip
+mongodump --uri "mongodb://localhost:27017/pahar_pos_v5" --out /data/backup/$(date +%Y%m%d) --gzip
 ```
