@@ -5,12 +5,14 @@ import { Plus, Search, Filter, MoreVertical, Edit, Trash2, Package, ChevronLeft,
 import Link from "next/link";
 import api from "@/lib/axios";
 import { useToast } from "@/components/ui/toast";
+import { getCategoryPath } from "@/lib/categoryTree";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function ProductsPage() {
   const toast = useToast();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +43,19 @@ export default function ProductsPage() {
   useEffect(() => {
     fetchProducts();
   }, [currentPage]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get("/categories");
+      if (res.data.data) setCategories(res.data.data);
+    } catch (error) {
+      console.error("Failed to fetch categories", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleDeleteProduct = async (id) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
@@ -162,7 +177,7 @@ export default function ProductsPage() {
                             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-200">
                               {product.image ? (
                                 <img 
-                                  src={product.image?.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${product.image || ''}`} 
+                                  src={product.image?.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:7104'}${product.image || ''}`} 
                                   alt={product.name} 
                                   className="h-full w-full object-cover" 
                                 />
@@ -180,7 +195,9 @@ export default function ProductsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <span className="inline-flex items-center rounded-md bg-sidebar-accent px-2 py-1 text-xs font-medium text-sidebar-foreground">
-                            {product.category?.name || "Uncategorized"}
+                            {product.category
+                              ? getCategoryPath(categories, product.category)
+                              : "Uncategorized"}
                           </span>
                         </td>
                         <td className="px-6 py-4">

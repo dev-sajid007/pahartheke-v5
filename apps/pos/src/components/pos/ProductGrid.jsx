@@ -1,12 +1,26 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Package, Search, ChevronDown, Loader2 } from "lucide-react";
+import { buildCategoryTree, flattenCategoryTree, getDescendantIds } from "@/lib/categoryTree";
 
 export default function ProductGrid({ products, categories = [], onAddToCart, loadMore, isLoadingMore, hasMore, priceField = "salePrice" }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const sentinelRef = useRef(null);
+
+  const categoryOptions = useMemo(
+    () => flattenCategoryTree(buildCategoryTree(categories)),
+    [categories]
+  );
+
+  const selectedCategoryIds = useMemo(() => {
+    if (selectedCategory === "all") return null;
+    return new Set([
+      selectedCategory,
+      ...getDescendantIds(categories, selectedCategory),
+    ]);
+  }, [categories, selectedCategory]);
 
   useEffect(() => {
     if (!loadMore || !hasMore) return;
@@ -34,8 +48,8 @@ export default function ProductGrid({ products, categories = [], onAddToCart, lo
     
     const matchesCategory = 
       selectedCategory === "all" || 
-      product.category === selectedCategory || 
-      product.category?._id === selectedCategory;
+      selectedCategoryIds?.has(product.category) || 
+      selectedCategoryIds?.has(product.category?._id);
       
     return matchesSearch && matchesCategory;
   });
@@ -63,9 +77,9 @@ export default function ProductGrid({ products, categories = [], onAddToCart, lo
               className="w-full appearance-none rounded-xl border border-border bg-card px-4 py-2.5 text-xs text-foreground shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
             >
               <option value="all">All Categories</option>
-              {categories.map((cat) => (
+              {categoryOptions.map((cat) => (
                 <option key={cat._id} value={cat._id}>
-                  {cat.name}
+                  {"— ".repeat(cat.depth)}{cat.name}
                 </option>
               ))}
             </select>
@@ -106,7 +120,7 @@ export default function ProductGrid({ products, categories = [], onAddToCart, lo
                 <div className="aspect-square w-full flex items-center justify-center bg-slate-50 rounded-lg mb-2 overflow-hidden max-h-[90px]">
                   {product.image ? (
                     <img 
-                      src={product.image.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}${product.image}`} 
+                      src={product.image.startsWith('http') ? product.image : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:7104'}${product.image}`} 
                       alt={product.name} 
                       className="h-full w-full object-cover transition-transform group-hover:scale-110" 
                     />

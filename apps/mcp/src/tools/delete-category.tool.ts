@@ -3,7 +3,7 @@ import type { ToolDefinition } from "../types.js";
 
 export const deleteCategoryTool: ToolDefinition = {
   name: "delete_category",
-  description: "Delete a product category from the Pahar POS system by ID or name",
+  description: "Delete a product category from the Pahar POS system by ID or name. A category that still has subcategories cannot be deleted.",
   inputSchema: {
     type: "object",
     properties: {
@@ -23,7 +23,7 @@ export const deleteCategoryTool: ToolDefinition = {
         content: [
           {
             type: "text",
-            text: `Category not found: "${idOrName}"`,
+            text: result.message || `Category not found: "${idOrName}"`,
           },
         ],
       };

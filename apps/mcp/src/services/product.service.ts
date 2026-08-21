@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { connectDB } from "../utils/db.js";
+import { getDescendantIds } from "./category.service.js";
 
 interface IProductVariant {
   variantId?: string;
@@ -64,7 +65,10 @@ export class ProductService {
   static async getAllProducts(filters: any = {}): Promise<any[]> {
     await connectDB();
     const query: Record<string, any> = { status: true };
-    if (filters.category) query.category = filters.category;
+    if (filters.category) {
+      const descendantIds = await getDescendantIds(filters.category);
+      query.category = { $in: [filters.category, ...descendantIds] };
+    }
     if (filters.search) query.name = { $regex: filters.search, $options: "i" };
     return await Product.find(query).populate("category", "name").sort({ name: 1 }).lean();
   }

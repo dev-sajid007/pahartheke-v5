@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Plus, Search, Edit, Trash2, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import CategoryModal from "@/components/categories/CategoryModal";
 import api from "@/lib/axios";
 import { useToast } from "@/components/ui/toast";
+import { buildCategoryTree, flattenCategoryTree, getCategoryPath } from "@/lib/categoryTree";
 
 export default function CategoriesPage() {
   const toast = useToast();
@@ -82,9 +83,21 @@ export default function CategoriesPage() {
     }
   };
 
-  const filteredCategories = categories.filter(c => 
-    (c.name || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCategories = useMemo(() => {
+    const query = searchQuery.toLowerCase();
+    const flat = flattenCategoryTree(buildCategoryTree(categories));
+
+    return flat.filter((c) => {
+      const searchable = [
+        c.name,
+        getCategoryPath(categories, c),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return searchable.includes(query);
+    });
+  }, [categories, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -148,7 +161,19 @@ export default function CategoriesPage() {
                       <div className="h-10 w-10 rounded-lg bg-sidebar-accent" />
                     )}
                   </td>
-                  <td className="px-6 py-4 font-medium text-foreground">{category.name}</td>
+                  <td className="px-6 py-4 font-medium text-foreground">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sidebar-foreground/40 select-none" aria-hidden>
+                        {"— ".repeat(category.depth)}
+                      </span>
+                      <span>{category.name}</span>
+                      {category.depth === 0 && category.children?.length > 0 && (
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                          {category.children.length} sub{category.children.length > 1 ? "s" : ""}
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4">{category.description || "-"}</td>
                   <td className="px-6 py-4">
                     {category.status ? (
@@ -197,6 +222,7 @@ export default function CategoriesPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         category={selectedCategory}
+        categories={categories}
         onSave={handleSaveCategory}
         loading={isSaving}
       />

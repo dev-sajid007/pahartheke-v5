@@ -1,7 +1,8 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { buildCategoryTree, flattenCategoryTree } from "@/lib/categoryTree";
 
 export default function ProductModal({ isOpen, onClose, product = null, categories = [], onSave }) {
   const [formData, setFormData] = useState(() => product ? {
@@ -28,6 +29,11 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
     hasVariants: false,
     variants: [],
   });
+
+  const categoryOptions = useMemo(
+    () => flattenCategoryTree(buildCategoryTree(categories)),
+    [categories]
+  );
 
   if (!isOpen) return null;
 
@@ -131,8 +137,8 @@ export default function ProductModal({ isOpen, onClose, product = null, categori
                 className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">Select Category</option>
-                {categories.map(cat => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                {categoryOptions.map(cat => (
+                  <option key={cat._id} value={cat._id}>{"— ".repeat(cat.depth)}{cat.name}</option>
                 ))}
               </select>
             </div>

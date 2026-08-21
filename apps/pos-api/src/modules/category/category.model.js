@@ -5,7 +5,6 @@ const categorySchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
 
@@ -20,6 +19,18 @@ const categorySchema = new mongoose.Schema(
       default: "",
     },
 
+    description: {
+      type: String,
+      default: "",
+    },
+
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      default: null,
+      index: true,
+    },
+
     status: {
       type: Boolean,
       default: true,
@@ -29,6 +40,8 @@ const categorySchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+categorySchema.index({ parent: 1, name: 1 }, { unique: true });
 
 const Category = mongoose.model(
   "Category",

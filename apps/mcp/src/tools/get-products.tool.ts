@@ -3,11 +3,11 @@ import type { ToolDefinition } from "../types.js";
 
 export const getProductsTool: ToolDefinition = {
   name: "get_products",
-  description: "Retrieve active products from the Pahar POS system with optional filtering by category or search term",
+  description: "Retrieve active products from the Pahar POS system with optional filtering by category or search term. Filtering by a category also includes its subcategories.",
   inputSchema: {
     type: "object",
     properties: {
-      category: { type: "string", description: "Optional MongoDB ObjectId of the category to filter by" },
+      category: { type: "string", description: "Optional MongoDB ObjectId of the category to filter by (includes its subcategories)" },
       search: { type: "string", description: "Optional search term to filter products by name" },
     },
   },

@@ -2,17 +2,28 @@
 
 import { X, Upload, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { buildCategoryTree, flattenCategoryTree, getDescendantIds } from "@/lib/categoryTree";
 
-export default function CategoryModal({ isOpen, onClose, category = null, onSave, loading = false }) {
+export default function CategoryModal({ isOpen, onClose, category = null, categories = [], onSave, loading = false }) {
   const [formData, setFormData] = useState({
     name: category?.name || "",
     description: category?.description || "",
+    parent: category?.parent?._id || category?.parent || "",
     status: category?.status !== undefined ? category.status : true,
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(category?.image || null);
 
   if (!isOpen) return null;
+
+  const excludedIds = new Set(
+    category
+      ? [category._id, ...getDescendantIds(categories, category._id)]
+      : []
+  );
+  const parentOptions = flattenCategoryTree(buildCategoryTree(categories)).filter(
+    (cat) => !excludedIds.has(cat._id)
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,6 +48,7 @@ export default function CategoryModal({ isOpen, onClose, category = null, onSave
     const data = new FormData();
     data.append("name", formData.name);
     data.append("description", formData.description);
+    data.append("parent", formData.parent);
     data.append("status", formData.status);
     if (imageFile) {
       data.append("image", imageFile);
@@ -96,6 +108,23 @@ export default function CategoryModal({ isOpen, onClose, category = null, onSave
               className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               placeholder="e.g., Electronics"
             />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-sidebar-foreground">Parent Category</label>
+            <select
+              name="parent"
+              value={formData.parent}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">None (Top Level)</option>
+              {parentOptions.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {"— ".repeat(cat.depth)}{cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ArrowLeft, Save, X, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import api from "@/lib/axios";
 import { useToast } from "@/components/ui/toast";
+import { buildCategoryTree, flattenCategoryTree } from "@/lib/categoryTree";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function EditProductPage() {
           variants: product.variants || [],
         });
         if (product.image) {
-          const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+          const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:7104';
           setImagePreview(product.image.startsWith('http') ? product.image : `${baseUrl}${product.image}`);
         }
       }
@@ -72,6 +73,11 @@ export default function EditProductPage() {
   useEffect(() => {
     fetchData();
   }, [id]);
+
+  const categoryOptions = useMemo(
+    () => flattenCategoryTree(buildCategoryTree(categories)),
+    [categories]
+  );
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -244,8 +250,8 @@ export default function EditProductPage() {
                 className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">Select Category</option>
-                {categories.map(cat => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                {categoryOptions.map(cat => (
+                  <option key={cat._id} value={cat._id}>{"— ".repeat(cat.depth)}{cat.name}</option>
                 ))}
               </select>
             </div>

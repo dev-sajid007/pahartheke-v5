@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Category from "../category/category.model.js";
+import { getDescendantIds } from "../category/category.helper.js";
 import Product from "../product/product.model.js";
 import Sale from "../sale/sale.model.js";
 import Customer from "../customer/customer.model.js";
@@ -14,7 +15,9 @@ const generateInvoice = () => {
 };
 
 export const getCategories = asyncHandler(async (req, res) => {
-  const categories = await Category.find({ status: true }).sort({ createdAt: -1 });
+  const categories = await Category.find({ status: true })
+    .populate("parent", "name slug")
+    .sort({ createdAt: -1 });
 
   return apiResponse({
     res,
@@ -29,7 +32,8 @@ export const getProducts = asyncHandler(async (req, res) => {
   if (category) {
     const cat = await Category.findOne({ slug: category });
     if (cat) {
-      filter.category = cat._id;
+      const descendantIds = await getDescendantIds(cat._id);
+      filter.category = { $in: [cat._id, ...descendantIds] };
     } else {
       return apiResponse({ res, data: [] });
     }
