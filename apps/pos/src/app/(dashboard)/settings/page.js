@@ -23,7 +23,7 @@ export default function SettingsPage() {
   const [logoPreview, setLogoPreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace("/api", "");
+  const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:7104/api").replace("/api", "");
 
   const fetchSettings = async () => {
     try {

@@ -2,7 +2,7 @@ export const config = {
   site: {
     name: 'Pahar Theke',
     description: 'Your trusted online shopping destination',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:7100',
   },
   api: {
     baseUrl: process.env.NEXT_PUBLIC_API_URL || '/api',

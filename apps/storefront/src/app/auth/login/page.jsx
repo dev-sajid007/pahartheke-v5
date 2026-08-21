@@ -40,7 +40,7 @@ export default function LoginPage() {
 
       const role = json.data.user.role
       if (role === "admin") {
-        router.push("http://localhost:3001")
+        router.push("http://localhost:7101")
       } else {
         router.push("/")
       }

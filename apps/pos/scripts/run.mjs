@@ -20,7 +20,7 @@ const readPort = (file) => {
   return null;
 };
 
-const port = readPort(".env.local") || readPort(".env") || "7100";
+const port = readPort(".env.local") || readPort(".env") || "7103";
 const mode = process.argv[2] === "start" ? "start" : "dev";
 const nextBin = join(dir, "..", "node_modules", "next", "dist", "bin", "next");
 

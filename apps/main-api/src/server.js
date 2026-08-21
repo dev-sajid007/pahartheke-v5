@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(helmet());
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:7100,http://localhost:7101')
   .split(',')
   .map(s => s.trim());
 app.use(cors({

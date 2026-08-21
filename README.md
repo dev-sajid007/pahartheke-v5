@@ -13,12 +13,12 @@ Point-of-Sale and Inventory Management system migrated from Laravel/PHP to Node.
 
 ```
 apps/
-├── storefront/     Next.js 16  :3000   E-commerce storefront
-├── admin/          Next.js 16  :3001   Admin CMS
-├── main-api/       Express 4   :5000   E-commerce API (own Mongo via apps/main-api/.env)
-├── pos/            Next.js 16  :4000   POS Dashboard
-├── pos-api/        Express 5   :4001   POS + inventory API
-└── mcp/            MCP server  :4002   Streamable HTTP (55 AI tools)
+├── storefront/     Next.js 16  :7100   E-commerce storefront
+├── admin/          Next.js 16  :7101   Admin CMS
+├── main-api/       Express 4   :7102   E-commerce API (own Mongo via apps/main-api/.env)
+├── pos/            Next.js 16  :7103   POS Dashboard
+├── pos-api/        Express 5   :7104   POS + inventory API
+└── mcp/            MCP server  :7105   Streamable HTTP (55 AI tools)
 ```
 
 ---
@@ -37,12 +37,12 @@ See `DEVELOPMENT.md` for full local setup.
 
 | Service | URL |
 |---------|-----|
-| Storefront | http://localhost:3000 |
-| Admin | http://localhost:3001 |
-| Main API | http://localhost:5000 |
-| POS Dashboard | http://localhost:4000 |
-| POS API | http://localhost:4001 |
-| MCP Server | http://localhost:4002/mcp |
+| Storefront | http://localhost:7100 |
+| Admin | http://localhost:7101 |
+| Main API | http://localhost:7102 |
+| POS Dashboard | http://localhost:7103 |
+| POS API | http://localhost:7104 |
+| MCP Server | http://localhost:7105/mcp |
 
 ---
 
@@ -50,6 +50,7 @@ See `DEVELOPMENT.md` for full local setup.
 
 | File | Contents |
 |------|----------|
+| `RUN_LOCAL.md` | Quick local setup: env files, MongoDB, seeding, service URLs |
 | `DEVELOPMENT.md` | Main development guide (env files, start services, troubleshooting) |
 | `RUN_PROD.md` | Production deployment (PM2, Nginx, SSL, backup) |
 | `ARCHITECTURE.md` | System architecture, data flows, database schema |

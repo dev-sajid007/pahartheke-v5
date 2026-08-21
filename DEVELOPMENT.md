@@ -6,6 +6,8 @@
 - pnpm 11
 - MongoDB 7
 
+> See `RUN_LOCAL.md` for a quick step-by-step local setup (env files, MongoDB, seeding, and service URLs).
+
 ## Environment Files
 
 Copy the example env files for the services you plan to run:
@@ -13,18 +15,18 @@ Copy the example env files for the services you plan to run:
 ```bash
 cp apps/pos-api/.env.example apps/pos-api/.env
 cp apps/mcp/.env.example apps/mcp/.env
-cp apps/pos/.env.example apps/pos/.env
-cp apps/storefront/.env.example apps/storefront/.env
+cp apps/pos/.env.example apps/pos/.env.local
+cp apps/storefront/.env.example apps/storefront/.env.local
 cp apps/main-api/.env.example apps/main-api/.env
 cp apps/admin/.env.example apps/admin/.env.local
 ```
 
 Notes:
 
-- `apps/pos/.env` should include `PORT=4000` and `NEXT_PUBLIC_API_URL=http://localhost:4001/api`.
-- The POS frontend uses `apps/pos/scripts/run.mjs` so it can read `PORT` from `.env` or `.env.local` before starting Next.js.
-- `apps/admin/.env.local` should set `NEXT_PUBLIC_API_URL=http://localhost:5000/api`.
-- `apps/storefront/.env` controls the storefront proxy URLs and checkout target.
+- `apps/pos/.env.local` should include `PORT=7103` and `NEXT_PUBLIC_API_URL=http://localhost:7104/api`.
+- The POS frontend uses `apps/pos/scripts/run.mjs` so it can read `PORT` from `.env.local` or `.env` before starting Next.js.
+- `apps/admin/.env.local` should set `NEXT_PUBLIC_API_URL=http://localhost:7102/api`.
+- `apps/storefront/.env.local` controls the storefront proxy URLs and checkout target.
 
 ## Install Dependencies
 
@@ -42,7 +44,7 @@ pnpm install
 Default POS database:
 
 ```text
-mongodb://localhost:27018/pahar_pos_v5
+mongodb://127.0.0.1:27017/pahar_pos_v5
 ```
 
 ## Seed Admin User
@@ -64,12 +66,12 @@ pnpm dev
 
 | Service | Port | URL |
 |---------|------|-----|
-| Storefront | 3000 | http://localhost:3000 |
-| Admin | 3001 | http://localhost:3001 |
-| Main API | 5000 | http://localhost:5000 |
-| POS Dashboard | 4000 | http://localhost:4000 |
-| POS API | 4001 | http://localhost:4001 |
-| MCP Server | 4002 | http://localhost:4002/mcp |
+| Storefront | 7100 | http://localhost:7100 |
+| Admin | 7101 | http://localhost:7101 |
+| Main API | 7102 | http://localhost:7102 |
+| POS Dashboard | 7103 | http://localhost:7103 |
+| POS API | 7104 | http://localhost:7104 |
+| MCP Server | 7105 | http://localhost:7105/mcp |
 
 ### Individual Services
 
@@ -95,21 +97,21 @@ pnpm clean
 ### Port in use
 
 ```bash
-lsof -i :4000
+lsof -i :7103
 kill -9 <PID>
 ```
 
 ### Frontend cannot reach API
 
-- Check `NEXT_PUBLIC_API_URL` in `apps/pos/.env`.
+- Check `NEXT_PUBLIC_API_URL` in `apps/pos/.env.local`.
 - Check `NEXT_PUBLIC_API_URL` in `apps/admin/.env.local`.
-- Check `BACKEND_API_URL` and checkout env vars in `apps/storefront/.env`.
+- Check `BACKEND_API_URL` and checkout env vars in `apps/storefront/.env.local`.
 
 ### MongoDB connection fails
 
 - Verify `MONGO_URI` in `apps/pos-api/.env`.
 - Verify `MONGODB_URI` in `apps/main-api/.env`.
-- Make sure MongoDB is running on port `27018` for POS.
+- Make sure MongoDB is running on port `27017` for POS (`docker compose up -d`).
 
 ### Reset local state
 

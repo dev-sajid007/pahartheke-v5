@@ -12,7 +12,7 @@ export default function PurchaseViewPage() {
   const [settings, setSettings] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace("/api", "");
+  const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:7104/api").replace("/api", "");
 
   const fetchSettings = async () => {
     try {

@@ -20,10 +20,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const defaultOrigins = [
   "https://pos.pahartheke.com",
-  "http://localhost:3000",
-  "http://localhost:3001",
   "http://localhost:7100",
-  "http://localhost:8000",
+  "http://localhost:7101",
+  "http://localhost:7103",
+  "http://localhost:7104",
   "http://pos.pahartheke.com",
   "https://v2.pahartheke.com"
 ];
