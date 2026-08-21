@@ -7,16 +7,19 @@ const DISCOUNT_TYPES = ["None", "Percentage", "Fixed"];
 
 function applyItemDiscount(price, qty, discountValue, discountType) {
   const baseTotal = price * qty;
-  if (!discountType || discountType === "None") return baseTotal;
-  
-  if (discountType === "Percentage") {
+  let total;
+  if (!discountType || discountType === "None") {
+    total = baseTotal;
+  } else if (discountType === "Percentage") {
     const pct = parseFloat(discountValue) || 0;
-    return baseTotal * (1 - pct / 100);
+    total = baseTotal * (1 - pct / 100);
   } else if (discountType === "Fixed") {
     const amt = parseFloat(discountValue) || 0;
-    return Math.max(0, baseTotal - amt);
+    total = Math.max(0, baseTotal - amt);
+  } else {
+    total = baseTotal;
   }
-  return baseTotal;
+  return Math.round(total * 100) / 100;
 }
 
 export default function CartPanel({ 

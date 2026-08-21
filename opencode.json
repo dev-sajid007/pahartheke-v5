@@ -1,9 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "mcp-7102": {
+    "pahar-pos-mcp": {
       "type": "remote",
-      "url": "http://localhost:7102/mcp",
+      "url": "http://localhost:7105/mcp",
       "enabled": true
     }
   }

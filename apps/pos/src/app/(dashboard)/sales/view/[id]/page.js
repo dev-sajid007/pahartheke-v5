@@ -186,7 +186,7 @@ export default function SaleViewPage() {
                   } else if (item.itemDiscountType === "Fixed") {
                     discAmount = item.itemDiscount || 0;
                   }
-                  const lineTotal = baseTotal - discAmount;
+                  const lineTotal = Math.round((baseTotal - discAmount) * 100) / 100;
                   return (
                     <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
                       <td className="px-4 py-2">
